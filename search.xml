@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>攻防世界-ROP(1)</title>
+      <link href="2020/10/01/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C-ROP-1/"/>
+      <url>2020/10/01/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C-ROP-1/</url>
+      
+        <content type="html"><![CDATA[<h1 id="攻防世界-hello-pwn"><a href="#攻防世界-hello-pwn" class="headerlink" title="攻防世界-hello_pwn"></a>攻防世界-hello_pwn</h1><h2 id="1、checksec"><a href="#1、checksec" class="headerlink" title="1、checksec"></a>1、checksec</h2><p><img src="C:\Users\Niebelungen\Desktop\截图\hello-checksec.png" alt=""></p><p>可以看到保护机制NX开启。</p><h2 id="2、IDA分析"><a href="#2、IDA分析" class="headerlink" title="2、IDA分析"></a>2、IDA分析</h2><p><img src="C:\Users\Niebelungen\Desktop\截图\IDA-1.png" alt=""></p><p>read读取一个16字节的数据，放入unk_601068，查看sub_4000686()</p><p><img src="C:\Users\Niebelungen\Desktop\截图\IDA-3.png" alt=""></p><p>可以发现flag。只有if条件成立时，才能得到flag。</p><p><img src="C:\Users\Niebelungen\Desktop\截图\IDA-2.png" alt=""></p><p>dword_60106c与unk_601068的偏移为4，只需让数据溢出到dword_60106c，使if条件成立即可。</p><h2 id="3、构建脚本"><a href="#3、构建脚本" class="headerlink" title="3、构建脚本"></a>3、构建脚本</h2><p><img src="C:\Users\Niebelungen\Desktop\截图\python.png" alt=""></p><h2 id="4、取得flag"><a href="#4、取得flag" class="headerlink" title="4、取得flag"></a>4、取得flag</h2><p><img src="C:\Users\Niebelungen\Desktop\截图\flagget.png" alt=""></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> CTF-PWN </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CTF-PWN </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>The Wolve Storm</title>
       <link href="2020/10/01/The-Wolve-Storm/"/>
       <url>2020/10/01/The-Wolve-Storm/</url>

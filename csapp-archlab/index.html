@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">CSAPP Archlab - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="CSAPP Archlab" />
+<meta property="og:description" content="
+    CSAPP-Archlab" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/csapp-archlab/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-02-08T00:55:45+08:00" />
+<meta property="article:modified_time" content="2021-02-08T00:55:45+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="CSAPP Archlab"/>
+<meta name="twitter:description" content="
+    CSAPP-Archlab"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/csapp-archlab/" /><link rel="prev" href="http://example.org/challenges-100-week-5/" /><link rel="next" href="http://example.org/challenges-100-week-6/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "CSAPP Archlab",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/csapp-archlab\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  2376 ,
+        "url": "http:\/\/example.org\/csapp-archlab\/","datePublished": "2021-02-08T00:55:45+08:00","dateModified": "2021-02-08T00:55:45+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#part-a">part A</a>
+      <ul>
+        <li><a href="#sum_list">sum_list</a></li>
+        <li><a href="#rsum_list">rsum_list</a></li>
+        <li><a href="#copy_block">copy_block</a></li>
+      </ul>
+    </li>
+    <li><a href="#part-b">part B</a></li>
+    <li><a href="#part-c">part C</a></li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">CSAPP Archlab</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-02-08">2021-02-08</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2021-02-08">2021-02-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2376 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 5 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#part-a">part A</a>
+      <ul>
+        <li><a href="#sum_list">sum_list</a></li>
+        <li><a href="#rsum_list">rsum_list</a></li>
+        <li><a href="#copy_block">copy_block</a></li>
+      </ul>
+    </li>
+    <li><a href="#part-b">part B</a></li>
+    <li><a href="#part-c">part C</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="csapp-archlab" class="headerLink">
+    <a href="#csapp-archlab" class="header-mark"></a>CSAPP-Archlab</h1><h2 id="part-a" class="headerLink">
+    <a href="#part-a" class="header-mark"></a>part A</h2><p>使用Y86-64指令集实现<code>example.c</code>中的函数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* 
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Architecture Lab: Part A 
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * High level specs for the functions that the students will rewrite
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * in Y86-64 assembly language
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/* $begin examples */</span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* linked list element */</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">ELE</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">long</span> <span class="n">val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">ELE</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="o">*</span><span class="n">list_ptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/* sum_list - Sum the elements of a linked list */</span>
+</span></span><span class="line"><span class="cl"><span class="kt">long</span> <span class="nf">sum_list</span><span class="p">(</span><span class="n">list_ptr</span> <span class="n">ls</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">long</span> <span class="n">val</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="p">(</span><span class="n">ls</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">val</span> <span class="o">+=</span> <span class="n">ls</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ls</span> <span class="o">=</span> <span class="n">ls</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/* rsum_list - Recursive version of sum_list */</span>
+</span></span><span class="line"><span class="cl"><span class="kt">long</span> <span class="nf">rsum_list</span><span class="p">(</span><span class="n">list_ptr</span> <span class="n">ls</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">ls</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">long</span> <span class="n">val</span> <span class="o">=</span> <span class="n">ls</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">long</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">rsum_list</span><span class="p">(</span><span class="n">ls</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">val</span> <span class="o">+</span> <span class="n">rest</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/* copy_block - Copy src to dest and return xor checksum of src */</span>
+</span></span><span class="line"><span class="cl"><span class="kt">long</span> <span class="nf">copy_block</span><span class="p">(</span><span class="kt">long</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">long</span> <span class="o">*</span><span class="n">dest</span><span class="p">,</span> <span class="kt">long</span> <span class="n">len</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">long</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="p">(</span><span class="n">len</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">long</span> <span class="n">val</span> <span class="o">=</span> <span class="o">*</span><span class="n">src</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="o">*</span><span class="n">dest</span><span class="o">++</span> <span class="o">=</span> <span class="n">val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">result</span> <span class="o">^=</span> <span class="n">val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">len</span><span class="o">--</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* $end examples */</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="sum_list" class="headerLink">
+    <a href="#sum_list" class="header-mark"></a>sum_list</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">  .pos 0
+</span></span><span class="line"><span class="cl">  irmovq stack,%rsp
+</span></span><span class="line"><span class="cl">  call main
+</span></span><span class="line"><span class="cl">  halt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">#link list
+</span></span><span class="line"><span class="cl">.align 8
+</span></span><span class="line"><span class="cl">ele1:
+</span></span><span class="line"><span class="cl">  .quad 0x00a
+</span></span><span class="line"><span class="cl">  .quad ele2
+</span></span><span class="line"><span class="cl">ele2:
+</span></span><span class="line"><span class="cl">  .quad 0x0b0
+</span></span><span class="line"><span class="cl">  .quad ele3
+</span></span><span class="line"><span class="cl">ele3:
+</span></span><span class="line"><span class="cl">  .quad 0xc00
+</span></span><span class="line"><span class="cl">  .quad 0 
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">main:
+</span></span><span class="line"><span class="cl">  irmovq ele1,%rdi
+</span></span><span class="line"><span class="cl">  call sum_list
+</span></span><span class="line"><span class="cl">  ret
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">sum_list:
+</span></span><span class="line"><span class="cl">  pushq %r10
+</span></span><span class="line"><span class="cl">  irmovq $0x0,%rax
+</span></span><span class="line"><span class="cl">  jmp test
+</span></span><span class="line"><span class="cl">sum:
+</span></span><span class="line"><span class="cl">  mrmovq (%rdi),%r10
+</span></span><span class="line"><span class="cl">  addq %r10,%rax			#val+=ls.val
+</span></span><span class="line"><span class="cl">  mrmovq 8(%rdi),%rdi		#ls=ls.next  
+</span></span><span class="line"><span class="cl">test:
+</span></span><span class="line"><span class="cl">  andq %rdi,%rdi
+</span></span><span class="line"><span class="cl">  jne sum
+</span></span><span class="line"><span class="cl">  popq %r10
+</span></span><span class="line"><span class="cl">  ret
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> .pos 0x200
+</span></span><span class="line"><span class="cl">stack:
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>思路其实很简单，对着c代码写就可，这里使用了<code>while</code>循环的优化。为了保存原来寄存器的值要先将其入栈。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">niebelungen@ubuntu:~/Desktop/archlab-handout/sim/misc$ ./yis sum.yo
+</span></span><span class="line"><span class="cl">Stopped in <span class="m">28</span> steps at <span class="nv">PC</span> <span class="o">=</span> 0x13.  Status <span class="s1">&#39;HLT&#39;</span>, CC <span class="nv">Z</span><span class="o">=</span><span class="m">1</span> <span class="nv">S</span><span class="o">=</span><span class="m">0</span> <span class="nv">O</span><span class="o">=</span><span class="m">0</span>
+</span></span><span class="line"><span class="cl">Changes to registers:
+</span></span><span class="line"><span class="cl">%rax:	0x0000000000000000	0x0000000000000cba
+</span></span><span class="line"><span class="cl">%rsp:	0x0000000000000000	0x0000000000000200
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Changes to memory:
+</span></span><span class="line"><span class="cl">0x01f0:	0x0000000000000000	0x000000000000005b
+</span></span><span class="line"><span class="cl">0x01f8:	0x0000000000000000	0x0000000000000013
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>rax</code>中的结果是正确的。</p>
+<h3 id="rsum_list" class="headerLink">
+    <a href="#rsum_list" class="header-mark"></a>rsum_list</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">  .pos 0
+</span></span><span class="line"><span class="cl">  irmovq stack,%rsp
+</span></span><span class="line"><span class="cl">  call main
+</span></span><span class="line"><span class="cl">  halt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">#link list
+</span></span><span class="line"><span class="cl">.align 8
+</span></span><span class="line"><span class="cl">ele1:
+</span></span><span class="line"><span class="cl">  .quad 0x00a
+</span></span><span class="line"><span class="cl">  .quad ele2
+</span></span><span class="line"><span class="cl">ele2:
+</span></span><span class="line"><span class="cl">  .quad 0x0b0
+</span></span><span class="line"><span class="cl">  .quad ele3
+</span></span><span class="line"><span class="cl">ele3:
+</span></span><span class="line"><span class="cl">  .quad 0xc00
+</span></span><span class="line"><span class="cl">  .quad 0 
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">main:
+</span></span><span class="line"><span class="cl">  irmovq ele1,%rdi
+</span></span><span class="line"><span class="cl">  call rsum_list
+</span></span><span class="line"><span class="cl">  ret
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">rsum_list:
+</span></span><span class="line"><span class="cl">  pushq %r10
+</span></span><span class="line"><span class="cl">  xor %rax,%rax 		#irmovq $0x0,%rax
+</span></span><span class="line"><span class="cl">  andq %rdi,%rdi
+</span></span><span class="line"><span class="cl">  je end
+</span></span><span class="line"><span class="cl">  mrmovq (%rdi),%r10  
+</span></span><span class="line"><span class="cl">  mrmovq 8(%rdi),%rdi
+</span></span><span class="line"><span class="cl">  call rsum_list
+</span></span><span class="line"><span class="cl">  addq %r10,%rax
+</span></span><span class="line"><span class="cl">end:
+</span></span><span class="line"><span class="cl">  popq %r10
+</span></span><span class="line"><span class="cl">  ret
+</span></span><span class="line"><span class="cl"> .pos 0x200
+</span></span><span class="line"><span class="cl">stack:
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用递归的方式完成求和，那么<code>rdi</code>和<code>rax</code>的值都是变化的，这里要想到通过多余的寄存器保存当前的值，便于通过<code>addq</code>进行相加。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">niebelungen@ubuntu:~/Desktop/archlab-handout/sim/misc$ ./yis rsum.yo
+</span></span><span class="line"><span class="cl">Stopped in <span class="m">42</span> steps at <span class="nv">PC</span> <span class="o">=</span> 0x13.  Status <span class="s1">&#39;HLT&#39;</span>, CC <span class="nv">Z</span><span class="o">=</span><span class="m">0</span> <span class="nv">S</span><span class="o">=</span><span class="m">0</span> <span class="nv">O</span><span class="o">=</span><span class="m">0</span>
+</span></span><span class="line"><span class="cl">Changes to registers:
+</span></span><span class="line"><span class="cl">%rax:	0x0000000000000000	0x0000000000000cba
+</span></span><span class="line"><span class="cl">%rsp:	0x0000000000000000	0x0000000000000200
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Changes to memory:
+</span></span><span class="line"><span class="cl">0x01b8:	0x0000000000000000	0x0000000000000c00
+</span></span><span class="line"><span class="cl">0x01c0:	0x0000000000000000	0x0000000000000088
+</span></span><span class="line"><span class="cl">0x01c8:	0x0000000000000000	0x00000000000000b0
+</span></span><span class="line"><span class="cl">0x01d0:	0x0000000000000000	0x0000000000000088
+</span></span><span class="line"><span class="cl">0x01d8:	0x0000000000000000	0x000000000000000a
+</span></span><span class="line"><span class="cl">0x01e0:	0x0000000000000000	0x0000000000000088
+</span></span><span class="line"><span class="cl">0x01f0:	0x0000000000000000	0x000000000000005b
+</span></span><span class="line"><span class="cl">0x01f8:	0x0000000000000000	0x0000000000000013
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="copy_block" class="headerLink">
+    <a href="#copy_block" class="header-mark"></a>copy_block</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">  .pos 0
+</span></span><span class="line"><span class="cl">  irmovq stack,%rsp
+</span></span><span class="line"><span class="cl">  call main
+</span></span><span class="line"><span class="cl">  halt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  .align 8
+</span></span><span class="line"><span class="cl"># Source block
+</span></span><span class="line"><span class="cl">src:
+</span></span><span class="line"><span class="cl">  .quad 0x00a
+</span></span><span class="line"><span class="cl">  .quad 0x0b0
+</span></span><span class="line"><span class="cl">  .quad 0xc00
+</span></span><span class="line"><span class="cl"># Destination block
+</span></span><span class="line"><span class="cl">dest:
+</span></span><span class="line"><span class="cl">  .quad 0x111
+</span></span><span class="line"><span class="cl">  .quad 0x222
+</span></span><span class="line"><span class="cl">  .quad 0x333
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">main:
+</span></span><span class="line"><span class="cl">  irmovq $0x3,%rdx
+</span></span><span class="line"><span class="cl">  irmovq dest,%rsi
+</span></span><span class="line"><span class="cl">  irmovq src,%rdi
+</span></span><span class="line"><span class="cl">  call copy_block
+</span></span><span class="line"><span class="cl">  ret
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">copy_block:
+</span></span><span class="line"><span class="cl">  pushq %r8
+</span></span><span class="line"><span class="cl">  pushq %r9
+</span></span><span class="line"><span class="cl">  pushq %r10
+</span></span><span class="line"><span class="cl">  irmovq $0x8,%r8
+</span></span><span class="line"><span class="cl">  irmovq $0x1,%r9
+</span></span><span class="line"><span class="cl">  xorq %rax,%rax
+</span></span><span class="line"><span class="cl">  jmp test
+</span></span><span class="line"><span class="cl">copy:
+</span></span><span class="line"><span class="cl">  mrmovq (%rdi),%r10
+</span></span><span class="line"><span class="cl">  rmmovq %r10,(%rsi)
+</span></span><span class="line"><span class="cl">  xorq %r10,%rax
+</span></span><span class="line"><span class="cl">  addq %r8,%rdi
+</span></span><span class="line"><span class="cl">  addq %r8,%rsi
+</span></span><span class="line"><span class="cl">  subq %r9,%rdx
+</span></span><span class="line"><span class="cl">test:
+</span></span><span class="line"><span class="cl">  andq %rdx,%rdx
+</span></span><span class="line"><span class="cl">  jne copy
+</span></span><span class="line"><span class="cl">  popq %r10
+</span></span><span class="line"><span class="cl">  popq %r9
+</span></span><span class="line"><span class="cl">  popq %r8
+</span></span><span class="line"><span class="cl">  ret
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl"> .pos 0x200
+</span></span><span class="line"><span class="cl">stack:
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">niebelungen@ubuntu:~/Desktop/archlab-handout/sim/misc$ ./yis copy_block.yo
+</span></span><span class="line"><span class="cl">Stopped in <span class="m">45</span> steps at <span class="nv">PC</span> <span class="o">=</span> 0x13.  Status <span class="s1">&#39;HLT&#39;</span>, CC <span class="nv">Z</span><span class="o">=</span><span class="m">1</span> <span class="nv">S</span><span class="o">=</span><span class="m">0</span> <span class="nv">O</span><span class="o">=</span><span class="m">0</span>
+</span></span><span class="line"><span class="cl">Changes to registers:
+</span></span><span class="line"><span class="cl">%rax:	0x0000000000000000	0x0000000000000cba
+</span></span><span class="line"><span class="cl">%rsp:	0x0000000000000000	0x0000000000000200
+</span></span><span class="line"><span class="cl">%rsi:	0x0000000000000000	0x0000000000000048
+</span></span><span class="line"><span class="cl">%rdi:	0x0000000000000000	0x0000000000000030
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Changes to memory:
+</span></span><span class="line"><span class="cl">0x0030:	0x0000000000000111	0x000000000000000a
+</span></span><span class="line"><span class="cl">0x0038:	0x0000000000000222	0x00000000000000b0
+</span></span><span class="line"><span class="cl">0x0040:	0x0000000000000333	0x0000000000000c00
+</span></span><span class="line"><span class="cl">0x01f0:	0x0000000000000000	0x000000000000006f
+</span></span><span class="line"><span class="cl">0x01f8:	0x0000000000000000	0x0000000000000013
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="part-b" class="headerLink">
+    <a href="#part-b" class="header-mark"></a>part B</h2><p>修改<code>seq-fun.hcl</code>使其支持<code>iaddq</code></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">阶段</th>
+<th style="text-align:center">iaddq V, rB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Fetch</td>
+<td style="text-align:center"><code>icode</code>: <code>ifun</code>← $M_1[PC]$  <br/><code>rA</code>: <code>rB</code>← $M_1[PC+1]$ <br/><code>valC</code> ← $M_s[PC+2]$  <br/><code>valP</code> ← PC+10</td>
+</tr>
+<tr>
+<td style="text-align:center">Decode</td>
+<td style="text-align:center"><br><code>valB</code> ← $R[rB]$</td>
+</tr>
+<tr>
+<td style="text-align:center">Execute</td>
+<td style="text-align:center"><code>valE</code> ← <code>valC</code>+<code>valB</code><br>Set CC</td>
+</tr>
+<tr>
+<td style="text-align:center">Memory</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">Write Back</td>
+<td style="text-align:center">R[rB] ← <code>valE</code></td>
+</tr>
+<tr>
+<td style="text-align:center">PC Update</td>
+<td style="text-align:center">PC ← <code>valP</code></td>
+</tr>
+</tbody>
+</table>
+<p>填好表格，对应阶段进行修改就可以了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">niebelungen@ubuntu:~/Desktop/archlab-handout/sim/seq$  <span class="o">(</span><span class="nb">cd</span> ../ptest<span class="p">;</span> make <span class="nv">SIM</span><span class="o">=</span>../seq/ssim <span class="nv">TFLAGS</span><span class="o">=</span>-i<span class="o">)</span>
+</span></span><span class="line"><span class="cl">./optest.pl -s ../seq/ssim -i
+</span></span><span class="line"><span class="cl">Simulating with ../seq/ssim
+</span></span><span class="line"><span class="cl">  All <span class="m">58</span> ISA Checks Succeed
+</span></span><span class="line"><span class="cl">./jtest.pl -s ../seq/ssim -i
+</span></span><span class="line"><span class="cl">Simulating with ../seq/ssim
+</span></span><span class="line"><span class="cl">  All <span class="m">96</span> ISA Checks Succeed
+</span></span><span class="line"><span class="cl">./ctest.pl -s ../seq/ssim -i
+</span></span><span class="line"><span class="cl">Simulating with ../seq/ssim
+</span></span><span class="line"><span class="cl">  All <span class="m">22</span> ISA Checks Succeed
+</span></span><span class="line"><span class="cl">./htest.pl -s ../seq/ssim -i
+</span></span><span class="line"><span class="cl">Simulating with ../seq/ssim
+</span></span><span class="line"><span class="cl">  All <span class="m">756</span> ISA Checks Succeed
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="part-c" class="headerLink">
+    <a href="#part-c" class="header-mark"></a>part C</h2><p>修改<code>ncopy.ys</code>使得<code>ncopy</code>函数尽可能快。首先，可以在<code>pipe-full.hcl</code>文件中增加<code>iaddq</code>指令。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">	xorq %rax,%rax		# count = 0;
+</span></span><span class="line"><span class="cl">	andq %rdx,%rdx		# len &lt;= 0?
+</span></span><span class="line"><span class="cl">	jle Done		# if so, goto Done:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Loop:	mrmovq (%rdi), %r10	# read val from src...
+</span></span><span class="line"><span class="cl">	rmmovq %r10, (%rsi)	# ...and store it to dst
+</span></span><span class="line"><span class="cl">	andq %r10, %r10		# val &lt;= 0?
+</span></span><span class="line"><span class="cl">	jle Npos		# if so, goto Npos:
+</span></span><span class="line"><span class="cl">	iaddq $1, %rax		# count++
+</span></span><span class="line"><span class="cl">Npos:  iaddq $-1, %rdx		# len--
+</span></span><span class="line"><span class="cl">	iaddq $8, %rdi		# src++
+</span></span><span class="line"><span class="cl">	iaddq $8, %rsi		# dst++
+</span></span><span class="line"><span class="cl">	andq %rdx,%rdx		# len &gt; 0?
+</span></span><span class="line"><span class="cl">	jg Loop			# if so, goto Loop:
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>之后进行循环展开，这里进行了四路循环展开，注意到，<code>mrmovq (%rdi), %r10</code>和<code>rmmovq %r10, (%rsi)</code>之间有数据关联，所以引入一个寄存器消除气泡。且在程序一开始<code>rax</code>必然为0，去除<code>xorq %rax,%rax</code>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">	iaddq $-4,%rdx
+</span></span><span class="line"><span class="cl">	jl Last1
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Loop:
+</span></span><span class="line"><span class="cl">	mrmovq (%rdi),%r10
+</span></span><span class="line"><span class="cl">	mrmovq 8(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos1
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Npos1:
+</span></span><span class="line"><span class="cl"> 	mrmovq 16(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,8(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos2
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos2:
+</span></span><span class="line"><span class="cl"> 	mrmovq 24(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,16(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos3
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos3:
+</span></span><span class="line"><span class="cl">	rmmovq %r11,24(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Npos:
+</span></span><span class="line"><span class="cl">	iaddq $32,%rdi
+</span></span><span class="line"><span class="cl">	iaddq $32,%rsi
+</span></span><span class="line"><span class="cl">	iaddq $-4,%rdx
+</span></span><span class="line"><span class="cl">	jge Loop
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last1:
+</span></span><span class="line"><span class="cl">	iaddq $4,%rdx
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl"> 	mrmovq (%rdi),%r10
+</span></span><span class="line"><span class="cl"> 	mrmovq 8(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Last2
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last2:
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl"> 	mrmovq 16(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,8(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Last3
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last3:
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl">	rmmovq %r10,16(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Done
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>目前得分：48.5/60  ，再展开为八路</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">	iaddq $-8,%rdx
+</span></span><span class="line"><span class="cl">	jl Last1
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Loop:
+</span></span><span class="line"><span class="cl">	mrmovq (%rdi),%r10
+</span></span><span class="line"><span class="cl">	mrmovq 8(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos1
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Npos1:
+</span></span><span class="line"><span class="cl"> 	mrmovq 16(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,8(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos2
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos2:
+</span></span><span class="line"><span class="cl"> 	mrmovq 24(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,16(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos3
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos3:
+</span></span><span class="line"><span class="cl"> 	mrmovq 32(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,24(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos4
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos4:
+</span></span><span class="line"><span class="cl"> 	mrmovq 40(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,32(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos5
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos5:
+</span></span><span class="line"><span class="cl"> 	mrmovq 48(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,40(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos6
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos6:
+</span></span><span class="line"><span class="cl"> 	mrmovq 56(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,48(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos7
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos7:
+</span></span><span class="line"><span class="cl">	rmmovq %r11,56(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos:
+</span></span><span class="line"><span class="cl">	iaddq $64,%rdi
+</span></span><span class="line"><span class="cl">	iaddq $64,%rsi
+</span></span><span class="line"><span class="cl">	iaddq $-8,%rdx
+</span></span><span class="line"><span class="cl">	jge Loop
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last1:
+</span></span><span class="line"><span class="cl">	iaddq $8,%rdx
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl"> 	mrmovq (%rdi),%r10
+</span></span><span class="line"><span class="cl"> 	mrmovq 8(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Last2
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last2:
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl"> 	mrmovq 16(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,8(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Last3
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last3:
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl"> 	mrmovq 24(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,16(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Last4
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last4:
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl"> 	mrmovq 32(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,24(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Last5
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last5:
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl"> 	mrmovq 40(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,32(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Last6
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last6:
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl"> 	mrmovq 48(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,40(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Last7
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last7:
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl">	rmmovq %r10,48(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Done
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>目前得分：50.1/60 ，目前我们的代码是817字节，展开为十路，超出字节限制。然后发现在，剩余部分处理时，我们多次重复执行了<code>iaddq $-1,%rdx</code>，<code>jl Done</code>所以接下来想办法简化剩余处理。首先，从确定长度入手，长度确定进行优化后，可以跳转到剩余长度的位置，简化处理。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">	iaddq $-9,%rdx
+</span></span><span class="line"><span class="cl">	jl Find
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Loop:
+</span></span><span class="line"><span class="cl">	mrmovq (%rdi),%r10
+</span></span><span class="line"><span class="cl">	mrmovq 8(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos1
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Npos1:
+</span></span><span class="line"><span class="cl"> 	mrmovq 16(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,8(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos2
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos2:
+</span></span><span class="line"><span class="cl"> 	mrmovq 24(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,16(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos3
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos3:
+</span></span><span class="line"><span class="cl"> 	mrmovq 32(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,24(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos4
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos4:
+</span></span><span class="line"><span class="cl"> 	mrmovq 40(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,32(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos5
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos5:
+</span></span><span class="line"><span class="cl"> 	mrmovq 48(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,40(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos6
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos6:
+</span></span><span class="line"><span class="cl"> 	mrmovq 56(%rdi),%r11
+</span></span><span class="line"><span class="cl">	rmmovq %r10,48(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos7
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos7:
+</span></span><span class="line"><span class="cl"> 	mrmovq 64(%rdi),%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r11,56(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r11, %r11
+</span></span><span class="line"><span class="cl">	jle Npos8
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos8:
+</span></span><span class="line"><span class="cl">	rmmovq %r10,64(%rsi)
+</span></span><span class="line"><span class="cl">	andq %r10, %r10
+</span></span><span class="line"><span class="cl">	jle Npos
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Npos:
+</span></span><span class="line"><span class="cl">	iaddq $72,%rdi
+</span></span><span class="line"><span class="cl">	iaddq $72,%rsi
+</span></span><span class="line"><span class="cl">	iaddq $-9,%rdx
+</span></span><span class="line"><span class="cl">	jge Loop
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Find:
+</span></span><span class="line"><span class="cl">	iaddq $6,%rdx 
+</span></span><span class="line"><span class="cl">	jl  Left
+</span></span><span class="line"><span class="cl">	jg Right
+</span></span><span class="line"><span class="cl">	jmp Last3
+</span></span><span class="line"><span class="cl">Left:
+</span></span><span class="line"><span class="cl">	iaddq $2,%rdx		
+</span></span><span class="line"><span class="cl">	je Last1
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	je Last2
+</span></span><span class="line"><span class="cl">	jmp Done
+</span></span><span class="line"><span class="cl">RL:	
+</span></span><span class="line"><span class="cl">	iaddq $1,%rdx
+</span></span><span class="line"><span class="cl">	jl Last4
+</span></span><span class="line"><span class="cl">	jmp Last5			
+</span></span><span class="line"><span class="cl">Right:	
+</span></span><span class="line"><span class="cl">	iaddq $-3,%rdx
+</span></span><span class="line"><span class="cl">	jl RL
+</span></span><span class="line"><span class="cl">	jg RR
+</span></span><span class="line"><span class="cl">	jmp Last6	
+</span></span><span class="line"><span class="cl">RR:	
+</span></span><span class="line"><span class="cl">	iaddq $-1,%rdx
+</span></span><span class="line"><span class="cl">	je Last7
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Last8:
+</span></span><span class="line"><span class="cl">	mrmovq 56(%rdi),%r10
+</span></span><span class="line"><span class="cl">	andq %r10,%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r10,56(%rsi)	
+</span></span><span class="line"><span class="cl">	jl Last7
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last7:
+</span></span><span class="line"><span class="cl">	mrmovq 48(%rdi),%r10
+</span></span><span class="line"><span class="cl">	andq %r10,%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r10,48(%rsi)
+</span></span><span class="line"><span class="cl">	jl Last6
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Last6:
+</span></span><span class="line"><span class="cl">	mrmovq 40(%rdi),%r10
+</span></span><span class="line"><span class="cl">	andq %r10,%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r10,40(%rsi)
+</span></span><span class="line"><span class="cl">	jl Last5
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last5:
+</span></span><span class="line"><span class="cl">	mrmovq 32(%rdi),%r10
+</span></span><span class="line"><span class="cl">	andq %r10,%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r10,32(%rsi)
+</span></span><span class="line"><span class="cl">	jl Last4
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last4:
+</span></span><span class="line"><span class="cl">	mrmovq 24(%rdi),%r10
+</span></span><span class="line"><span class="cl">	andq %r10,%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r10,24(%rsi)
+</span></span><span class="line"><span class="cl">	jl Last3
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last3:
+</span></span><span class="line"><span class="cl">	mrmovq 16(%rdi),%r10
+</span></span><span class="line"><span class="cl">	andq %r10,%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r10,16(%rsi)
+</span></span><span class="line"><span class="cl">	jl Last2
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last2:
+</span></span><span class="line"><span class="cl">	mrmovq 8(%rdi),%r10
+</span></span><span class="line"><span class="cl">	andq %r10,%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r10,8(%rsi)
+</span></span><span class="line"><span class="cl">	jl Last1
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">Last1:
+</span></span><span class="line"><span class="cl">	mrmovq (%rdi),%r10
+</span></span><span class="line"><span class="cl">	andq %r10,%r10
+</span></span><span class="line"><span class="cl">	rmmovq %r10,(%rsi)
+</span></span><span class="line"><span class="cl">	jl Done
+</span></span><span class="line"><span class="cl">	iaddq $1,%rax
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>当前分数：56.6/60，尽力了。。。</p></div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-02-08</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/csapp-archlab/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/challenges-100-week-5/" class="prev" rel="prev" title="Challenges 100 Week 5"><i class="fas fa-angle-left fa-fw"></i>Challenges 100 Week 5</a>
+            <a href="/challenges-100-week-6/" class="next" rel="next" title="Challenges 100 Week 6">Challenges 100 Week 6<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

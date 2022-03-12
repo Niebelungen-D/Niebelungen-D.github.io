@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">eBPF-Basic-Learning - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="eBPF-Basic-Learning" />
+<meta property="og:description" content="eBPFWhat is eBPF ？eBPF 全称是 extended Berkeley Packet Filter ，起源于 BPF ( Berkeley Packet Filter )。顾名思义，它向linux内核提供了对数据包的过滤。 早期的网络监控器等都是作为用户级进程运" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/ebpf-basic-learning/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-01-17T17:45:07+08:00" />
+<meta property="article:modified_time" content="2022-01-17T17:45:07+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="eBPF-Basic-Learning"/>
+<meta name="twitter:description" content="eBPFWhat is eBPF ？eBPF 全称是 extended Berkeley Packet Filter ，起源于 BPF ( Berkeley Packet Filter )。顾名思义，它向linux内核提供了对数据包的过滤。 早期的网络监控器等都是作为用户级进程运"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/ebpf-basic-learning/" /><link rel="prev" href="http://example.org/dragonctf2021-nim/" /><link rel="next" href="http://example.org/tsgctf2021-lkgit-userfaultfd/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "eBPF-Basic-Learning",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/ebpf-basic-learning\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  4230 ,
+        "url": "http:\/\/example.org\/ebpf-basic-learning\/","datePublished": "2022-01-17T17:45:07+08:00","dateModified": "2022-01-17T17:45:07+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#验证">验证</a></li>
+    <li><a href="#jit">JIT</a></li>
+    <li><a href="#maps">Maps</a></li>
+    <li><a href="#helper-calls">Helper Calls</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#opcode-结构">opcode 结构</a>
+      <ul>
+        <li><a href="#加载和存储指令">加载和存储指令</a></li>
+        <li><a href="#跳转与运算指令">跳转与运算指令</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#oob">OOB</a></li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">eBPF-Basic-Learning</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-17">2022-01-17</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-01-17">2022-01-17</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 4230 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 9 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#验证">验证</a></li>
+    <li><a href="#jit">JIT</a></li>
+    <li><a href="#maps">Maps</a></li>
+    <li><a href="#helper-calls">Helper Calls</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#opcode-结构">opcode 结构</a>
+      <ul>
+        <li><a href="#加载和存储指令">加载和存储指令</a></li>
+        <li><a href="#跳转与运算指令">跳转与运算指令</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#oob">OOB</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="ebpf" class="headerLink">
+    <a href="#ebpf" class="header-mark"></a>eBPF</h1><h1 id="what-is-ebpf-" class="headerLink">
+    <a href="#what-is-ebpf-" class="header-mark"></a>What is eBPF ？</h1><p>eBPF 全称是 extended Berkeley Packet Filter ，起源于 BPF ( Berkeley Packet Filter )。顾名思义，它向linux内核提供了对数据包的过滤。</p>
+<p>早期的网络监控器等都是作为用户级进程运行的。为了分析只在内核空间运行的数据，它们必须将这些数据从内核空间复制到用户空间的内存中去，并进行上下文切换。这与直接在内核空间分析这些数据相比，导致了巨大的性能开销。</p>
+<p>BPF 就是解决这一问题的一种在内核空间执行高效安全的程序的机制。</p>
+<p>BPF 在数据包过滤上引入了两大革新：</p>
+<ul>
+<li>一个新的虚拟机 (VM) 设计，可以有效地工作在基于寄存器结构的 CPU 之上；</li>
+<li>应用程序使用缓存只复制与过滤数据包相关的数据，不会复制数据包的所有信息，最大程度地减少BPF 处理的数据，提高处理效率；</li>
+</ul>
+<p>发展到今天，BPF 升级为 eBPF 。它演进成为了一套通用执行引擎，提供可基于系统或程序事件高效安全执行特定代码的通用能力，通用能力的使用者不再局限于内核开发者。原来的 BPF 被称为 cBPF （classic BPF）已被舍弃。</p>
+<p>下面是 eBPF 的大致原理图：</p>
+<p><img
+        class="lazyload"
+        data-src="https://ebpf.io/static/loader-7eec5ccd8f6fbaf055256da4910acd5a.png"
+        data-srcset="https://ebpf.io/static/loader-7eec5ccd8f6fbaf055256da4910acd5a.png, https://ebpf.io/static/loader-7eec5ccd8f6fbaf055256da4910acd5a.png 1.5x, https://ebpf.io/static/loader-7eec5ccd8f6fbaf055256da4910acd5a.png 2x"
+        data-sizes="auto"
+        alt="https://ebpf.io/static/loader-7eec5ccd8f6fbaf055256da4910acd5a.png"
+        title="https://ebpf.io/static/loader-7eec5ccd8f6fbaf055256da4910acd5a.png"></p>
+<p>用户可以通过创建内核探针（kprobe）或用户探针（uprobe）在几乎任何地方附加eBPF程序。</p>
+<p>在我刚开始阅读 eBPF 的相关资料时，就在想，这不就是一个数据过滤吗。但是现在想想吧，你可以在几乎内核的任何地方加入自己的代码。向内核加入用户输入，这本身就是一个大胆创新的想法，而加入自己的程序这是多么令人激动！</p>
+<p><img
+        class="lazyload"
+        data-src="https://ebpf.io/static/hook_overview-99c69bbff092c35b9c83f00a80fed240.png"
+        data-srcset="https://ebpf.io/static/hook_overview-99c69bbff092c35b9c83f00a80fed240.png, https://ebpf.io/static/hook_overview-99c69bbff092c35b9c83f00a80fed240.png 1.5x, https://ebpf.io/static/hook_overview-99c69bbff092c35b9c83f00a80fed240.png 2x"
+        data-sizes="auto"
+        alt="https://ebpf.io/static/hook_overview-99c69bbff092c35b9c83f00a80fed240.png"
+        title="https://ebpf.io/static/hook_overview-99c69bbff092c35b9c83f00a80fed240.png"></p>
+<h1 id="how-does-it-work-" class="headerLink">
+    <a href="#how-does-it-work-" class="header-mark"></a>How does it work ？</h1><p>正如原理图中展示的那样，用户需要首先使用 eBPF 指令集编写相应的 eBPF 程序，然后将程序字节码和程序类型送入内核，程序类型决定了可以访问的内核区域（各种Helper Calls）。</p>
+<h2 id="验证" class="headerLink">
+    <a href="#%e9%aa%8c%e8%af%81" class="header-mark"></a>验证</h2><p>为了确保安全，内核首先对传入的程序进行验证。</p>
+<p>第一轮检查程序是否为一个有向无环图DAG，第二轮检查，它会拒绝下面的程序：</p>
+<ul>
+<li>指令个数大于<code>BPF_MAXINSNS</code>（4096）</li>
+<li>有循环</li>
+<li>有无法到达的指令（程序结构只能是一个函数不能是森林）</li>
+<li>越界或畸形跳跃</li>
+</ul>
+<p>每个<strong>寄存器状态</strong>都有一个<strong>类型</strong>，</p>
+<ul>
+<li><code>NOT_INIT</code>：该寄存器还未写入数据</li>
+<li><code>SCALAR_VALUE</code>：标量值，不可作为指针</li>
+<li>指针类型</li>
+</ul>
+<p>依据它们<strong>指向的数据结构类型</strong>，又可以分为：</p>
+<ol>
+<li>
+<p><code>PTR_TO_CTX</code>：指向 <strong><code>bpf_context</code></strong> 的指针。</p>
+</li>
+<li>
+<p><code>CONST_PTR_TO_MAP</code>：指向 <strong><code>struct bpf_map</code></strong> 的指针。 是<strong>常量</strong>（const），因为不允许对这种类型指针进行算术操作。</p>
+</li>
+<li>
+<p><code>PTR_TO_MAP_VALUE</code>：指向 bpf <strong>map 元素</strong>的指针。</p>
+</li>
+<li>
+<p><code>PTR_TO_MAP_VALUE_OR_NULL</code>：指向 bpf map 元素的指针，可为 NULL。 <strong>访问 map 的操作</strong>会返回这种类型的指针。<strong>禁止算术操作</strong>。</p>
+</li>
+<li>
+<p><code>PTR_TO_STACK</code>：帧指针（Frame pointer）。</p>
+</li>
+<li>
+<p><code>PTR_TO_PACKET</code>：指向 <strong><code>skb-&gt;data</code></strong> 的指针。</p>
+</li>
+<li>
+<p><code>PTR_TO_PACKET_END</code>：指向 <strong><code>skb-&gt;data + headlen</code></strong> 的指针。禁止算术操作。</p>
+</li>
+<li>
+<p><code>PTR_TO_SOCKET</code>：指向 <strong><code>struct bpf_sock_ops</code></strong> 的指针，内部有引用计数。</p>
+</li>
+<li>
+<p><code>PTR_TO_SOCKET_OR_NULL</code>：指向 <strong><code>struct bpf_sock_ops</code></strong> 的指针，或 NULL。</p>
+<p><strong>socket lookup 操作</strong>会返回这种类型。<strong>有引用计数</strong>， 因此程序在执行结束时，必须通过 socket release 函数释放引用。禁止算术操作。</p>
+</li>
+</ol>
+<p>这些指针都称为 base 指针</p>
+<h2 id="jit" class="headerLink">
+    <a href="#jit" class="header-mark"></a>JIT</h2><p>通过验证后，它就会进入JIT编译阶段，利用Just-In-Time编译器，编译生成的是通用的字节码，它是完全可移植的，可以在x86和ARM等任意球CPU架构上加载这个字节码，这样我们能获得本地编译后的程序运行速度，而且是安全可靠的。</p>
+<h2 id="maps" class="headerLink">
+    <a href="#maps" class="header-mark"></a>Maps</h2><p>maps 是 eBPF 的数据存储数据库，在程序中由用户通过相应的函数创建，它支持以下类型：</p>
+<ul>
+<li>Hash tables, Arrays</li>
+<li>LRU (Least Recently Used)</li>
+<li>Ring Buffer</li>
+<li>Stack Trace</li>
+<li>LPM (Longest Prefix match)</li>
+<li>……</li>
+</ul>
+<p>一个定义的例子：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// SEC(&#34;maps&#34;) 表示将这个结构编译到一个新创建的名为 maps 的 .section
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">struct</span> <span class="n">bpf_map_def</span> <span class="nf">SEC</span><span class="p">(</span><span class="s">&#34;maps&#34;</span><span class="p">)</span> <span class="n">my_map</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">BPF_MAP_TYPE_ARRAY</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">key_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">u32</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">value_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">long</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">max_entries</span> <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>值得注意的是：</p>
+<ul>
+<li>BPF Map是可以被用户空间访问并操作的</li>
+<li>BPF Map是可以与BPF程序分离的，即当创建一个BPF Map的BPF程序运行结束后，该BPF Map还能存在，而不是随着程序一起消亡</li>
+</ul>
+<h2 id="helper-calls" class="headerLink">
+    <a href="#helper-calls" class="header-mark"></a>Helper Calls</h2><p>在 eBPF 的程序中不能直接调用内核函数。因为内核版本不断更新，很多函数会发生变化，这可能导致 eBPF 的失效。为了避免这样，内核提供了 helper calls 的 API，无需了解其实现，只需使用即可。另一方面，这也拓展了 eBPF 的功能。</p>
+<p><a href="https://man7.org/linux/man-pages/man7/bpf-helpers.7.html" target="_blank" rel="noopener noreffer">bpf-helpers(7) - Linux manual page</a></p>
+<h1 id="指令集" class="headerLink">
+    <a href="#%e6%8c%87%e4%bb%a4%e9%9b%86" class="header-mark"></a>指令集</h1><p>eBPF 的指令结构如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">bpf_insn</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__u8</span>	<span class="n">code</span><span class="p">;</span>		<span class="cm">/* opcode */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__u8</span>	<span class="nl">dst_reg</span><span class="p">:</span><span class="mi">4</span><span class="p">;</span>	<span class="cm">/* dest register */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__u8</span>	<span class="nl">src_reg</span><span class="p">:</span><span class="mi">4</span><span class="p">;</span>	<span class="cm">/* source register */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__s16</span>	<span class="n">off</span><span class="p">;</span>		<span class="cm">/* signed offset */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">__s32</span>	<span class="n">imm</span><span class="p">;</span>		<span class="cm">/* signed immediate constant */</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在 eBPF 中有 11 个 64位寄存器 R0-R10</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">R0</th>
+<th style="text-align:center">返回值寄存器</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">R1-R5</td>
+<td style="text-align:center">函数参数</td>
+</tr>
+<tr>
+<td style="text-align:center">R6-R9</td>
+<td style="text-align:center">被调用函数保留</td>
+</tr>
+<tr>
+<td style="text-align:center">R10</td>
+<td style="text-align:center">只读栈帧寄存器</td>
+</tr>
+</tbody>
+</table>
+<p>其栈的大小固定为512字节。当一个 eBPF 程序启动时，R1 中的地址指向 context 上下文（当前情况下为数据包缓冲区）</p>
+<h2 id="opcode-结构" class="headerLink">
+    <a href="#opcode-%e7%bb%93%e6%9e%84" class="header-mark"></a>opcode 结构</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="o">+-------------------------+--------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>       <span class="mi">5</span> <span class="n">bits</span>            <span class="o">|</span>   <span class="mi">3</span> <span class="n">bits</span>           <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>       <span class="n">xxxxxx</span>            <span class="o">|</span> <span class="n">instruction</span> <span class="n">class</span>  <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">+-------------------------+--------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="n">MSB</span><span class="p">)</span>                                      <span class="p">(</span><span class="n">LSB</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>op字段的低3位，决定指令类型。</p>
+<p>Code: include/uapi/linux/bpf.h</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define BPF_CLASS(code) ((code) &amp; 0x07)
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define		BPF_LD		0x00
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define		BPF_LDX		0x01
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define		BPF_ST		0x02
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define		BPF_STX		0x03
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define		BPF_ALU		0x04
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define		BPF_JMP		0x05
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define BPF_JMP32	0x06	</span><span class="cm">/* jmp mode in word width */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define BPF_ALU64	0x07	</span><span class="cm">/* alu mode in double word width */</span><span class="cp">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>BPF_LD, BPF_LDX: 两个类都用于加载操作。BPF_LD用于加载双字。后者是从 cBPF 继承而来的，主要是为了保持 cBPF 到 BPF 的转换效率，因为它们优化了 JIT 代码。</li>
+<li>BPF_ST, BPF_STX: 两个类都用于存储操作，用于将数据从寄存器到存储器中。</li>
+<li>BPF_ALU, BPF_ALU64: 分别是32位和64位下的ALU操作。</li>
+<li>BPF_JMP和BPF_JMP32：跳转指令。JMP32的跳转范围是32位大小(一个 word)</li>
+</ul>
+<h3 id="加载和存储指令" class="headerLink">
+    <a href="#%e5%8a%a0%e8%bd%bd%e5%92%8c%e5%ad%98%e5%82%a8%e6%8c%87%e4%bb%a4" class="header-mark"></a>加载和存储指令</h3><p>此时：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="o">+--------+--------+-------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span> <span class="mi">3</span> <span class="n">bits</span> <span class="o">|</span> <span class="mi">2</span> <span class="n">bits</span> <span class="o">|</span>   <span class="mi">3</span> <span class="n">bits</span>          <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>  <span class="n">mode</span>  <span class="o">|</span>  <span class="n">size</span>  <span class="o">|</span> <span class="n">instruction</span> <span class="n">class</span> <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">+--------+--------+-------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="n">MSB</span><span class="p">)</span>                             <span class="p">(</span><span class="n">LSB</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>size决定了操作数据的大小</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BPF_W</span>   <span class="mh">0x00</span>    <span class="cm">/* word=4 byte */</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_H</span>   <span class="mh">0x08</span>    <span class="cm">/* half word */</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_B</span>   <span class="mh">0x10</span>    <span class="cm">/* byte */</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_DW</span>  <span class="mh">0x18</span>    <span class="cm">/* eBPF only, double word */</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>mode</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">BPF_IMM</span>     <span class="mh">0x00</span>  <span class="cm">/* used for 32-bit mov in classic BPF and 64-bit in eBPF */</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_ABS</span>     <span class="mh">0x20</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_IND</span>     <span class="mh">0x40</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_MEM</span>     <span class="mh">0x60</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_LEN</span>     <span class="mh">0x80</span>  <span class="cm">/* classic BPF only, reserved in eBPF */</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_MSH</span>     <span class="mh">0xa0</span>  <span class="cm">/* classic BPF only, reserved in eBPF */</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_ATOMIC</span>  <span class="mh">0xc0</span>  <span class="cm">/* eBPF only, atomic operations */</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="跳转与运算指令" class="headerLink">
+    <a href="#%e8%b7%b3%e8%bd%ac%e4%b8%8e%e8%bf%90%e7%ae%97%e6%8c%87%e4%bb%a4" class="header-mark"></a>跳转与运算指令</h3><p>此时：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="o">+----------------+--------+--------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span>   <span class="mi">4</span> <span class="n">bits</span>       <span class="o">|</span>  <span class="mi">1</span> <span class="n">bit</span> <span class="o">|</span>   <span class="mi">3</span> <span class="n">bits</span>           <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">|</span> <span class="n">operation</span> <span class="n">code</span> <span class="o">|</span> <span class="n">source</span> <span class="o">|</span> <span class="n">instruction</span> <span class="n">class</span>  <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="o">+----------------+--------+--------------------+</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="n">MSB</span><span class="p">)</span>                                      <span class="p">(</span><span class="n">LSB</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define BPF_SRC(code)   ((code) &amp; 0x08)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="n">BPF_K</span>     <span class="mh">0x00</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_X</span>     <span class="mh">0x08</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">BPF_SRC</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="o">==</span> <span class="n">BPF_X</span> <span class="o">-</span> <span class="n">use</span> <span class="err">&#39;</span><span class="n">src_reg</span><span class="err">&#39;</span> <span class="k">register</span> <span class="n">as</span> <span class="n">source</span> <span class="n">operand</span>
+</span></span><span class="line"><span class="cl"><span class="n">BPF_SRC</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="o">==</span> <span class="n">BPF_K</span> <span class="o">-</span> <span class="n">use</span> <span class="mi">32</span><span class="o">-</span><span class="n">bit</span> <span class="n">immediate</span> <span class="n">as</span> <span class="n">source</span> <span class="n">operand</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以使用以下宏定义快速的编写指令，Code: samples/bpf/bpf_insn.h：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */</span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* eBPF instruction mini library */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#ifndef __BPF_INSN_H
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define __BPF_INSN_H
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">bpf_insn</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/* ALU ops on registers, bpf_add|sub|...: dst_reg += src_reg */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_ALU64_REG(OP, DST, SRC)				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_ALU64 | BPF_OP(OP) | BPF_X,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = 0 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_ALU32_REG(OP, DST, SRC)				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_ALU | BPF_OP(OP) | BPF_X,		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = 0 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* ALU ops on immediates, bpf_add|sub|...: dst_reg += imm32 */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_ALU64_IMM(OP, DST, IMM)				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_ALU64 | BPF_OP(OP) | BPF_K,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = IMM })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_ALU32_IMM(OP, DST, IMM)				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_ALU | BPF_OP(OP) | BPF_K,		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = IMM })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Short form of mov, dst_reg = src_reg */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_MOV64_REG(DST, SRC)					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_ALU64 | BPF_MOV | BPF_X,		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = 0 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_MOV32_REG(DST, SRC)					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_ALU | BPF_MOV | BPF_X,		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = 0 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Short form of mov, dst_reg = imm32 */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_MOV64_IMM(DST, IMM)					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_ALU64 | BPF_MOV | BPF_K,		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = IMM })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_MOV32_IMM(DST, IMM)					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_ALU | BPF_MOV | BPF_K,		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = IMM })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* BPF_LD_IMM64 macro encodes single &#39;load 64-bit immediate&#39; insn */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_LD_IMM64(DST, IMM)					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	BPF_LD_IMM64_RAW(DST, 0, IMM)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_LD_IMM64_RAW(DST, SRC, IMM)				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_LD | BPF_DW | BPF_IMM,		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = (__u32) (IMM) }),			\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = 0, </span><span class="cm">/* zero is reserved opcode */</span><span class="cp">	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = ((__u64) (IMM)) &gt;&gt; 32 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#ifndef BPF_PSEUDO_MAP_FD
+</span></span></span><span class="line"><span class="cl"><span class="cp"># define BPF_PSEUDO_MAP_FD	1
+</span></span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* pseudo BPF_LD_IMM64 insn used to refer to process-local map_fd */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_LD_MAP_FD(DST, MAP_FD)				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	BPF_LD_IMM64_RAW(DST, BPF_PSEUDO_MAP_FD, MAP_FD)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Direct packet access, R0 = *(uint *) (skb-&gt;data + imm32) */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_LD_ABS(SIZE, IMM)					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_LD | BPF_SIZE(SIZE) | BPF_ABS,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = IMM })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Memory load, dst_reg = *(uint *) (src_reg + off16) */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_LDX_MEM(SIZE, DST, SRC, OFF)			\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_LDX | BPF_SIZE(SIZE) | BPF_MEM,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = OFF,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = 0 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Memory store, *(uint *) (dst_reg + off16) = src_reg */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_STX_MEM(SIZE, DST, SRC, OFF)			\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_STX | BPF_SIZE(SIZE) | BPF_MEM,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = OFF,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = 0 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Atomic operations:
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_ADD                  *(uint *) (dst_reg + off16) += src_reg
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_AND                  *(uint *) (dst_reg + off16) &amp;= src_reg
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_OR                   *(uint *) (dst_reg + off16) |= src_reg
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_XOR                  *(uint *) (dst_reg + off16) ^= src_reg
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_ADD | BPF_FETCH      src_reg = atomic_fetch_add(dst_reg + off16, src_reg);
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_AND | BPF_FETCH      src_reg = atomic_fetch_and(dst_reg + off16, src_reg);
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_OR | BPF_FETCH       src_reg = atomic_fetch_or(dst_reg + off16, src_reg);
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_XOR | BPF_FETCH      src_reg = atomic_fetch_xor(dst_reg + off16, src_reg);
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_XCHG                 src_reg = atomic_xchg(dst_reg + off16, src_reg)
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *   BPF_CMPXCHG              r0 = atomic_cmpxchg(dst_reg + off16, r0, src_reg)
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_ATOMIC_OP(SIZE, OP, DST, SRC, OFF)			\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_STX | BPF_SIZE(SIZE) | BPF_ATOMIC,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = OFF,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = OP })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Legacy alias */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_STX_XADD(SIZE, DST, SRC, OFF) BPF_ATOMIC_OP(SIZE, BPF_ADD, DST, SRC, OFF)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Memory store, *(uint *) (dst_reg + off16) = imm32 */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_ST_MEM(SIZE, DST, OFF, IMM)				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_ST | BPF_SIZE(SIZE) | BPF_MEM,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = OFF,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = IMM })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Conditional jumps against registers, if (dst_reg &#39;op&#39; src_reg) goto pc + off16 */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_JMP_REG(OP, DST, SRC, OFF)				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_JMP | BPF_OP(OP) | BPF_X,		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = OFF,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = 0 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Like BPF_JMP_REG, but with 32-bit wide operands for comparison. */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_JMP32_REG(OP, DST, SRC, OFF)			\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_JMP32 | BPF_OP(OP) | BPF_X,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = OFF,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = 0 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Conditional jumps against immediates, if (dst_reg &#39;op&#39; imm32) goto pc + off16 */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_JMP_IMM(OP, DST, IMM, OFF)				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_JMP | BPF_OP(OP) | BPF_K,		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = OFF,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = IMM })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Like BPF_JMP_IMM, but with 32-bit wide operands for comparison. */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_JMP32_IMM(OP, DST, IMM, OFF)			\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_JMP32 | BPF_OP(OP) | BPF_K,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = OFF,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = IMM })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Raw code statement block */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_RAW_INSN(CODE, DST, SRC, OFF, IMM)			\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = CODE,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = DST,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = SRC,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = OFF,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = IMM })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* Program exit */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define BPF_EXIT_INSN()						\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	((struct bpf_insn) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.code  = BPF_JMP | BPF_EXIT,			\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.dst_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.src_reg = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.off   = 0,					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		.imm   = 0 })
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h1 id="security" class="headerLink">
+    <a href="#security" class="header-mark"></a>Security</h1><p>虽然内核对用户输入做了很多的防护，但是依然没有阻止 eBPF 作为新的内核攻击面。</p>
+<h2 id="oob" class="headerLink">
+    <a href="#oob" class="header-mark"></a>OOB</h2><p>用户与内核唯一的屏障是 verify ，如果绕过那么就可以实现注入了。 eBPF 会对读取对应类型的内核缓冲区 context 和 map，这里涉及到，程序读取的值不能马上确定，而程序又要对数据进行其他的运算，如何保证得到的数据等不超界？</p>
+<p>eBPF 寄存器结构：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">bpf_reg_state</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/* Ordering of fields matters.  See states_equal() */</span>
+</span></span><span class="line"><span class="cl">	<span class="k">enum</span> <span class="n">bpf_reg_type</span> <span class="n">type</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">union</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="cm">/* valid when type == PTR_TO_PACKET */</span>
+</span></span><span class="line"><span class="cl">		<span class="n">u16</span> <span class="n">range</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="cm">/* valid when type == CONST_PTR_TO_MAP | PTR_TO_MAP_VALUE |
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 *   PTR_TO_MAP_VALUE_OR_NULL
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 */</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="n">bpf_map</span> <span class="o">*</span><span class="n">map_ptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="cm">/* Max size from any of the above. */</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">raw</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">};</span>
+</span></span><span class="line"><span class="cl">	<span class="n">s32</span> <span class="n">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">u32</span> <span class="n">id</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">u32</span> <span class="n">ref_obj_id</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">tnum</span> <span class="n">var_off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">s64</span> <span class="n">smin_value</span><span class="p">;</span> <span class="cm">/* minimum possible (s64)value */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">s64</span> <span class="n">smax_value</span><span class="p">;</span> <span class="cm">/* maximum possible (s64)value */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">u64</span> <span class="n">umin_value</span><span class="p">;</span> <span class="cm">/* minimum possible (u64)value */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">u64</span> <span class="n">umax_value</span><span class="p">;</span> <span class="cm">/* maximum possible (u64)value */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">bpf_reg_state</span> <span class="o">*</span><span class="n">parent</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">u32</span> <span class="n">frameno</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">s32</span> <span class="n">subreg_def</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">enum</span> <span class="n">bpf_reg_liveness</span> <span class="n">live</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">bool</span> <span class="n">precise</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">tnum</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">u64</span> <span class="n">value</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">u64</span> <span class="n">mask</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>umin_value</code>和 <code>umax_value</code>：当解释器将寄存器的值解释为无符号整数时的最小值和最大值</li>
+<li><code>smin_value</code> 和 <code>smax_value</code>：当解释器将寄存器的值解释为有符号整数时的最小值和最大值</li>
+<li><code>var_off</code>: 用来描述无法确定的值，既然有待定的值，一个位的状态就变成了三种，‘0’、‘1’和未知。如果一个数的某位是确定的，那么其在value中的值就是它的真值，对应mask中的位为0，如果某位无法确定，那么mask中对应的位为1。</li>
+</ul>
+<p>例如： <code>var_off→value = 0b010, value-&gt;mask = 0b100</code>，那么这个值就可能为0b010或0b110。</p>
+<p>上述这五个数据可以相互更新，例如如果 <code>umax_value</code> 小于 <code>2^63</code>，则 <code>smin_value</code> 会被设置为 0（因为不会有负数出现），如果 <code>var_off</code> 指示寄存器只有最低 3 位可能为 <code>1,</code>则 <code>umax_value</code> 为 7。</p>
+<h1 id="reference" class="headerLink">
+    <a href="#reference" class="header-mark"></a>Reference</h1><p><a href="https://davidlovezoe.club/wordpress/archives/1122" target="_blank" rel="noopener noreffer">Linux超能力BPF技术介绍及学习分享（附PPT）</a></p>
+<p><a href="https://ebpf.io/what-is-ebpf" target="_blank" rel="noopener noreffer">What is eBPF? An Introduction and Deep Dive into the eBPF Technology</a></p>
+<p><a href="https://arthurchiao.art/blog/linux-socket-filtering-aka-bpf-zh/#6-bpf-kernel-internalsebpf" target="_blank" rel="noopener noreffer">[译] Linux Socket Filtering (LSF, aka BPF)（KernelDoc，2021）</a></p>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2022-01-17</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/ebpf-basic-learning/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/dragonctf2021-nim/" class="prev" rel="prev" title="DragonCTF2021-Nim"><i class="fas fa-angle-left fa-fw"></i>DragonCTF2021-Nim</a>
+            <a href="/tsgctf2021-lkgit-userfaultfd/" class="next" rel="next" title="TSGCTF2021-lkgit(userfaultfd)">TSGCTF2021-lkgit(userfaultfd)<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

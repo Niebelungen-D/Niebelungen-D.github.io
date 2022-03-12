@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">Assembly 2 - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="Assembly 2" />
+<meta property="og:description" content="汇编语言（2）8、数据处理1、bx，si，di，bpreg（寄存器）：ax、bx、cx、dx、ah、al、bh、bl、ch、cl、dh、dl" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/assembly-2/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2020-10-01T00:14:18+08:00" />
+<meta property="article:modified_time" content="2020-10-01T00:14:18+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="Assembly 2"/>
+<meta name="twitter:description" content="汇编语言（2）8、数据处理1、bx，si，di，bpreg（寄存器）：ax、bx、cx、dx、ah、al、bh、bl、ch、cl、dh、dl"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/assembly-2/" /><link rel="prev" href="http://example.org/assembly-1/" /><link rel="next" href="http://example.org/assembly-3/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Assembly 2",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/assembly-2\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  3044 ,
+        "url": "http:\/\/example.org\/assembly-2\/","datePublished": "2020-10-01T00:14:18+08:00","dateModified": "2020-10-01T00:14:18+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#8数据处理">8、数据处理</a>
+      <ul>
+        <li><a href="#1bxsidibp">1、bx，si，di，bp</a></li>
+        <li><a href="#2数据的长度">2、数据的长度</a></li>
+        <li><a href="#3结构体">3、结构体</a></li>
+        <li><a href="#4div">4、div</a></li>
+      </ul>
+    </li>
+    <li><a href="#9转移指令">9、转移指令</a>
+      <ul>
+        <li><a href="#1offset">1、offset</a></li>
+        <li><a href="#2jmp">2、jmp</a></li>
+        <li><a href="#3jcxz">3、jcxz</a></li>
+      </ul>
+    </li>
+    <li><a href="#10call和ret指令">10、CALL和RET指令</a>
+      <ul>
+        <li><a href="#1ret和retf">1、ret和retf</a></li>
+        <li><a href="#2call">2、call</a></li>
+        <li><a href="#4mul">4、mul</a></li>
+        <li><a href="#5实验">5、实验</a></li>
+      </ul>
+    </li>
+    <li><a href="#11标志寄存器">11、标志寄存器</a>
+      <ul>
+        <li><a href="#1zfpfsfcfof">1、ZF、PF、SF、CF、OF</a></li>
+        <li><a href="#2adcsbbcmp">2、adc、sbb、cmp</a></li>
+        <li><a href="#3条件转移指令">3、条件转移指令</a></li>
+        <li><a href="#4df和串传送指令">4、DF和串传送指令</a></li>
+        <li><a href="#5pushf和popf">5、pushf和popf</a></li>
+      </ul>
+    </li>
+    <li><a href="#12内中断">12、内中断</a>
+      <ul>
+        <li><a href="#1中断向量表">1、中断向量表</a></li>
+        <li><a href="#2中断处理过程">2、中断处理过程</a></li>
+        <li><a href="#3编程处理0号中断">3、编程处理0号中断</a></li>
+        <li><a href="#4单步中断">4、单步中断</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Assembly 2</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2020-10-01">2020-10-01</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2020-10-01">2020-10-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3044 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 7 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#8数据处理">8、数据处理</a>
+      <ul>
+        <li><a href="#1bxsidibp">1、bx，si，di，bp</a></li>
+        <li><a href="#2数据的长度">2、数据的长度</a></li>
+        <li><a href="#3结构体">3、结构体</a></li>
+        <li><a href="#4div">4、div</a></li>
+      </ul>
+    </li>
+    <li><a href="#9转移指令">9、转移指令</a>
+      <ul>
+        <li><a href="#1offset">1、offset</a></li>
+        <li><a href="#2jmp">2、jmp</a></li>
+        <li><a href="#3jcxz">3、jcxz</a></li>
+      </ul>
+    </li>
+    <li><a href="#10call和ret指令">10、CALL和RET指令</a>
+      <ul>
+        <li><a href="#1ret和retf">1、ret和retf</a></li>
+        <li><a href="#2call">2、call</a></li>
+        <li><a href="#4mul">4、mul</a></li>
+        <li><a href="#5实验">5、实验</a></li>
+      </ul>
+    </li>
+    <li><a href="#11标志寄存器">11、标志寄存器</a>
+      <ul>
+        <li><a href="#1zfpfsfcfof">1、ZF、PF、SF、CF、OF</a></li>
+        <li><a href="#2adcsbbcmp">2、adc、sbb、cmp</a></li>
+        <li><a href="#3条件转移指令">3、条件转移指令</a></li>
+        <li><a href="#4df和串传送指令">4、DF和串传送指令</a></li>
+        <li><a href="#5pushf和popf">5、pushf和popf</a></li>
+      </ul>
+    </li>
+    <li><a href="#12内中断">12、内中断</a>
+      <ul>
+        <li><a href="#1中断向量表">1、中断向量表</a></li>
+        <li><a href="#2中断处理过程">2、中断处理过程</a></li>
+        <li><a href="#3编程处理0号中断">3、编程处理0号中断</a></li>
+        <li><a href="#4单步中断">4、单步中断</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="汇编语言2" class="headerLink">
+    <a href="#%e6%b1%87%e7%bc%96%e8%af%ad%e8%a8%802" class="header-mark"></a>汇编语言（2）</h1><!-- more -->
+<h2 id="8数据处理" class="headerLink">
+    <a href="#8%e6%95%b0%e6%8d%ae%e5%a4%84%e7%90%86" class="header-mark"></a>8、数据处理</h2><h3 id="1bxsidibp" class="headerLink">
+    <a href="#1bxsidibp" class="header-mark"></a>1、bx，si，di，bp</h3><p>reg（寄存器）：ax、bx、cx、dx、ah、al、bh、bl、ch、cl、dh、dl、sp、bp、si、di；</p>
+<p>sreg（段寄存器）：ds、ss、cs、es（扩展段，辅助作用）；</p>
+<p>只有这四个寄存器用在“[&hellip;]”中来进行内存单元的寻址。</p>
+<p>下面这两种语法是错误的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mov ax,[si+di]
+</span></span><span class="line"><span class="cl">mov sx,[bx+bp]
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>若在“[&hellip;]”中使用bp，而指令没有显性给出段地址时，段地址默认在ss中。</p>
+<h3 id="2数据的长度" class="headerLink">
+    <a href="#2%e6%95%b0%e6%8d%ae%e7%9a%84%e9%95%bf%e5%ba%a6" class="header-mark"></a>2、数据的长度</h3><p>在没有寄存器名存在的情况下，用操作符X ptr指明内存单元的长度，X在汇编指令中可以为word或byte。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mov word ptr ds:[0],1
+</span></span><span class="line"><span class="cl">inc word ptr ds:[0]
+</span></span><span class="line"><span class="cl">inc byte ptr ds:[0]
+</span></span><span class="line"><span class="cl">add byte ptr [bx],2
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>push,pop只对字进行操作。</p>
+<h3 id="3结构体" class="headerLink">
+    <a href="#3%e7%bb%93%e6%9e%84%e4%bd%93" class="header-mark"></a>3、结构体</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mov ax,seg
+</span></span><span class="line"><span class="cl">mov ds,ax
+</span></span><span class="line"><span class="cl">mov bx,60h
+</span></span><span class="line"><span class="cl">mov word ptr [bx+0ch],38		;一个数据段中紧挨着存放了不同的信息
+</span></span><span class="line"><span class="cl">mov word ptr [bx+0eh],70		;类似c语言的结构体
+</span></span><span class="line"><span class="cl">mov si,0
+</span></span><span class="line"><span class="cl">mov byte ptr [bx+10+si],&#39;V&#39;
+</span></span><span class="line"><span class="cl">inc si
+</span></span><span class="line"><span class="cl">mov byte ptr [bx+10+si],&#39;A&#39;
+</span></span><span class="line"><span class="cl">inc si
+</span></span><span class="line"><span class="cl">mov byte ptr [bx+10+si],&#39;X&#39;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="4div" class="headerLink">
+    <a href="#4div" class="header-mark"></a>4、div</h3><p>被除数默认放在AX或AX和DX中，若除数为8位，则被除数位16位，在ax中存放；若除数为16位，被除数位32位，在DX和AX中存放，ax存放低16位。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">;格式
+</span></span><span class="line"><span class="cl">;div reg
+</span></span><span class="line"><span class="cl">;div 内存单元
+</span></span><span class="line"><span class="cl">div byte ptr ds:[0]
+</span></span><span class="line"><span class="cl">;(a1)=(ax)/((ds)*16+0)的商
+</span></span><span class="line"><span class="cl">;(ah)=(ax)/((ds)*16+0)的余数
+</span></span><span class="line"><span class="cl">div word ptr es:[0]
+</span></span><span class="line"><span class="cl">;(ax)=[(dx)*10000H+(ax)]/((es)*16+0)的商
+</span></span><span class="line"><span class="cl">;(bx)=[(dx)*10000H+(ax)]/((es)*16+0)的余数
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="9转移指令" class="headerLink">
+    <a href="#9%e8%bd%ac%e7%a7%bb%e6%8c%87%e4%bb%a4" class="header-mark"></a>9、转移指令</h2><h3 id="1offset" class="headerLink">
+    <a href="#1offset" class="header-mark"></a>1、offset</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mov ax,offset start  ;取得标号的偏移地址
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2jmp" class="headerLink">
+    <a href="#2jmp" class="header-mark"></a>2、jmp</h3><p>观察机器码，可以发现立即数（idata）会在机器码中有所体现。jmp指令机器码中以补码的形式体现。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">cs:0000		mov ax,0123h		;B8 23 01
+</span></span><span class="line"><span class="cl">cs:0003		jmp s				;EB 03，执行jmp后，ip+2变为05
+</span></span><span class="line"><span class="cl">cs:0005		add ax,1			;实际作用是jmp执行后向下跳3个字节
+</span></span><span class="line"><span class="cl">cs:0008	 s:	inc ax				;jmp将ip=ip+03=08,03为补码的十六进制
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">jmp short s			;段内短转移，（ip）=（ip）+8位位移
+</span></span><span class="line"><span class="cl">jmp near ptr s		;段内近转移，（ip）=（ip）+16位位移
+</span></span><span class="line"><span class="cl">jmp far ptr s		;段间转移，直接修改cs：ip
+</span></span><span class="line"><span class="cl">jmp word ptr 内存地址单元	;段内近转移，（ip）=(内存地址单元)
+</span></span><span class="line"><span class="cl">jmp dword ptr 内存地址单元;段间转移
+</span></span><span class="line"><span class="cl">						;(cs)=(内存地址单元+2),(ip)=(内存地址单元)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="3jcxz" class="headerLink">
+    <a href="#3jcxz" class="header-mark"></a>3、jcxz</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">jcxz 标号
+</span></span><span class="line"><span class="cl">;if((cx)==0)
+</span></span><span class="line"><span class="cl">;	jmp 标号
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="10call和ret指令" class="headerLink">
+    <a href="#10call%e5%92%8cret%e6%8c%87%e4%bb%a4" class="header-mark"></a>10、CALL和RET指令</h2><h3 id="1ret和retf" class="headerLink">
+    <a href="#1ret%e5%92%8cretf" class="header-mark"></a>1、ret和retf</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">ret  ;等价于pop ip
+</span></span><span class="line"><span class="cl">;(ip)=((ss)*16+(sp))
+</span></span><span class="line"><span class="cl">;(sp)=(sp)+2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">retf  ;等价于pop ip,pop cs
+</span></span><span class="line"><span class="cl">;(ip)=((ss)*16+(sp))
+</span></span><span class="line"><span class="cl">;(sp)=(sp)+2
+</span></span><span class="line"><span class="cl">;(cs)=((ss)*16+(sp))
+</span></span><span class="line"><span class="cl">;(sp)=(sp)+2
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2call" class="headerLink">
+    <a href="#2call" class="header-mark"></a>2、call</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">call s
+</span></span><span class="line"><span class="cl">;(sp)=(sp)-2			push ip
+</span></span><span class="line"><span class="cl">;((ss)*16+(sp))=(ip)	
+</span></span><span class="line"><span class="cl">;(ip)=(ip)+16位位移	  jmp near ptr 标号
+</span></span><span class="line"><span class="cl">;16位位移=标号处地址-call指令的第一个字节的地址
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">call far ptr s
+</span></span><span class="line"><span class="cl">;(sp)=(sp)-2			push cs
+</span></span><span class="line"><span class="cl">;((ss)*16+(sp))=(cs)	push ip
+</span></span><span class="line"><span class="cl">;(sp)=(sp)-2
+</span></span><span class="line"><span class="cl">;((ss)*16+(sp))=(ip)	
+</span></span><span class="line"><span class="cl">;(cs)=标号所在的段地址		jmp far ptr 标号
+</span></span><span class="line"><span class="cl">;(ip)=标号在段中的偏移地址
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">call 16位reg
+</span></span><span class="line"><span class="cl">;(sp)=(sp)-2
+</span></span><span class="line"><span class="cl">;((ss)*16+(sp))=(cs)
+</span></span><span class="line"><span class="cl">;(ip)=(16位reg)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">call word ptr 内存单元地址
+</span></span><span class="line"><span class="cl">;push ip
+</span></span><span class="line"><span class="cl">;jmp word ptr 内存单元地址
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">call dword ptr 内存单元地址
+</span></span><span class="line"><span class="cl">;push cs
+</span></span><span class="line"><span class="cl">;push ip
+</span></span><span class="line"><span class="cl">;jmp dword ptr 内存单元地址
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="4mul" class="headerLink">
+    <a href="#4mul" class="header-mark"></a>4、mul</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mul reg
+</span></span><span class="line"><span class="cl">mul 内存单元
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mul byte ptr ds:[0]
+</span></span><span class="line"><span class="cl">;(ax)=(al)*((ds)*16+0)
+</span></span><span class="line"><span class="cl">mul word ptr [bx+si+8]
+</span></span><span class="line"><span class="cl">;(ax)=(ax)*((ds)*16+(bx)+(si)+8)结果的低16位
+</span></span><span class="line"><span class="cl">;(dx)=(ax)*((ds)*16+(bx)+(si)+8)结果的高16位
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="5实验" class="headerLink">
+    <a href="#5%e5%ae%9e%e9%aa%8c" class="header-mark"></a>5、实验</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">assume cs:code
+</span></span><span class="line"><span class="cl">data segment 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">data ends
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">stack segment
+</span></span><span class="line"><span class="cl">	dw 8 dup(0)
+</span></span><span class="line"><span class="cl">stack ends
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">code segment
+</span></span><span class="line"><span class="cl">start:	mov ax,stack
+</span></span><span class="line"><span class="cl">		mov ss,ax
+</span></span><span class="line"><span class="cl">		mov sp,10h
+</span></span><span class="line"><span class="cl">		mov ax,4240h
+</span></span><span class="line"><span class="cl">		mov dx,0fh
+</span></span><span class="line"><span class="cl">		mov cx,0ah
+</span></span><span class="line"><span class="cl">		call divdw
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		mov ax,
+</span></span><span class="line"><span class="cl">		int 21h
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">divdw:	push ax			;保存低16位
+</span></span><span class="line"><span class="cl">		mov ax,dx		;ax此时位H
+</span></span><span class="line"><span class="cl">		mov dx,0
+</span></span><span class="line"><span class="cl">		div cx			;高16位除以除数
+</span></span><span class="line"><span class="cl">		mov bx,ax		;H/N的商，放入高位商的储存位置
+</span></span><span class="line"><span class="cl">		pop ax
+</span></span><span class="line"><span class="cl">		div cx			;低16位除以除数
+</span></span><span class="line"><span class="cl">		mov cs,dx
+</span></span><span class="line"><span class="cl">		mov dx,bx
+</span></span><span class="line"><span class="cl">		ret
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">code ends
+</span></span><span class="line"><span class="cl">end start
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="11标志寄存器" class="headerLink">
+    <a href="#11%e6%a0%87%e5%bf%97%e5%af%84%e5%ad%98%e5%99%a8" class="header-mark"></a>11、标志寄存器</h2><p>flag寄存器有16位，其中储存的信息被称为程序状态字（PSW）。</p>
+<blockquote>
+<p>作用：</p>
+<p>（1）用来储存相关指令的某些执行结果；</p>
+<p>（2）用来为CPU执行相关指令提供行为依据；</p>
+<p>（3）用来控制CPU的相关工作方式。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">值</th>
+<th style="text-align:center">15</th>
+<th style="text-align:center">14</th>
+<th style="text-align:center">13</th>
+<th>12</th>
+<th style="text-align:center">11</th>
+<th style="text-align:center">10</th>
+<th>9</th>
+<th style="text-align:center">8</th>
+<th style="text-align:center">7</th>
+<th style="text-align:center">6</th>
+<th style="text-align:center">5</th>
+<th style="text-align:center">4</th>
+<th style="text-align:center">3</th>
+<th style="text-align:center">2</th>
+<th style="text-align:center">1</th>
+<th style="text-align:center">0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">flag</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td></td>
+<td style="text-align:center">OF</td>
+<td style="text-align:center">DF</td>
+<td>IF</td>
+<td style="text-align:center">TF</td>
+<td style="text-align:center">SF</td>
+<td style="text-align:center">ZF</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">AF</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">PF</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">CF</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td></td>
+<td style="text-align:center">OV</td>
+<td style="text-align:center">DN</td>
+<td></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">NG</td>
+<td style="text-align:center">ZR</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">PE</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">CY</td>
+</tr>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td></td>
+<td style="text-align:center">NV</td>
+<td style="text-align:center">UP</td>
+<td></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">PL</td>
+<td style="text-align:center">NZ</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">PO</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">NC</td>
+</tr>
+</tbody>
+</table>
+<p>flag的1、3、5、12、3、14、15没有任何含义。其他有特殊含义。</p>
+<h3 id="1zfpfsfcfof" class="headerLink">
+    <a href="#1zfpfsfcfof" class="header-mark"></a>1、ZF、PF、SF、CF、OF</h3><p>ZF（零标志位）：指令执行后，结果为0，则ZF=1，否则为0。</p>
+<p>PF（奇偶标志位）：指令执行后，结果为偶数，则PF=1，否则为0。</p>
+<p>SF（符号标志位）：指令执行后，结果为负数，则SF=1，否则为0。</p>
+<blockquote>
+<p>当我们将数据当作有符号数来运算时，SF标志位才有意义</p>
+</blockquote>
+<p>CF（进位标志位）：在进行<strong>无符号数运算</strong>的时候，它记录了运算结果的最高有效位向更高位的进位值。</p>
+<blockquote>
+<p>例如，两个八位数据：98H+98H，将产生进位，8位数无法保存，更高的位被记录在CF中。</p>
+<p>借位时也会发生改变。</p>
+</blockquote>
+<p>OF（溢出标志位）：在进行<strong>有符号数运算</strong>时，若运算结果超出机器所能表达的范围，将产生溢出。产生溢出的溢出放入OF。</p>
+<h3 id="2adcsbbcmp" class="headerLink">
+    <a href="#2adcsbbcmp" class="header-mark"></a>2、adc、sbb、cmp</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">adc ax,bx
+</span></span><span class="line"><span class="cl">;(ax)=(ax)+(bx)+CF
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">;例计算1EF000H+201000H
+</span></span><span class="line"><span class="cl">mov ax,001eh	;存低位
+</span></span><span class="line"><span class="cl">mov bx,0f000h	;存高位
+</span></span><span class="line"><span class="cl">add bx,1000h	;低位相加
+</span></span><span class="line"><span class="cl">adc ax,0020h	
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sbb ax,bx
+</span></span><span class="line"><span class="cl">;(ax)=(ax)-(bx)-CF
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">;例计算003E1000H-00202000H
+</span></span><span class="line"><span class="cl">mov bx,1000h	;存低位
+</span></span><span class="line"><span class="cl">mov ax,003eh	;存高位
+</span></span><span class="line"><span class="cl">sub bx,2000h	;低位相减
+</span></span><span class="line"><span class="cl">sbb ax,0020h
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">cmp ax,bx
+</span></span><span class="line"><span class="cl">;(ax)-(bx)，用来影响flag各位的值。
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">;无符号数的比较
+</span></span><span class="line"><span class="cl">;(ax)=(bx),ZF=1;
+</span></span><span class="line"><span class="cl">;(ax)≠(bx),ZF=0;
+</span></span><span class="line"><span class="cl">;(ax)&lt;(bx),CF=1;
+</span></span><span class="line"><span class="cl">;(ax)≥(bx),CF=0;
+</span></span><span class="line"><span class="cl">;(ax)&gt;(bx),CF=0&amp;&amp;ZF=0;
+</span></span><span class="line"><span class="cl">;(ax)≤(bx),CF=1||ZF=1;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">;有符号数的比较
+</span></span><span class="line"><span class="cl">;SF=1&amp;&amp;OF=0,(ax)&lt;(bx)
+</span></span><span class="line"><span class="cl">;SF=1%%OF=1,(ax)&gt;(bx)
+</span></span><span class="line"><span class="cl">;SF=0&amp;&amp;OF=1,(ax)&lt;(bx)
+</span></span><span class="line"><span class="cl">;SF=0&amp;&amp;OF=0,(ax)≥(bx)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="3条件转移指令" class="headerLink">
+    <a href="#3%e6%9d%a1%e4%bb%b6%e8%bd%ac%e7%a7%bb%e6%8c%87%e4%bb%a4" class="header-mark"></a>3、条件转移指令</h3><p>jump,not,equal,below,above</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">指令</th>
+<th style="text-align:center">含义</th>
+<th style="text-align:center">检测的flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">je</td>
+<td style="text-align:center">等于则转移</td>
+<td style="text-align:center">ZF=1</td>
+</tr>
+<tr>
+<td style="text-align:center">jne</td>
+<td style="text-align:center">不等于则转移</td>
+<td style="text-align:center">ZF=0</td>
+</tr>
+<tr>
+<td style="text-align:center">jb</td>
+<td style="text-align:center">低于则转移</td>
+<td style="text-align:center">CF=1</td>
+</tr>
+<tr>
+<td style="text-align:center">jnb</td>
+<td style="text-align:center">不低于则转移</td>
+<td style="text-align:center">CF=0</td>
+</tr>
+<tr>
+<td style="text-align:center">ja</td>
+<td style="text-align:center">高于则转移</td>
+<td style="text-align:center">CF=0,ZF=0</td>
+</tr>
+<tr>
+<td style="text-align:center">jna</td>
+<td style="text-align:center">不高于则转移</td>
+<td style="text-align:center">CF=1 or ZF=1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4df和串传送指令" class="headerLink">
+    <a href="#4df%e5%92%8c%e4%b8%b2%e4%bc%a0%e9%80%81%e6%8c%87%e4%bb%a4" class="header-mark"></a>4、DF和串传送指令</h3><p>DF（方向标志位）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">movsb
+</span></span><span class="line"><span class="cl">;(1)((es)*16+(di))=((ds)*16+(si))
+</span></span><span class="line"><span class="cl">;(2)if df=0,(si)=(si)+1,(di)=(di)+1
+</span></span><span class="line"><span class="cl">;	if df=1,(si)=(si)-1,(di)=(di)-1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">movsw
+</span></span><span class="line"><span class="cl">;(1)((es)*16+(di))=((ds)*16+(si))
+</span></span><span class="line"><span class="cl">;(2)if df=0,(si)=(si)+2,(di)=(di)+2
+</span></span><span class="line"><span class="cl">;	if df=1,(si)=(si)-2,(di)=(di)-2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">rep movsb
+</span></span><span class="line"><span class="cl">;s:movsb
+</span></span><span class="line"><span class="cl">;  loop s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cld			;设置df=0，正向传送
+</span></span><span class="line"><span class="cl">std			;设置df=1
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="5pushf和popf" class="headerLink">
+    <a href="#5pushf%e5%92%8cpopf" class="header-mark"></a>5、pushf和popf</h3><p>pushf：将标志寄存器的值压栈。</p>
+<p>popf：将栈中的数据弹出，送入标志寄存器。</p>
+<h2 id="12内中断" class="headerLink">
+    <a href="#12%e5%86%85%e4%b8%ad%e6%96%ad" class="header-mark"></a>12、内中断</h2><blockquote>
+<p>产生中断信息的四种情况：</p>
+<p>（1）除法错误，如：div指令产生的除法溢出； 0号中断</p>
+<p>（2）单步执行；		1号中断</p>
+<p>（3）执行into指令；</p>
+<p>（4）执行int指令。</p>
+</blockquote>
+<h3 id="1中断向量表" class="headerLink">
+    <a href="#1%e4%b8%ad%e6%96%ad%e5%90%91%e9%87%8f%e8%a1%a8" class="header-mark"></a>1、中断向量表</h3><p>储存着中断处理程序的入口地址的列表，在内存0000：0000到0000：03FF的1024个单元存放，一个物理地址占四个字节，低位为ip，高位为cs。</p>
+<h3 id="2中断处理过程" class="headerLink">
+    <a href="#2%e4%b8%ad%e6%96%ad%e5%a4%84%e7%90%86%e8%bf%87%e7%a8%8b" class="header-mark"></a>2、中断处理过程</h3><ol>
+<li>取得中断类型码N；</li>
+<li>pushf</li>
+<li>TF=0，IF=0；</li>
+<li>push cs</li>
+<li>push ip</li>
+<li>（ip）=(N *4)，(cs)=(N *4+2)</li>
+<li>开始运行中断处理程序（用iret返回）</li>
+</ol>
+<h3 id="3编程处理0号中断" class="headerLink">
+    <a href="#3%e7%bc%96%e7%a8%8b%e5%a4%84%e7%90%860%e5%8f%b7%e4%b8%ad%e6%96%ad" class="header-mark"></a>3、编程处理0号中断</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">assume cs:code
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">code segment
+</span></span><span class="line"><span class="cl">start: 	mov ax,0			;目标程序地址
+</span></span><span class="line"><span class="cl">		mov es,ax
+</span></span><span class="line"><span class="cl">		mov di,200H
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		mov ax,cs			;源程序地址
+</span></span><span class="line"><span class="cl">		mov ds,ax
+</span></span><span class="line"><span class="cl">		mov si,offset do0
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		mov cx,offset do0end-offset do	;传输代码的长度
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		cld					;正向传输
+</span></span><span class="line"><span class="cl">		rep movsb			;传输
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		mov ax,0			;设置中断向量表，指向我们规定的程序入口
+</span></span><span class="line"><span class="cl">		mov es,ax
+</span></span><span class="line"><span class="cl">		mov word ptr es:[0*4],200h
+</span></span><span class="line"><span class="cl">		mov word ptr es:[0*4+2],0
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		mov ax,4c00h
+</span></span><span class="line"><span class="cl">		int 21h
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">do:		jmp short do0
+</span></span><span class="line"><span class="cl">		db &#39;overflow!&#39;		;用来存放‘overflow！’
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">do0:	mov ax,cs			;字符串的地址
+</span></span><span class="line"><span class="cl">		mov ds,ax
+</span></span><span class="line"><span class="cl">		mov si,202h
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		mov ax,0b800h		;字符串要显示的位置
+</span></span><span class="line"><span class="cl">		mov es.ax
+</span></span><span class="line"><span class="cl">		mov di,12*160+36*2
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		mov cx,9
+</span></span><span class="line"><span class="cl">s:		mov al,[si]
+</span></span><span class="line"><span class="cl">		mov es:[di],al
+</span></span><span class="line"><span class="cl">		inc si
+</span></span><span class="line"><span class="cl">		add di,2
+</span></span><span class="line"><span class="cl">		loop s
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		mov ax,4c00h
+</span></span><span class="line"><span class="cl">		int 21h
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">do0end:	nop
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">code ends
+</span></span><span class="line"><span class="cl">end start
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="4单步中断" class="headerLink">
+    <a href="#4%e5%8d%95%e6%ad%a5%e4%b8%ad%e6%96%ad" class="header-mark"></a>4、单步中断</h3><p>若TF=1，则会产生单步中断。</p>
+<ol>
+<li>取得中断类型码1；</li>
+<li>标志寄存器入栈，TF=0,IF=0；</li>
+<li>CS,IP入栈</li>
+<li>(IP)=(1 *4),(CS)=(1 *4+2)</li>
+</ol>
+<p>在Debug中，t命令使TF=1，进入单步中断程序，TF又被设置为0，来防止单步中断循环发生。</p>
+<p>在执行完向ss寄存器传送数据的指令后，CPU不会响应中断。因为ss：sp的设置要连续完成。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mov ax,1000h
+</span></span><span class="line"><span class="cl">mov ss,ax
+</span></span><span class="line"><span class="cl">mov ax,0	;这一步直接被忽略
+</span></span><span class="line"><span class="cl">mov sp,0
+</span></span></code></pre></td></tr></table>
+</div>
+</div></div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2020-10-01</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/assembly-2/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/assembly-1/" class="prev" rel="prev" title="Assembly 1"><i class="fas fa-angle-left fa-fw"></i>Assembly 1</a>
+            <a href="/assembly-3/" class="next" rel="next" title="Assembly 3">Assembly 3<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">CSAPP Lecture 01 - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="CSAPP Lecture 01" />
+<meta property="og:description" content="Lecture 01:Bits,Bytes and Integer大端法与小端法对于0x01234567，最高有效为0x01，最低有效位为0x67 大端法： ··· 0x100 0x101 0x102 0x103 ··· ··· 01 23 45" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/csapp-lecture-01/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-01-20T00:25:59+08:00" />
+<meta property="article:modified_time" content="2021-01-20T00:25:59+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="CSAPP Lecture 01"/>
+<meta name="twitter:description" content="Lecture 01:Bits,Bytes and Integer大端法与小端法对于0x01234567，最高有效为0x01，最低有效位为0x67 大端法： ··· 0x100 0x101 0x102 0x103 ··· ··· 01 23 45"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/csapp-lecture-01/" /><link rel="prev" href="http://example.org/csapp-lecture-02/" /><link rel="next" href="http://example.org/csapp-lecture-06/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "CSAPP Lecture 01",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/csapp-lecture-01\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  1664 ,
+        "url": "http:\/\/example.org\/csapp-lecture-01\/","datePublished": "2021-01-20T00:25:59+08:00","dateModified": "2021-01-20T00:25:59+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#大端法与小端法">大端法与小端法</a></li>
+    <li><a href="#bool代数">Bool代数</a></li>
+    <li><a href="#移位运算">移位运算：</a></li>
+    <li><a href="#无符号数的编码">无符号数的编码</a></li>
+    <li><a href="#补码编码">补码编码</a></li>
+    <li><a href="#有符号与无符号数的转换">有符号与无符号数的转换</a></li>
+    <li><a href="#扩展一个数字的位表达">扩展一个数字的位表达</a>
+      <ul>
+        <li><a href="#无符号数的零拓展">无符号数的零拓展</a></li>
+        <li><a href="#补码数的符号拓展">补码数的符号拓展</a></li>
+      </ul>
+    </li>
+    <li><a href="#截断">截断</a></li>
+    <li><a href="#整数运算">整数运算</a>
+      <ul>
+        <li><a href="#无符号数加法">无符号数加法</a></li>
+        <li><a href="#无符号求反">无符号求反</a></li>
+        <li><a href="#补码加法">补码加法</a></li>
+        <li><a href="#补码的非">补码的非</a></li>
+        <li><a href="#无符号的乘法">无符号的乘法</a></li>
+        <li><a href="#补码的乘法">补码的乘法</a></li>
+        <li><a href="#与常数的运算">与常数的运算</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">CSAPP Lecture 01</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-01-20">2021-01-20</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2021-01-20">2021-01-20</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1664 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 4 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#大端法与小端法">大端法与小端法</a></li>
+    <li><a href="#bool代数">Bool代数</a></li>
+    <li><a href="#移位运算">移位运算：</a></li>
+    <li><a href="#无符号数的编码">无符号数的编码</a></li>
+    <li><a href="#补码编码">补码编码</a></li>
+    <li><a href="#有符号与无符号数的转换">有符号与无符号数的转换</a></li>
+    <li><a href="#扩展一个数字的位表达">扩展一个数字的位表达</a>
+      <ul>
+        <li><a href="#无符号数的零拓展">无符号数的零拓展</a></li>
+        <li><a href="#补码数的符号拓展">补码数的符号拓展</a></li>
+      </ul>
+    </li>
+    <li><a href="#截断">截断</a></li>
+    <li><a href="#整数运算">整数运算</a>
+      <ul>
+        <li><a href="#无符号数加法">无符号数加法</a></li>
+        <li><a href="#无符号求反">无符号求反</a></li>
+        <li><a href="#补码加法">补码加法</a></li>
+        <li><a href="#补码的非">补码的非</a></li>
+        <li><a href="#无符号的乘法">无符号的乘法</a></li>
+        <li><a href="#补码的乘法">补码的乘法</a></li>
+        <li><a href="#与常数的运算">与常数的运算</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="lecture-01bitsbytes-and-integer" class="headerLink">
+    <a href="#lecture-01bitsbytes-and-integer" class="header-mark"></a>Lecture 01:Bits,Bytes and Integer</h1><h2 id="大端法与小端法" class="headerLink">
+    <a href="#%e5%a4%a7%e7%ab%af%e6%b3%95%e4%b8%8e%e5%b0%8f%e7%ab%af%e6%b3%95" class="header-mark"></a>大端法与小端法</h2><!-- more -->
+<p>对于0x01234567，最高有效为0x01，最低有效位为0x67</p>
+<p>大端法：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">···</th>
+<th style="text-align:center">0x100</th>
+<th style="text-align:center">0x101</th>
+<th style="text-align:center">0x102</th>
+<th style="text-align:center">0x103</th>
+<th style="text-align:center">···</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">···</td>
+<td style="text-align:center">01</td>
+<td style="text-align:center">23</td>
+<td style="text-align:center">45</td>
+<td style="text-align:center">67</td>
+<td style="text-align:center">···</td>
+</tr>
+</tbody>
+</table>
+<p>小端法：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">···</th>
+<th style="text-align:center">0x100</th>
+<th style="text-align:center">0x101</th>
+<th style="text-align:center">0x102</th>
+<th style="text-align:center">0x103</th>
+<th style="text-align:center">···</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">···</td>
+<td style="text-align:center">67</td>
+<td style="text-align:center">45</td>
+<td style="text-align:center">23</td>
+<td style="text-align:center">01</td>
+<td style="text-align:center">···</td>
+</tr>
+</tbody>
+</table>
+<p>Windows，Linux采用小端法</p>
+<h2 id="bool代数" class="headerLink">
+    <a href="#bool%e4%bb%a3%e6%95%b0" class="header-mark"></a>Bool代数</h2><p>&amp;：按位与，|：按位或，^：按位异或，~：取反</p>
+<p>&amp;&amp;：与，||：或，！：非</p>
+<h2 id="移位运算" class="headerLink">
+    <a href="#%e7%a7%bb%e4%bd%8d%e8%bf%90%e7%ae%97" class="header-mark"></a>移位运算：</h2><p>$x&laquo;k$，$x$向左移动$k$位，丢弃最高的$k$位，并在右端补$k$个0。</p>
+<p>算术右移：$x&raquo;k$，$x$向右移动$k$位，丢弃最低的$k$位，并在左端补$k$个最高有效位。</p>
+<p>逻辑右移：$x&raquo;k$，$x$向右移动$k$位，丢弃最低的$k$位，并在左端补$k$个0。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">x</th>
+<th style="text-align:center">[01100011]  [10010101]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">x&laquo;4</td>
+<td style="text-align:center">[00110000]  [01010000]</td>
+</tr>
+<tr>
+<td style="text-align:center">x&raquo;4(逻辑右移)</td>
+<td style="text-align:center">[00000110]  [00001001]</td>
+</tr>
+<tr>
+<td style="text-align:center">x&raquo;4(算术右移)</td>
+<td style="text-align:center">[00000110]  [11110001]</td>
+</tr>
+</tbody>
+</table>
+<h2 id="无符号数的编码" class="headerLink">
+    <a href="#%e6%97%a0%e7%ac%a6%e5%8f%b7%e6%95%b0%e7%9a%84%e7%bc%96%e7%a0%81" class="header-mark"></a>无符号数的编码</h2><p>$B2U_w(x)$=$$\sum_{i=0}^{w-1}{x_i2^i}$$，$w$表示数$x$的位数</p>
+<p>$B2U_4([1010])=1<em>2^3+0</em>2^2+1<em>2^1+0</em>2^0$=10</p>
+<p>无符号数编码的唯一性，函数$B2U_w$是一个双射。</p>
+<h2 id="补码编码" class="headerLink">
+    <a href="#%e8%a1%a5%e7%a0%81%e7%bc%96%e7%a0%81" class="header-mark"></a>补码编码</h2><p>$B2T_w(x)=-x_{w-1}2^{w-1}+\sum_{i=0}^{w-2}{x_i2^i}$，$w$表示数$x$的位数</p>
+<p>$B2T_4(1011)=-1<em>2^3+0</em>2^2+1<em>2^1+1</em>2^0=-8+0+2+1=-5$</p>
+<p>补码编码的唯一性，函数$B2T_w(x)$是一个双射。</p>
+<h2 id="有符号与无符号数的转换" class="headerLink">
+    <a href="#%e6%9c%89%e7%ac%a6%e5%8f%b7%e4%b8%8e%e6%97%a0%e7%ac%a6%e5%8f%b7%e6%95%b0%e7%9a%84%e8%bd%ac%e6%8d%a2" class="header-mark"></a>有符号与无符号数的转换</h2><p>$$T2U_w(x)=\begin{cases} x+2^w,x&lt;0\x,x≥0\end{cases}$$</p>
+<p>$$U2T_w(u)=\begin{cases} u,u≤TMax_w\u-2^w,u＞TMax_w\end{cases}$$</p>
+<p>强制类型转换，只是改变了位的解释方式，不改变位值。</p>
+<h2 id="扩展一个数字的位表达" class="headerLink">
+    <a href="#%e6%89%a9%e5%b1%95%e4%b8%80%e4%b8%aa%e6%95%b0%e5%ad%97%e7%9a%84%e4%bd%8d%e8%a1%a8%e8%be%be" class="header-mark"></a>扩展一个数字的位表达</h2><h3 id="无符号数的零拓展" class="headerLink">
+    <a href="#%e6%97%a0%e7%ac%a6%e5%8f%b7%e6%95%b0%e7%9a%84%e9%9b%b6%e6%8b%93%e5%b1%95" class="header-mark"></a>无符号数的零拓展</h3><p>宽度为$w$的位向量$u=[u_{w-1},u_{w-2},···，u_0]$，</p>
+<p>宽度为$w^<code>的位向量u^</code>=[0,0,u_{w-1},u_{w-2},···,u_0]，$其中$w^`＞w$.</p>
+<h3 id="补码数的符号拓展" class="headerLink">
+    <a href="#%e8%a1%a5%e7%a0%81%e6%95%b0%e7%9a%84%e7%ac%a6%e5%8f%b7%e6%8b%93%e5%b1%95" class="header-mark"></a>补码数的符号拓展</h3><p>宽度为$w$的位向量$u=[u_{w-1},u_{w-2},···，u_0]$，</p>
+<p>宽度为$w^<code>的位向量u^</code>=[u_{w-1},u_{w-1},u_{w-1},u_{w-2},···,u_0]$，其中$w^`＞w$.</p>
+<h2 id="截断" class="headerLink">
+    <a href="#%e6%88%aa%e6%96%ad" class="header-mark"></a>截断</h2><p>将数从高位向低位强制转换时，会发生截断，截断$k$位，即丢弃其高$k$位。即，虽然原地址储存的数据没有变化，但是其高k位已经没有了意义。</p>
+<p>例如，int转short。</p>
+<h2 id="整数运算" class="headerLink">
+    <a href="#%e6%95%b4%e6%95%b0%e8%bf%90%e7%ae%97" class="header-mark"></a>整数运算</h2><h3 id="无符号数加法" class="headerLink">
+    <a href="#%e6%97%a0%e7%ac%a6%e5%8f%b7%e6%95%b0%e5%8a%a0%e6%b3%95" class="header-mark"></a>无符号数加法</h3><p>$$x+y^u_w=\begin{cases} x+y,x+y＜2^w\x+y-2^w,2^w≤x+y&lt;2^{w+1}\end{cases}$$</p>
+<h3 id="无符号求反" class="headerLink">
+    <a href="#%e6%97%a0%e7%ac%a6%e5%8f%b7%e6%b1%82%e5%8f%8d" class="header-mark"></a>无符号求反</h3><p>$$-x^u_w=\begin{cases}x,x=0\2^w-x,x&gt;0\end{cases}$$</p>
+<h3 id="补码加法" class="headerLink">
+    <a href="#%e8%a1%a5%e7%a0%81%e5%8a%a0%e6%b3%95" class="header-mark"></a>补码加法</h3><p>$$ x+y^t_w=\begin{cases} x+y-2^w,2^{w-1}≤x+y\x+y,-2^{w-1}≤x+y&lt;2^{w-1}\x+y+2^w,x+y&lt;-2^{w-1}\end{cases} $$</p>
+<h3 id="补码的非" class="headerLink">
+    <a href="#%e8%a1%a5%e7%a0%81%e7%9a%84%e9%9d%9e" class="header-mark"></a>补码的非</h3><p>$$ -x^t_w=\begin{cases}TMin_w,x=TMin_w\-x,x&gt;TMin_w\end{cases} $$</p>
+<h3 id="无符号的乘法" class="headerLink">
+    <a href="#%e6%97%a0%e7%ac%a6%e5%8f%b7%e7%9a%84%e4%b9%98%e6%b3%95" class="header-mark"></a>无符号的乘法</h3><p>$$ x*y^u_w=(x·y)mod 2^w $$</p>
+<h3 id="补码的乘法" class="headerLink">
+    <a href="#%e8%a1%a5%e7%a0%81%e7%9a%84%e4%b9%98%e6%b3%95" class="header-mark"></a>补码的乘法</h3><p>$$x*y^t_w=U2T_w((x·y)mod 2^w)$$</p>
+<h3 id="与常数的运算" class="headerLink">
+    <a href="#%e4%b8%8e%e5%b8%b8%e6%95%b0%e7%9a%84%e8%bf%90%e7%ae%97" class="header-mark"></a>与常数的运算</h3><p>对于任意常数的运算在后面会讲，类似进行$(a&laquo;k)+b$,例如$(a&laquo;1)+a=3*a$</p>
+<p>现在主要考虑与2的幂的运算：</p>
+<p><strong>乘法：</strong></p>
+<p>实际就是对其二进制表示进行左移操作，对于固定字长的数需要舍弃超出的位数。</p>
+<p><strong>除法：</strong></p>
+<p>实际是进行右移操作，对于无符号数进行逻辑右移，而对于补码，为了保持其符号的一致，进行的是算术右移。</p>
+<p>这也解释了为什么右移有两种，而左移只有一种。</p>
+<p>对于补码除法还有一个舍入问题，看下面的例子：</p>
+<p>执行表达式$x&raquo;k$</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">k</th>
+<th style="text-align:center">&gt;&gt;k</th>
+<th style="text-align:center">十进制</th>
+<th style="text-align:center">$-12340/2^k$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1100111111001100</td>
+<td style="text-align:center">-12340</td>
+<td style="text-align:center">-12340.0</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1110011111100110</td>
+<td style="text-align:center">-6170</td>
+<td style="text-align:center">-6170.0</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">1111110011111100</td>
+<td style="text-align:center">-772</td>
+<td style="text-align:center">-771.25</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">1111111111001111</td>
+<td style="text-align:center">-49</td>
+<td style="text-align:center">-48.203125</td>
+</tr>
+</tbody>
+</table>
+<p>可以发现进行算术右移后，结果进行了向下舍入，而不是向零舍入。这使我们的数产生了很大的偏差，所以我们使用“偏置（biasing）”来进行修正：</p>
+<p>执行表达式$(x+(1&laquo;k)-1)&raquo;k$</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">k</th>
+<th style="text-align:center">biasing</th>
+<th style="text-align:center">-12340+biasing</th>
+<th style="text-align:center">&gt;&gt;k</th>
+<th style="text-align:center">十进制</th>
+<th style="text-align:center">$-12340/2^k$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1100111111001100</td>
+<td style="text-align:center">1100111111001100</td>
+<td style="text-align:center">-12340</td>
+<td style="text-align:center">-12340.0</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1100111111001101</td>
+<td style="text-align:center">1110011111100110</td>
+<td style="text-align:center">-6170</td>
+<td style="text-align:center">-6170.0</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">15</td>
+<td style="text-align:center">1100111111011011</td>
+<td style="text-align:center">1111110011111101</td>
+<td style="text-align:center">-771</td>
+<td style="text-align:center">-771.25</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">255</td>
+<td style="text-align:center">1101000011001011</td>
+<td style="text-align:center">1111111111010000</td>
+<td style="text-align:center">-48</td>
+<td style="text-align:center">-48.203125</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-01-20</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/csapp-lecture-01/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/csapp-lecture-02/" class="prev" rel="prev" title="CSAPP Lecture 02"><i class="fas fa-angle-left fa-fw"></i>CSAPP Lecture 02</a>
+            <a href="/csapp-lecture-06/" class="next" rel="next" title="CSAPP Lecture 06">CSAPP Lecture 06<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

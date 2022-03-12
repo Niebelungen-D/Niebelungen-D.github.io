@@ -3,9 +3,19 @@
 
 CTFer & PWNer
 
-Play CTF with NaN（Nu1L2.0），hope to join Nu1L！
+Play CTF with r3kapig！
 
-Now working in the venustech-ADLab（still a student : p
+2021.06-2021.09 : venustech-ADLab Windows Security Researcher
+
+A student in XXX
 
 QQ：HA4TGNJQG4ZTCNA= 
+
+<br><br><br>
+
+Links：
+
+[Kirin](https://github.com/Kirin-say): Master of Pwn (Maybe)
+
+[Sakura](https://eternalsakura13.com/): Chrome Fucker (Genius) 
 

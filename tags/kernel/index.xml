@@ -1,0 +1,49 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Kernel - 标签 - Niebelungen</title>
+        <link>http://example.org/tags/kernel/</link>
+        <description>Kernel - 标签 - Niebelungen</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 21 Jan 2022 02:54:45 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+    <title>SECCON2021-kone_gadget</title>
+    <link>http://example.org/seccon2021-kone-gadget/</link>
+    <pubDate>Fri, 21 Jan 2022 02:54:45 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/seccon2021-kone-gadget/</guid>
+    <description><![CDATA[kone_gadgetAdded to arch/x86/entry/syscalls/syscall_64.tbl 1 1337 64 seccon sys_seccon Added to kernel/sys.c: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 SYSCALL_DEFINE1(seccon, unsigned long, rip) { asm volatile(&#34;xor %%edx, %%edx;&#34; &#34;xor %%ebx, %%ebx;&#34; &#34;xor %%ecx, %%ecx;&#34; &#34;xor %%edi, %%edi;&#34; &#34;xor %%esi, %%esi;&#34; &#34;xor %%r8d, %%r8d;&#34; &#34;xor %%r9d, %%r9d;&#34; &#34;xor %%r10d, %%r10d;&#34; &#34;xor %%r11d, %%r11d;&#34; &#34;xor %%r12d, %%r12d;&#34; &#34;xor]]></description>
+</item><item>
+    <title>eebpf-Tokyowesterns CTF 2020</title>
+    <link>http://example.org/eebpf-tokyowesterns-ctf-2020/</link>
+    <pubDate>Mon, 17 Jan 2022 17:53:03 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/eebpf-tokyowesterns-ctf-2020/</guid>
+    <description><![CDATA[eebpf一道来自Tokyowesterns CTF 2020的内核题目。在做题之前，需要学习ebpf的相关知识。这里有一篇我的笔记。 Bug题目pa]]></description>
+</item><item>
+    <title>MidnightSun2018-filpbit</title>
+    <link>http://example.org/midnightsun2018-filpbit/</link>
+    <pubDate>Mon, 17 Jan 2022 17:52:11 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/midnightsun2018-filpbit/</guid>
+    <description><![CDATA[filpbit源码提供： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 #include &lt;linux/kernel.h&gt;#include &lt;linux/init.h&gt;#include &lt;linux/sched.h&gt;#include &lt;linux/syscalls.h&gt; #define MAXFLIT 1 #ifndef __NR_FLITBIP #define FLITBIP 333 #endif long flit_count = 0; EXPORT_SYMBOL(flit_count); SYSCALL_DEFINE2(flitbip, long *, addr, long, bit) { if (flit_count &gt;= MAXFLIT) {]]></description>
+</item><item>
+    <title>SECCON2020-kstack</title>
+    <link>http://example.org/seccon2020-kstack/</link>
+    <pubDate>Mon, 17 Jan 2022 17:50:55 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/seccon2020-kstack/</guid>
+    <description><![CDATA[Kstack这个题目同样提供了源码。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 typedef struct _Element { int owner;]]></description>
+</item><item>
+    <title>TSGCTF2021-lkgit(userfaultfd)</title>
+    <link>http://example.org/tsgctf2021-lkgit-userfaultfd/</link>
+    <pubDate>Mon, 17 Jan 2022 17:49:07 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/tsgctf2021-lkgit-userfaultfd/</guid>
+    <description><![CDATA[userfaultfduserfaultfd，这是 kernel 中提供的一种特殊的处理 page fault 的机制，能够让用户态程序自行处理自己的 page fault. 它的调用方式是通过一]]></description>
+</item><item>
+    <title>Linux Kernel-Pwn Learning</title>
+    <link>http://example.org/linuxkernel-pwn-learning/</link>
+    <pubDate>Sun, 22 Aug 2021 01:04:36 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/linuxkernel-pwn-learning/</guid>
+    <description><![CDATA[Kernel ROP学习Linux kernel Pwn的第一次尝试，hxp2020: kernel-rop Thanks @Midas for so great tutorials ! 环境设置将附件解压得到以下文件： initramfs.cpio.g]]></description>
+</item></channel>
+</rss>

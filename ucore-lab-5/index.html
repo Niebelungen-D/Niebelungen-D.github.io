@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">uCore-lab-5 - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="uCore-lab-5" />
+<meta property="og:description" content="练习0在idt_init中添加 1 SETGATE(idt[T_SYSCALL], 0, GD_KTEXT, __vectors[T_SYSCALL], DPL_USER); 修改定时器中断： 1 2 3 4 5 6 ticks &#43;&#43;; if (ticks % TICK_NUM == 0) { assert(current != NULL); current-&gt;need_resched = 1; // print_ticks(); } 在alloc_proc中多出了PC" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/ucore-lab-5/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-12-14T23:15:15+08:00" />
+<meta property="article:modified_time" content="2021-12-14T23:15:15+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="uCore-lab-5"/>
+<meta name="twitter:description" content="练习0在idt_init中添加 1 SETGATE(idt[T_SYSCALL], 0, GD_KTEXT, __vectors[T_SYSCALL], DPL_USER); 修改定时器中断： 1 2 3 4 5 6 ticks &#43;&#43;; if (ticks % TICK_NUM == 0) { assert(current != NULL); current-&gt;need_resched = 1; // print_ticks(); } 在alloc_proc中多出了PC"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/ucore-lab-5/" /><link rel="prev" href="http://example.org/ucore-lab-4/" /><link rel="next" href="http://example.org/dragonctf2021-nim/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "uCore-lab-5",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/ucore-lab-5\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  4672 ,
+        "url": "http:\/\/example.org\/ucore-lab-5\/","datePublished": "2021-12-14T23:15:15+08:00","dateModified": "2021-12-14T23:15:15+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#fork">fork</a></li>
+    <li><a href="#exec">exec</a></li>
+    <li><a href="#exit">exit</a></li>
+    <li><a href="#wait">wait</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#ucore的cow机制的实现思想">ucore的COW机制的实现思想</a></li>
+    <li><a href="#do-it">DO IT</a></li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">uCore-lab-5</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-12-14">2021-12-14</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2021-12-14">2021-12-14</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 4672 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 10 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#fork">fork</a></li>
+    <li><a href="#exec">exec</a></li>
+    <li><a href="#exit">exit</a></li>
+    <li><a href="#wait">wait</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#ucore的cow机制的实现思想">ucore的COW机制的实现思想</a></li>
+    <li><a href="#do-it">DO IT</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="练习0" class="headerLink">
+    <a href="#%e7%bb%83%e4%b9%a00" class="header-mark"></a>练习0</h1><p>在<code>idt_init</code>中添加</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">SETGATE</span><span class="p">(</span><span class="n">idt</span><span class="p">[</span><span class="n">T_SYSCALL</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GD_KTEXT</span><span class="p">,</span> <span class="n">__vectors</span><span class="p">[</span><span class="n">T_SYSCALL</span><span class="p">],</span> <span class="n">DPL_USER</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改定时器中断：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">        <span class="n">ticks</span> <span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">ticks</span> <span class="o">%</span> <span class="n">TICK_NUM</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">assert</span><span class="p">(</span><span class="n">current</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">current</span><span class="o">-&gt;</span><span class="n">need_resched</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// print_ticks();
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">}</span>  
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在<code>alloc_proc</code>中多出了PCB中的一些字段需要设置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">PROC_UNINIT</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">kstack</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">need_resched</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">parent</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">mm</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">context</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">context</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">tf</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">cr3</span> <span class="o">=</span> <span class="n">boot_cr3</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">memset</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">wait_state</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">cptr</span> <span class="o">=</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">yptr</span> <span class="o">=</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">optr</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>do_fork</code>中的链表操作由<code>set_links</code>实现</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">=</span> <span class="n">get_pid</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">hash_proc</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// list_add(proc_list.prev, &amp;proc-&gt;list_link);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">set_links</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// nr_process++;
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里我选择将进程加入到<code>proc_list</code>的链表尾部。因为我觉得这样的实现可以在一定程度上，让链表中的进程按照从旧到新的顺序排列。等待越久的进程优先级会越高，而从链表头可以更加方便的获得。实验中并没有对这部分的要求，但我同样通过了测试。</p>
+<h1 id="练习1" class="headerLink">
+    <a href="#%e7%bb%83%e4%b9%a01" class="header-mark"></a>练习1</h1><p><strong>加载应用程序并执行</strong>
+在<code>load_icode</code>设置正确的tf字段。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_cs</span> <span class="o">=</span> <span class="n">USER_CS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_es</span> <span class="o">=</span> <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_ss</span> <span class="o">=</span> <span class="n">USER_DS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_esp</span> <span class="o">=</span> <span class="n">USTACKTOP</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_eip</span> <span class="o">=</span> <span class="n">elf</span><span class="o">-&gt;</span><span class="n">e_entry</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_eflags</span> <span class="o">|=</span> <span class="n">FL_IF</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h1 id="练习2" class="headerLink">
+    <a href="#%e7%bb%83%e4%b9%a02" class="header-mark"></a>练习2</h1><p><strong>父进程复制自己的内存空间给子进程</strong>
+补充<code>copy_range</code>的实现</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">        <span class="n">uintptr_t</span> <span class="n">src_kvaddr</span> <span class="o">=</span> <span class="n">page2kva</span><span class="p">(</span><span class="n">page</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">uintptr_t</span> <span class="n">dst_kvaddr</span> <span class="o">=</span> <span class="n">page2kva</span><span class="p">(</span><span class="n">npage</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">memcpy</span><span class="p">(</span><span class="n">dst_kvaddr</span><span class="p">,</span> <span class="n">src_kvaddr</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">page_insert</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">npage</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">perm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assert</span><span class="p">(</span><span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h1 id="练习3" class="headerLink">
+    <a href="#%e7%bb%83%e4%b9%a03" class="header-mark"></a>练习3</h1><h2 id="fork" class="headerLink">
+    <a href="#fork" class="header-mark"></a>fork</h2><p>fork的流程没有什么变化，不过PCB中多的数据结构和一些链表都通过<code>set_links</code>实现了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">parent:           proc-&gt;parent  (proc is children)
+</span></span></span><span class="line"><span class="cl"><span class="cm">children:         proc-&gt;cptr    (proc is parent)
+</span></span></span><span class="line"><span class="cl"><span class="cm">older sibling:    proc-&gt;optr    (proc is younger sibling)
+</span></span></span><span class="line"><span class="cl"><span class="cm">younger sibling:  proc-&gt;yptr    (proc is older sibling)
+</span></span></span><span class="line"><span class="cl"><span class="cm">**/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// set_links - set the relation links of process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">static</span> <span class="kt">void</span>
+</span></span><span class="line"><span class="cl"><span class="nf">set_links</span><span class="p">(</span><span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">proc</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">list_add</span><span class="p">(</span><span class="n">proc_list</span><span class="p">.</span><span class="n">prev</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">list_link</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">proc</span><span class="o">-&gt;</span><span class="n">yptr</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">((</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">optr</span> <span class="o">=</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">cptr</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">optr</span><span class="o">-&gt;</span><span class="n">yptr</span> <span class="o">=</span> <span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">proc</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">cptr</span> <span class="o">=</span> <span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">nr_process</span> <span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>根据注释</p>
+<ul>
+<li>parent：如果proc是某个进程的子进程，则该指针指向其父进程</li>
+<li>cptr：如果proc是某个子进程的父亲，则该指针指向其子进程</li>
+<li>optr：如果该进程说某个进程的多个子进程的一个，且是被较晚创建的那一个，那么该指针指向比它更早创建的兄弟</li>
+<li>yptr：如果该进程说某个进程的多个子进程的一个，且是被较早创建的那一个，那么该指针指向比它更晚创建的兄弟</li>
+</ul>
+<h2 id="exec" class="headerLink">
+    <a href="#exec" class="header-mark"></a>exec</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// do_execve - call exit_mmap(mm)&amp;put_pgdir(mm) to reclaim memory space of current process
+</span></span></span><span class="line"><span class="cl"><span class="c1">//           - call load_icode to setup new memory space accroding binary prog.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">do_execve</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">binary</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">mm_struct</span> <span class="o">*</span><span class="n">mm</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">mm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">user_mem_check</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="p">(</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">name</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="o">-</span><span class="n">E_INVAL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">len</span> <span class="o">&gt;</span> <span class="n">PROC_NAME_LEN</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">len</span> <span class="o">=</span> <span class="n">PROC_NAME_LEN</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">local_name</span><span class="p">[</span><span class="n">PROC_NAME_LEN</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memset</span><span class="p">(</span><span class="n">local_name</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">local_name</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memcpy</span><span class="p">(</span><span class="n">local_name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">mm</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lcr3</span><span class="p">(</span><span class="n">boot_cr3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">mm_count_dec</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">exit_mmap</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">put_pgdir</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">mm_destroy</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">current</span><span class="o">-&gt;</span><span class="n">mm</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">ret</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">((</span><span class="n">ret</span> <span class="o">=</span> <span class="n">load_icode</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">execve_exit</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">set_proc_name</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">local_name</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">execve_exit</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">do_exit</span><span class="p">(</span><span class="n">ret</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">panic</span><span class="p">(</span><span class="s">&#34;already exit: %e.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>首先，通过当前进程的<code>mm</code>字段，检查对应内存的权限等情况是否存在异常。接着，加载内核的cr3寄存器，回收相应的内存资源。内存使用引用计数法进程垃圾回收。然后，执行<code>load_icode</code>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* load_icode - load the content of binary program(ELF format) as the new content of current process
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @binary:  the memory addr of the content of binary program
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @size:  the size of the content of binary program
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">load_icode</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">binary</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">mm</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">panic</span><span class="p">(</span><span class="s">&#34;load_icode: current-&gt;mm must be empty.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">E_NO_MEM</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">mm_struct</span> <span class="o">*</span><span class="n">mm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(1) create a new mm for current process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">((</span><span class="n">mm</span> <span class="o">=</span> <span class="n">mm_create</span><span class="p">())</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">bad_mm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(2) create a new PDT, and mm-&gt;pgdir= kernel virtual addr of PDT
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">setup_pgdir</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">bad_pgdir_cleanup_mm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(3) copy TEXT/DATA section, build BSS parts in binary to memory space of process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">page</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(3.1) get the file header of the bianry program (ELF format)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">elfhdr</span> <span class="o">*</span><span class="n">elf</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">elfhdr</span> <span class="o">*</span><span class="p">)</span><span class="n">binary</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(3.2) get the entry of the program section headers of the bianry program (ELF format)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">proghdr</span> <span class="o">*</span><span class="n">ph</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">proghdr</span> <span class="o">*</span><span class="p">)(</span><span class="n">binary</span> <span class="o">+</span> <span class="n">elf</span><span class="o">-&gt;</span><span class="n">e_phoff</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(3.3) This program is valid?
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">elf</span><span class="o">-&gt;</span><span class="n">e_magic</span> <span class="o">!=</span> <span class="n">ELF_MAGIC</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">E_INVAL_ELF</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">bad_elf_cleanup_pgdir</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">vm_flags</span><span class="p">,</span> <span class="n">perm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">proghdr</span> <span class="o">*</span><span class="n">ph_end</span> <span class="o">=</span> <span class="n">ph</span> <span class="o">+</span> <span class="n">elf</span><span class="o">-&gt;</span><span class="n">e_phnum</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(;</span> <span class="n">ph</span> <span class="o">&lt;</span> <span class="n">ph_end</span><span class="p">;</span> <span class="n">ph</span> <span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(3.4) find every program section headers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_type</span> <span class="o">!=</span> <span class="n">ELF_PT_LOAD</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span> <span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_filesz</span> <span class="o">&gt;</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_memsz</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">E_INVAL_ELF</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">goto</span> <span class="n">bad_cleanup_mmap</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_filesz</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span> <span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(3.5) call mm_map fun to setup the new vma ( ph-&gt;p_va, ph-&gt;p_memsz)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">vm_flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">perm</span> <span class="o">=</span> <span class="n">PTE_U</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_flags</span> <span class="o">&amp;</span> <span class="n">ELF_PF_X</span><span class="p">)</span> <span class="n">vm_flags</span> <span class="o">|=</span> <span class="n">VM_EXEC</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_flags</span> <span class="o">&amp;</span> <span class="n">ELF_PF_W</span><span class="p">)</span> <span class="n">vm_flags</span> <span class="o">|=</span> <span class="n">VM_WRITE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_flags</span> <span class="o">&amp;</span> <span class="n">ELF_PF_R</span><span class="p">)</span> <span class="n">vm_flags</span> <span class="o">|=</span> <span class="n">VM_READ</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">vm_flags</span> <span class="o">&amp;</span> <span class="n">VM_WRITE</span><span class="p">)</span> <span class="n">perm</span> <span class="o">|=</span> <span class="n">PTE_W</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">((</span><span class="n">ret</span> <span class="o">=</span> <span class="n">mm_map</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_va</span><span class="p">,</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_memsz</span><span class="p">,</span> <span class="n">vm_flags</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">goto</span> <span class="n">bad_cleanup_mmap</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">from</span> <span class="o">=</span> <span class="n">binary</span> <span class="o">+</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_offset</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">size_t</span> <span class="n">off</span><span class="p">,</span> <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">uintptr_t</span> <span class="n">start</span> <span class="o">=</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_va</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">la</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">E_NO_MEM</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">     <span class="c1">//(3.6) alloc memory, and  copy the contents of every program section (from, from+end) to process&#39;s memory (la, la+end)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">end</span> <span class="o">=</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_va</span> <span class="o">+</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_filesz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">     <span class="c1">//(3.6.1) copy TEXT/DATA section of bianry program
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">while</span> <span class="p">(</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">((</span><span class="n">page</span> <span class="o">=</span> <span class="n">pgdir_alloc_page</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">la</span><span class="p">,</span> <span class="n">perm</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">goto</span> <span class="n">bad_cleanup_mmap</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">off</span> <span class="o">=</span> <span class="n">start</span> <span class="o">-</span> <span class="n">la</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">PGSIZE</span> <span class="o">-</span> <span class="n">off</span><span class="p">,</span> <span class="n">la</span> <span class="o">+=</span> <span class="n">PGSIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">la</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">size</span> <span class="o">-=</span> <span class="n">la</span> <span class="o">-</span> <span class="n">end</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">memcpy</span><span class="p">(</span><span class="n">page2kva</span><span class="p">(</span><span class="n">page</span><span class="p">)</span> <span class="o">+</span> <span class="n">off</span><span class="p">,</span> <span class="n">from</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">start</span> <span class="o">+=</span> <span class="n">size</span><span class="p">,</span> <span class="n">from</span> <span class="o">+=</span> <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="c1">//(3.6.2) build BSS section of binary program
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">end</span> <span class="o">=</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_va</span> <span class="o">+</span> <span class="n">ph</span><span class="o">-&gt;</span><span class="n">p_memsz</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">la</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="cm">/* ph-&gt;p_memsz == ph-&gt;p_filesz */</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">start</span> <span class="o">==</span> <span class="n">end</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">continue</span> <span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">off</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">PGSIZE</span> <span class="o">-</span> <span class="n">la</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">PGSIZE</span> <span class="o">-</span> <span class="n">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">la</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">size</span> <span class="o">-=</span> <span class="n">la</span> <span class="o">-</span> <span class="n">end</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">memset</span><span class="p">(</span><span class="n">page2kva</span><span class="p">(</span><span class="n">page</span><span class="p">)</span> <span class="o">+</span> <span class="n">off</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">start</span> <span class="o">+=</span> <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">assert</span><span class="p">((</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">la</span> <span class="o">&amp;&amp;</span> <span class="n">start</span> <span class="o">==</span> <span class="n">end</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="n">end</span> <span class="o">&gt;=</span> <span class="n">la</span> <span class="o">&amp;&amp;</span> <span class="n">start</span> <span class="o">==</span> <span class="n">la</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="p">(</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">((</span><span class="n">page</span> <span class="o">=</span> <span class="n">pgdir_alloc_page</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">la</span><span class="p">,</span> <span class="n">perm</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">goto</span> <span class="n">bad_cleanup_mmap</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">off</span> <span class="o">=</span> <span class="n">start</span> <span class="o">-</span> <span class="n">la</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">PGSIZE</span> <span class="o">-</span> <span class="n">off</span><span class="p">,</span> <span class="n">la</span> <span class="o">+=</span> <span class="n">PGSIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">end</span> <span class="o">&lt;</span> <span class="n">la</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">size</span> <span class="o">-=</span> <span class="n">la</span> <span class="o">-</span> <span class="n">end</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">memset</span><span class="p">(</span><span class="n">page2kva</span><span class="p">(</span><span class="n">page</span><span class="p">)</span> <span class="o">+</span> <span class="n">off</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">start</span> <span class="o">+=</span> <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(4) build user stack memory
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">vm_flags</span> <span class="o">=</span> <span class="n">VM_READ</span> <span class="o">|</span> <span class="n">VM_WRITE</span> <span class="o">|</span> <span class="n">VM_STACK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">((</span><span class="n">ret</span> <span class="o">=</span> <span class="n">mm_map</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">USTACKTOP</span> <span class="o">-</span> <span class="n">USTACKSIZE</span><span class="p">,</span> <span class="n">USTACKSIZE</span><span class="p">,</span> <span class="n">vm_flags</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">bad_cleanup_mmap</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">pgdir_alloc_page</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">USTACKTOP</span><span class="o">-</span><span class="n">PGSIZE</span> <span class="p">,</span> <span class="n">PTE_USER</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">pgdir_alloc_page</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">USTACKTOP</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">PGSIZE</span> <span class="p">,</span> <span class="n">PTE_USER</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">pgdir_alloc_page</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">USTACKTOP</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">PGSIZE</span> <span class="p">,</span> <span class="n">PTE_USER</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">pgdir_alloc_page</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">USTACKTOP</span><span class="o">-</span><span class="mi">4</span><span class="o">*</span><span class="n">PGSIZE</span> <span class="p">,</span> <span class="n">PTE_USER</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1">//(5) set current process&#39;s mm, sr3, and set CR3 reg = physical addr of Page Directory
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">mm_count_inc</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">current</span><span class="o">-&gt;</span><span class="n">mm</span> <span class="o">=</span> <span class="n">mm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">current</span><span class="o">-&gt;</span><span class="n">cr3</span> <span class="o">=</span> <span class="n">PADDR</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">lcr3</span><span class="p">(</span><span class="n">PADDR</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">//(6) setup trapframe for user environment
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">trapframe</span> <span class="o">*</span><span class="n">tf</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">tf</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memset</span><span class="p">(</span><span class="n">tf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">trapframe</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_cs</span> <span class="o">=</span> <span class="n">USER_CS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_es</span> <span class="o">=</span> <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_ss</span> <span class="o">=</span> <span class="n">USER_DS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_esp</span> <span class="o">=</span> <span class="n">USTACKTOP</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_eip</span> <span class="o">=</span> <span class="n">elf</span><span class="o">-&gt;</span><span class="n">e_entry</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_eflags</span> <span class="o">|=</span> <span class="n">FL_IF</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nl">out</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nl">bad_cleanup_mmap</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">exit_mmap</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">bad_elf_cleanup_pgdir</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">put_pgdir</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">bad_pgdir_cleanup_mm</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mm_destroy</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">bad_mm</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>load_icode</code>做了加载新进程的主要工作。它为新进程申请内存空间，并读取ELF文件的节头表，根据其中的信息设置每个节点的属性，并将它们映射（mmap）到对应的位置。
+然后，拷贝代码节和数据节的数据到对应的虚拟内存。之后，构建bss段和栈段。设置当前进程的mm和tf。</p>
+<h2 id="exit" class="headerLink">
+    <a href="#exit" class="header-mark"></a>exit</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// do_exit - called by sys_exit
+</span></span></span><span class="line"><span class="cl"><span class="c1">//   1. call exit_mmap &amp; put_pgdir &amp; mm_destroy to free the almost all memory space of process
+</span></span></span><span class="line"><span class="cl"><span class="c1">//   2. set process&#39; state as PROC_ZOMBIE, then call wakeup_proc(parent) to ask parent reclaim itself.
+</span></span></span><span class="line"><span class="cl"><span class="c1">//   3. call scheduler to switch to other process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">do_exit</span><span class="p">(</span><span class="kt">int</span> <span class="n">error_code</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">current</span> <span class="o">==</span> <span class="n">idleproc</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">panic</span><span class="p">(</span><span class="s">&#34;idleproc exit.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">current</span> <span class="o">==</span> <span class="n">initproc</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">panic</span><span class="p">(</span><span class="s">&#34;initproc exit.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">mm_struct</span> <span class="o">*</span><span class="n">mm</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">mm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">mm</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lcr3</span><span class="p">(</span><span class="n">boot_cr3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">mm_count_dec</span><span class="p">(</span><span class="n">mm</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">exit_mmap</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">put_pgdir</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">mm_destroy</span><span class="p">(</span><span class="n">mm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">current</span><span class="o">-&gt;</span><span class="n">mm</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">current</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">PROC_ZOMBIE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">current</span><span class="o">-&gt;</span><span class="n">exit_code</span> <span class="o">=</span> <span class="n">error_code</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kt">bool</span> <span class="n">intr_flag</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_intr_save</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">wait_state</span> <span class="o">==</span> <span class="n">WT_CHILD</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">wakeup_proc</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">cptr</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">proc</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">cptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">current</span><span class="o">-&gt;</span><span class="n">cptr</span> <span class="o">=</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">optr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">            <span class="n">proc</span><span class="o">-&gt;</span><span class="n">yptr</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">((</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">optr</span> <span class="o">=</span> <span class="n">initproc</span><span class="o">-&gt;</span><span class="n">cptr</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">initproc</span><span class="o">-&gt;</span><span class="n">cptr</span><span class="o">-&gt;</span><span class="n">yptr</span> <span class="o">=</span> <span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">proc</span><span class="o">-&gt;</span><span class="n">parent</span> <span class="o">=</span> <span class="n">initproc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">initproc</span><span class="o">-&gt;</span><span class="n">cptr</span> <span class="o">=</span> <span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">==</span> <span class="n">PROC_ZOMBIE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="p">(</span><span class="n">initproc</span><span class="o">-&gt;</span><span class="n">wait_state</span> <span class="o">==</span> <span class="n">WT_CHILD</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">wakeup_proc</span><span class="p">(</span><span class="n">initproc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_intr_restore</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">schedule</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">panic</span><span class="p">(</span><span class="s">&#34;do_exit will not return!! %d.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>减少进程mm的指向内存的引用计数，如果必要需要释放其指向内存和mm结构，并清空页表项。设置当前进程的状态为<code>PROC_ZOMBIE</code>。
+接着，还判断当前其父进程是否在等待子进程退出，如果是则要唤醒父进程。如果该进程还有子进程，则会被<code>initproc</code>领养。并且其哥哥进程变成了当前进程的子进程，由此在循环中<code>initproc</code>可以将该进程的所有子进程回收。</p>
+<p>进程回收完毕之后，调用<code>schedule()</code>让cpu运行下一个进程。</p>
+<h2 id="wait" class="headerLink">
+    <a href="#wait" class="header-mark"></a>wait</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// do_wait - wait one OR any children with PROC_ZOMBIE state, and free memory space of kernel stack
+</span></span></span><span class="line"><span class="cl"><span class="c1">//         - proc struct of this child.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// NOTE: only after do_wait function, all resources of the child proces are free.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">do_wait</span><span class="p">(</span><span class="kt">int</span> <span class="n">pid</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">code_store</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">mm_struct</span> <span class="o">*</span><span class="n">mm</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">mm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">code_store</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">user_mem_check</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="p">(</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">code_store</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="o">-</span><span class="n">E_INVAL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">bool</span> <span class="n">intr_flag</span><span class="p">,</span> <span class="n">haskid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nl">repeat</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">haskid</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span> <span class="o">=</span> <span class="n">find_proc</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">proc</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="o">&amp;&amp;</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">parent</span> <span class="o">==</span> <span class="n">current</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">haskid</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">==</span> <span class="n">PROC_ZOMBIE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">goto</span> <span class="n">found</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">cptr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(;</span> <span class="n">proc</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">proc</span> <span class="o">=</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">optr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">haskid</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">==</span> <span class="n">PROC_ZOMBIE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">goto</span> <span class="n">found</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">haskid</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">current</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">PROC_SLEEPING</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">current</span><span class="o">-&gt;</span><span class="n">wait_state</span> <span class="o">=</span> <span class="n">WT_CHILD</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">schedule</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">PF_EXITING</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">do_exit</span><span class="p">(</span><span class="o">-</span><span class="n">E_KILLED</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">repeat</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="o">-</span><span class="n">E_BAD_PROC</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">found</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">proc</span> <span class="o">==</span> <span class="n">idleproc</span> <span class="o">||</span> <span class="n">proc</span> <span class="o">==</span> <span class="n">initproc</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">panic</span><span class="p">(</span><span class="s">&#34;wait idleproc or initproc.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">code_store</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="n">code_store</span> <span class="o">=</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">exit_code</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_intr_save</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">unhash_proc</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">remove_links</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_intr_restore</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">put_kstack</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">kfree</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>wait</code>函数会等待某一子进程（指定PID进程，或者任一子进程）退出（即状态变为PROC_ZOMBIE），然后将对应的子进程从哈希表中解链，清空内核栈和PCB。如果没有子进程处于<code>PROC_ZOMBIE</code>状态，则当前进程会变为<code>PROC_SLEEPING</code>并执行<code>schedule</code>调度其他进程运行，直到子进程退出后，才被唤醒。</p>
+<h1 id="challenge-cow" class="headerLink">
+    <a href="#challenge-cow" class="header-mark"></a>Challenge: COW</h1><h2 id="ucore的cow机制的实现思想" class="headerLink">
+    <a href="#ucore%e7%9a%84cow%e6%9c%ba%e5%88%b6%e7%9a%84%e5%ae%9e%e7%8e%b0%e6%80%9d%e6%83%b3" class="header-mark"></a>ucore的COW机制的实现思想</h2><p>父进程和子进程之间共享（share）页面而不是复制（copy）页面。但只要页面被共享，它们就不能被修改，即是只读的。注意此共享是指父子进程共享一个表示内存空间的mm_struct结构的变量。当父进程或子进程试图写一个共享的页面，就产生一个页访问异常，这时内核就把这个页复制到一个新的页面中并标记为可写。注意，原来的页面仍然是写保护的。当其它进程试图写入时，ucore检查写进程是否是这个页面的唯一属主（通过判断page_ref 和 swap_page_count 即 mem_map 中相关 entry 保存的值的和是否为1。）如果是，它把这个页面标记为对这个进程是可写的。</p>
+<p>在具体实现上，ucore调用dup_mmap函数，并进一步调用copy_range函数来具体完成对页表内容的复制，这样两个页表表示同一个虚拟地址空间（包括对应的物理地址空间），且还需修改两个页表中每一个页对应的页表项属性为只读，但。在这种情况下，两个进程有两个页表，但这两个页表只映射了一块只读的物理内存。同理，对于换出的页，也采用同样的办法来共享一个换出页。综上所述，我们可以总结出：如果一个页的PTE属性是只读的，但此页所属的VMA描述指出其虚地址空间是可写的，则这样的页是COW页。</p>
+<p>当对这样的地址空间进行写操作的时候，会触发do_pgfault函数被调用。此函数如果发现是COW页，就会调用alloc_page函数新分配一个物理页，并调用memcpy函数把旧页的内容复制到新页中，并最后调用page_insert函数给当前产生缺页错的进程建立虚拟页地址到新物理页地址的映射关系（即改写PTE，并设置此页为可读写）。</p>
+<p>这里还有一个特殊情况，如果产生访问异常的页已经被换出到硬盘上了，则需要把此页通过swap_in_page函数换入到内存中来，如果进一步发现换入的页是一个COW页，则把其属性设置为只读，然后异常处理结束返回。但这样重新执行产生异常的写操作，又会触发一次内存访问异常，则又要执行上一段描述的过程了。</p>
+<p>Page结构的ref域用于跟踪共享相应页面的进程数目。只要进程释放一个页面或者在它上面执行写时复制，它的ref域就递减；只有当ref变为0时，这个页面才被释放。</p>
+<h2 id="do-it" class="headerLink">
+    <a href="#do-it" class="header-mark"></a>DO IT</h2><p>在<code>copy_range</code>中通过判断share参数是否被指定，选择是share还是完全复制。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">copy_range</span><span class="p">(</span><span class="n">pde_t</span> <span class="o">*</span><span class="n">to</span><span class="p">,</span> <span class="n">pde_t</span> <span class="o">*</span><span class="n">from</span><span class="p">,</span> <span class="n">uintptr_t</span> <span class="n">start</span><span class="p">,</span> <span class="n">uintptr_t</span> <span class="n">end</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">share</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">start</span> <span class="o">%</span> <span class="n">PGSIZE</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">end</span> <span class="o">%</span> <span class="n">PGSIZE</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">USER_ACCESS</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// copy content by page unit.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">do</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//call get_pte to find process A&#39;s pte according to the addr start
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">pte_t</span> <span class="o">*</span><span class="n">ptep</span> <span class="o">=</span> <span class="n">get_pte</span><span class="p">(</span><span class="n">from</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">*</span><span class="n">nptep</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">ptep</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">start</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">PTSIZE</span><span class="p">,</span> <span class="n">PTSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span> <span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//call get_pte to find process B&#39;s pte according to the addr start. If pte is NULL, just alloc a PT
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">ptep</span> <span class="o">&amp;</span> <span class="n">PTE_P</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">((</span><span class="n">nptep</span> <span class="o">=</span> <span class="n">get_pte</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="o">-</span><span class="n">E_NO_MEM</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">uint32_t</span> <span class="n">perm</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">ptep</span> <span class="o">&amp;</span> <span class="n">PTE_USER</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//get page from ptep
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">page</span> <span class="o">=</span> <span class="n">pte2page</span><span class="p">(</span><span class="o">*</span><span class="n">ptep</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">ret</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span><span class="p">(</span><span class="n">share</span><span class="p">)</span>	<span class="c1">// 如果是共享的只需要将页表项复制即可。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ret</span> <span class="o">=</span> <span class="n">page_insert</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">perm</span> <span class="o">&amp;~</span> <span class="n">PTE_W</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// page_insert(from, page, start, perm &amp;~ PTE_W);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// alloc a page for process B
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">npage</span> <span class="o">=</span> <span class="n">alloc_page</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">assert</span><span class="p">(</span><span class="n">page</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">assert</span><span class="p">(</span><span class="n">npage</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">uintptr_t</span> <span class="n">src_kvaddr</span> <span class="o">=</span> <span class="n">page2kva</span><span class="p">(</span><span class="n">page</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">uintptr_t</span> <span class="n">dst_kvaddr</span> <span class="o">=</span> <span class="n">page2kva</span><span class="p">(</span><span class="n">npage</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">memcpy</span><span class="p">(</span><span class="n">dst_kvaddr</span><span class="p">,</span> <span class="n">src_kvaddr</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">ret</span> <span class="o">=</span> <span class="n">page_insert</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">npage</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">perm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assert</span><span class="p">(</span><span class="n">ret</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">start</span> <span class="o">+=</span> <span class="n">PGSIZE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">start</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改<code>do_pgfault</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">do_pgfault</span><span class="p">(</span><span class="k">struct</span> <span class="n">mm_struct</span> <span class="o">*</span><span class="n">mm</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">error_code</span><span class="p">,</span> <span class="n">uintptr_t</span> <span class="n">addr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">E_INVAL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//try to find a vma which include addr
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">vma_struct</span> <span class="o">*</span><span class="n">vma</span> <span class="o">=</span> <span class="n">find_vma</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">addr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">pgfault_num</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//If the addr is in the range of a mm&#39;s vma?
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">vma</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">||</span> <span class="n">vma</span><span class="o">-&gt;</span><span class="n">vm_start</span> <span class="o">&gt;</span> <span class="n">addr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;not valid addr %x, and  can not find it in vma</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">addr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//check the error_code
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">switch</span> <span class="p">(</span><span class="n">error_code</span> <span class="o">&amp;</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">default</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">            <span class="cm">/* error code flag : default is 3 ( W/R=1, P=1): write, present */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="mi">2</span><span class="o">:</span> <span class="cm">/* error code flag : (W/R=1, P=0): write, not present */</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">vma</span><span class="o">-&gt;</span><span class="n">vm_flags</span> <span class="o">&amp;</span> <span class="n">VM_WRITE</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;do_pgfault failed: error code flag = write AND not present, but the addr&#39;s vma cannot write</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="mi">1</span><span class="o">:</span> <span class="cm">/* error code flag : (W/R=0, P=1): read, present */</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;do_pgfault failed: error code flag = read AND present</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="mi">0</span><span class="o">:</span> <span class="cm">/* error code flag : (W/R=0, P=0): read, not present */</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">vma</span><span class="o">-&gt;</span><span class="n">vm_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">VM_READ</span> <span class="o">|</span> <span class="n">VM_EXEC</span><span class="p">)))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;do_pgfault failed: error code flag = read AND not present, but the addr&#39;s vma cannot read or exec</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/* IF (write an existed addr ) OR
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *    (write an non_existed addr &amp;&amp; addr is writable) OR
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *    (read  an non_existed addr &amp;&amp; addr is readable)
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * THEN
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *    continue process
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">perm</span> <span class="o">=</span> <span class="n">PTE_U</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">vma</span><span class="o">-&gt;</span><span class="n">vm_flags</span> <span class="o">&amp;</span> <span class="n">VM_WRITE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">perm</span> <span class="o">|=</span> <span class="n">PTE_W</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">addr</span> <span class="o">=</span> <span class="n">ROUNDDOWN</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">E_NO_MEM</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">pte_t</span> <span class="o">*</span><span class="n">ptep</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#if 1
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="c1">//(1) try to find a pte, if pte&#39;s PT(Page Table) isn&#39;t existed, then create a PT.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span><span class="p">((</span><span class="n">ptep</span> <span class="o">=</span> <span class="n">get_pte</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>              
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;get_pte in do_pgfalut failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">ptep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//(2) if the phy addr isn&#39;t exist, then alloc a page &amp; map the phy addr with logical addr
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span><span class="p">(</span><span class="n">pgdir_alloc_page</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">perm</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>                    
+</span></span><span class="line"><span class="cl">            <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;pgdir_alloc_page in do_pgfalut failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>        
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">page</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">ptep</span> <span class="o">&amp;</span> <span class="n">PTE_P</span><span class="p">)</span>	<span class="c1">// 如果是COW的页
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span><span class="p">(</span><span class="n">page_ref</span><span class="p">(</span><span class="n">page</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">npage</span> <span class="o">=</span> <span class="n">alloc_page</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">                <span class="n">page</span> <span class="o">=</span> <span class="n">pte2page</span><span class="p">(</span><span class="o">*</span><span class="n">ptep</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="n">assert</span><span class="p">(</span><span class="n">page</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="n">assert</span><span class="p">(</span><span class="n">npage</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="kt">void</span> <span class="o">*</span><span class="n">src_kvaddr</span> <span class="o">=</span> <span class="n">page2kva</span><span class="p">(</span><span class="n">page</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="kt">void</span> <span class="o">*</span><span class="n">dst_kvaddr</span> <span class="o">=</span> <span class="n">page2kva</span><span class="p">(</span><span class="n">npage</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="n">memcpy</span><span class="p">(</span><span class="n">dst_kvaddr</span><span class="p">,</span> <span class="n">src_kvaddr</span><span class="p">,</span> <span class="n">PGSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">// page_remove(mm-&gt;pgdir, addr);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="c1">// page_ref_dec(page);
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">ret</span> <span class="o">=</span> <span class="n">page_insert</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">npage</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">perm</span><span class="o">&amp;</span><span class="n">PTE_W</span><span class="p">);</span>  
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span>
+</span></span><span class="line"><span class="cl">                <span class="n">ret</span> <span class="o">=</span> <span class="n">page_insert</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">perm</span><span class="o">&amp;</span><span class="n">PTE_W</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl">          
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span><span class="p">(</span><span class="n">swap_init_ok</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">//(1）According to the mm AND addr, try to load the content of right disk page
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="c1">//    into the memory which page managed.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="k">if</span><span class="p">((</span><span class="n">ret</span> <span class="o">=</span> <span class="n">swap_in</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">page</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;swap_in in do_pgfalut failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">//(2) According to the mm, addr AND page, setup the map of phy addr &lt;---&gt; logical addr
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">page_insert</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">perm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="c1">//(3) make the page swappable.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="n">swap_map_swappable</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="n">page</span><span class="o">-&gt;</span><span class="n">pra_vaddr</span> <span class="o">=</span> <span class="n">addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;no swap_init_ok but ptep is %x, failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="o">*</span><span class="n">ptep</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>   <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nl">failed</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果是COW的页，则要为当前进程创建一个页的拷贝，并替换这个进程的页表，设置权限为可读可写。在执行COW时，都会有一个页失去对共享页的引用，这个在我们进行页表的更新时就完成了。如果当前的页仅有一个引用，那么只需要更新页表重新设置权限即可，不需要仔申请新的页面了。</p>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-12-14</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/ucore-lab-5/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/ucore-lab-4/" class="prev" rel="prev" title="uCore-lab-4"><i class="fas fa-angle-left fa-fw"></i>uCore-lab-4</a>
+            <a href="/dragonctf2021-nim/" class="next" rel="next" title="DragonCTF2021-Nim">DragonCTF2021-Nim<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

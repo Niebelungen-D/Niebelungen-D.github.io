@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">UCore Lab 0 - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="UCore Lab 0" />
+<meta property="og:description" content="
+    概述
+在学习一个东西之前，我都喜欢思考，这个东西解决了什么问题？
+所有的技术都不是无故产生的，面向问题的学习能更好的理解它的设计思路。
+
+操作系统是系统软件，在硬件层与应用软件之间。
+为什么需要操作系统？
+为用户提供更加方便的使用计算机的方式。对资源进行有效的管理。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/ucore-lab-0/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-07-10T01:01:20+08:00" />
+<meta property="article:modified_time" content="2021-07-10T01:01:20+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="UCore Lab 0"/>
+<meta name="twitter:description" content="
+    概述
+在学习一个东西之前，我都喜欢思考，这个东西解决了什么问题？
+所有的技术都不是无故产生的，面向问题的学习能更好的理解它的设计思路。
+
+操作系统是系统软件，在硬件层与应用软件之间。
+为什么需要操作系统？
+为用户提供更加方便的使用计算机的方式。对资源进行有效的管理。"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/ucore-lab-0/" /><link rel="prev" href="http://example.org/2021newsctf/" /><link rel="next" href="http://example.org/ucore-lab-1/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "UCore Lab 0",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/ucore-lab-0\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  3447 ,
+        "url": "http:\/\/example.org\/ucore-lab-0\/","datePublished": "2021-07-10T01:01:20+08:00","dateModified": "2021-07-10T01:01:20+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#内核特征">内核特征</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#换源">换源</a></li>
+    <li><a href="#工具安装">工具安装</a></li>
+    <li><a href="#intel-80386基础知识">Intel 80386基础知识</a>
+      <ul>
+        <li><a href="#运行模式">运行模式</a></li>
+        <li><a href="#内存架构">内存架构</a></li>
+        <li><a href="#寄存器">寄存器</a></li>
+        <li><a href="#编程技巧">编程技巧</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">UCore Lab 0</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-07-10">2021-07-10</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2021-07-10">2021-07-10</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3447 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 7 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#内核特征">内核特征</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#换源">换源</a></li>
+    <li><a href="#工具安装">工具安装</a></li>
+    <li><a href="#intel-80386基础知识">Intel 80386基础知识</a>
+      <ul>
+        <li><a href="#运行模式">运行模式</a></li>
+        <li><a href="#内存架构">内存架构</a></li>
+        <li><a href="#寄存器">寄存器</a></li>
+        <li><a href="#编程技巧">编程技巧</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="概述" class="headerLink">
+    <a href="#%e6%a6%82%e8%bf%b0" class="header-mark"></a>概述</h1><blockquote>
+<p>在学习一个东西之前，我都喜欢思考，这个东西解决了什么问题？</p>
+<p>所有的技术都不是无故产生的，面向问题的学习能更好的理解它的设计思路。</p>
+</blockquote>
+<p>操作系统是系统软件，在硬件层与应用软件之间。</p>
+<p><strong>为什么需要操作系统？</strong></p>
+<p>为用户提供更加方便的使用计算机的方式。对资源进行有效的管理。</p>
+<h2 id="内核特征" class="headerLink">
+    <a href="#%e5%86%85%e6%a0%b8%e7%89%b9%e5%be%81" class="header-mark"></a>内核特征</h2><ul>
+<li>
+<p>并发</p>
+<p>计算机系统中有多个正在运行的程序，需要OS的管理和调度。维护每个进程的状态（寄存器值，当前执行的指令等），并在不同进行之间进行切换（切换由内核态完成后，回到用户态）</p>
+</li>
+<li>
+<p>共享</p>
+<p>宏观上，体现各进程“同时”访问微观上，互斥共享。同一时刻仅有一个进程在访问内存。</p>
+<blockquote>
+<p>系统总线只有一条，不允许多进程同时访问。</p>
+</blockquote>
+</li>
+<li>
+<p>虚拟</p>
+<p>利用多道程序设计技术，让每个进程都觉得计算机是为该进程独占的</p>
+</li>
+<li>
+<p>异步</p>
+<ul>
+<li>程序的执行不是一贯到底的，而是走走停停，向前推进的速度不可预知</li>
+<li>只要运行环境相同，OS需要保证程序运行的结果是相同的</li>
+</ul>
+</li>
+</ul>
+<h1 id="lab-0实验环境的搭建" class="headerLink">
+    <a href="#lab-0%e5%ae%9e%e9%aa%8c%e7%8e%af%e5%a2%83%e7%9a%84%e6%90%ad%e5%bb%ba" class="header-mark"></a>Lab 0：实验环境的搭建</h1><p>可以使用课程提供的完整的VMbox环境，基于Ubuntu 14.04。这个镜像是2015年创建的，所以使用版本较老。</p>
+<p>这里我使用Ubuntu 20.04进行，当然如果你可以使用其他的版本（14.04+）。虚拟机的安装略过</p>
+<h2 id="换源" class="headerLink">
+    <a href="#%e6%8d%a2%e6%ba%90" class="header-mark"></a>换源</h2><p>备份原来的源</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>打开/etc/apt/sources.list文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo gedit /etc/apt/sources.list
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在前面添加如下条目，并保存</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-tex" data-lang="tex"><span class="line"><span class="cl"># aliyun
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+</span></span><span class="line"><span class="cl">deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt update
+</span></span><span class="line"><span class="cl">sudo apt upgrade
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="工具安装" class="headerLink">
+    <a href="#%e5%b7%a5%e5%85%b7%e5%ae%89%e8%a3%85" class="header-mark"></a>工具安装</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt-get install build-essential git qemu-system vim gdb cgdb make diffutils exuberant-ctags tmux openssh-server cscope meld qgit gitg gcc-multilib gcc-multilib g++-multilib
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>与官方的并不是完全一样，在ubuntu20.04中eclipse-cdt改变了安装方式，vim由vim-gnome改为vim。</p>
+<p>这里我又安装了gdb的拓展peda（在ctf中经常用到），pwndbg在后面发现没法使用。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/longld/peda.git ~/peda
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;source ~/peda/peda.py&#34;</span> &gt;&gt; ~/.gdbinit
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;DONE! debug your program with gdb and enjoy&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>vs code用来写代码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo apt install snapd -y
+</span></span><span class="line"><span class="cl">sudo snap install --classic code
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="intel-80386基础知识" class="headerLink">
+    <a href="#intel-80386%e5%9f%ba%e7%a1%80%e7%9f%a5%e8%af%86" class="header-mark"></a>Intel 80386基础知识</h2><h3 id="运行模式" class="headerLink">
+    <a href="#%e8%bf%90%e8%a1%8c%e6%a8%a1%e5%bc%8f" class="header-mark"></a>运行模式</h3><ul>
+<li>
+<p>实模式</p>
+<ul>
+<li>
+<p>为了兼容早期16位8086</p>
+</li>
+<li>
+<p>80386加电启动后处于实模式运行状态，在这种状态下软件可访问的物理内存不能超过1MB，且无法发挥Intel 80386以上级别的32位CPU的4GB内存管理能力</p>
+</li>
+</ul>
+</li>
+<li>
+<p>保护模式</p>
+<ul>
+<li>支持内存分页机制，提供了对虚拟内存的良好支持。保护模式下80386支持多任务，还支持优先级机制，不同程序运行在不同的优先级上。优先级一共分0-3 4个级别，操作系统运行在最高的的优先级0上，应用程序则运行在比较低的级别上；配合良好的检查机制后，既可以子啊任务间实现数据的安全共享也可以很好地隔离各个任务。</li>
+</ul>
+</li>
+<li>
+<p>SMM模式</p>
+</li>
+<li>
+<p>虚拟8086模式</p>
+</li>
+</ul>
+<h3 id="内存架构" class="headerLink">
+    <a href="#%e5%86%85%e5%ad%98%e6%9e%b6%e6%9e%84" class="header-mark"></a>内存架构</h3><p>地址是访问内存空间的索引</p>
+<blockquote>
+<p>一个地址对应一个字节，借用CSAPP的话，你可以将内存看成数组，地址对应了下标。</p>
+</blockquote>
+<p>一般而言，内存地址有两个：一个是CPU通过总线访问物理内存用到的物理地址，一个是我们编写的应用程序所用到的为虚拟地址（也称逻辑地址）。看下面的程序：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="o">*</span><span class="n">addr</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>指针<code>addr</code>保存了变量<code>a</code>的地址，这个地址就是虚拟地址。
+80386是32位的处理器，即可以寻址的物理内存地址空间为$2^{32}=4$字节。为更好理解面向80386处理器的ucore操作系统，需要用到三个地址空间的概念：物理地址、线性地址和虚拟地址。物理内存地址空间是处理器提交到总线上用于访问计算机系统中的内存和外设的最终地址。一个计算机系统中只有一个物理地址空间。线性地址空间是80386处理器通过段（Segment）机制控制下的形成的地址空间。在操作系统的管理下，每个运行的应用程序有相对独立的一个或多个内存空间段，每个段有各自的起始地址和长度属性，大小不固定，这样可让多个运行的应用程序之间相互隔离，实现对地址空间的保护。</p>
+<p>在操作系统完成对80386处理器段机制的初始化和配置（主要是需要操作系统通过特定的指令和操作建立全局描述符表，完成虚拟地址与线性地址的映射关系）后，80386处理器的段管理功能单元负责把虚拟地址转换成线性地址，在没有下面介绍的页机制启动的情况下，这个线性地址就是物理地址。</p>
+<p>相对而言，段机制对大量应用程序分散地使用大内存的支持能力较弱。所以Intel公司又加入了页机制，每个页的大小是固定的（一般为4KB），也可完成对内存单元的安全保护，隔离，且可有效支持大量应用程序分散地使用大内存的情况。</p>
+<p>在操作系统完成对80386处理器页机制的初始化和配置（主要是需要操作系统通过特定的指令和操作建立页表，完成虚拟地址与线性地址的映射关系）后，应用程序看到的虚拟地址先被处理器中的段管理功能单元转换为线性地址，然后再通过80386处理器中的页管理功能单元把线性地址转换成物理地址。</p>
+<blockquote>
+<p>页机制和段机制有一定程度的功能重复，但Intel公司为了向下兼容等目标，使得这两者一直共存。</p>
+</blockquote>
+<p>上述三种地址的关系如下：</p>
+<ul>
+<li>
+<p>分段机制启动、分页机制未启动：逻辑地址&mdash;&gt;<strong>段机制处理</strong>&mdash;&gt;线性地址=物理地址</p>
+</li>
+<li>
+<p>分段机制和分页机制都启动：逻辑地址&mdash;&gt;<strong>段机制处理</strong>&mdash;&gt;线性地址&mdash;&gt;<strong>页机制处理</strong>&mdash;&gt;物理地址</p>
+</li>
+</ul>
+<h3 id="寄存器" class="headerLink">
+    <a href="#%e5%af%84%e5%ad%98%e5%99%a8" class="header-mark"></a>寄存器</h3><p>如果对汇编比较熟悉可以直接跳过
+80386的寄存器可以分为8组：通用寄存器，段寄存器，指令指针寄存器，标志寄存器，系统地址寄存器，控制寄存器，调试寄存器，测试寄存器，它们的宽度都是32位。一般程序员看到的寄存器包括通用寄存器，段寄存器，指令指针寄存器，标志寄存器。</p>
+<p><del>放出我最喜欢的图</del>（图中展示了64位寄存器到8位寄存器的结构，更高级的CPU还有媒体寄存器）
+<img
+        class="lazyload"
+        data-src="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210828010146.png"
+        data-srcset="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210828010146.png, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210828010146.png 1.5x, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210828010146.png 2x"
+        data-sizes="auto"
+        alt="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210828010146.png"
+        title="寄存器"></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    EAX：累加器
+</span></span><span class="line"><span class="cl">    EBX：基址寄存器
+</span></span><span class="line"><span class="cl">    ECX：计数器
+</span></span><span class="line"><span class="cl">    EDX：数据寄存器
+</span></span><span class="line"><span class="cl">    ESI：源地址指针寄存器
+</span></span><span class="line"><span class="cl">    EDI：目的地址指针寄存器
+</span></span><span class="line"><span class="cl">    EBP：基址指针寄存器
+</span></span><span class="line"><span class="cl">    ESP：堆栈指针寄存器
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Segment Register(段寄存器，也称 Segment Selector，段选择符，段选择子)：除了8086的4个段外(CS,DS,ES,SS)，80386还增加了两个段FS，GS,这些段寄存器都是16位的，用于不同属性内存段的寻址，它们的含义如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">    CS：代码段(Code Segment)
+</span></span><span class="line"><span class="cl">    DS：数据段(Data Segment)
+</span></span><span class="line"><span class="cl">    ES：附加数据段(Extra Segment)
+</span></span><span class="line"><span class="cl">    SS：堆栈段(Stack Segment)
+</span></span><span class="line"><span class="cl">    FS：附加段
+</span></span><span class="line"><span class="cl">    GS 附加段
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Instruction Pointer(指令指针寄存器，PC)：EIP的低16位就是8086的IP，它存储的是下一条要执行指令的内存地址，在分段地址转换中，表示指令的段内偏移地址。
+Flag Register(标志寄存器)：EFLAGS,和8086的16位标志寄存器相比，增加了4个控制位</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">    CF(Carry Flag)：进位标志位；
+</span></span><span class="line"><span class="cl">    PF(Parity Flag)：奇偶标志位；
+</span></span><span class="line"><span class="cl">    AF(Assistant Flag)：辅助进位标志位；
+</span></span><span class="line"><span class="cl">    ZF(Zero Flag)：零标志位；
+</span></span><span class="line"><span class="cl">    SF(Singal Flag)：符号标志位；
+</span></span><span class="line"><span class="cl">    IF(Interrupt Flag)：中断允许标志位,由CLI，STI两条指令来控制；设置IF位使CPU可识别外部（可屏蔽）中断请求，复位IF位则禁止中断，IF位对不可屏蔽外部中断和故障中断的识别没有任何作用；
+</span></span><span class="line"><span class="cl">    DF(Direction Flag)：向量标志位，由CLD，STD两条指令来控制；
+</span></span><span class="line"><span class="cl">    OF(Overflow Flag)：溢出标志位；
+</span></span><span class="line"><span class="cl">    IOPL(I/O Privilege Level)：I/O特权级字段，它的宽度为2位,它指定了I/O指令的特权级。如果当前的特权级别在数值上小于或等于IOPL，那么I/O指令可执行。否则，将发生一个保护性故障中断；
+</span></span><span class="line"><span class="cl">    NT(Nested Task)：控制中断返回指令IRET，它宽度为1位。若NT=0，则用堆栈中保存的值恢复EFLAGS，CS和EIP从而实现中断返回；若NT=1，则通过任务切换实现中断返回。在ucore中，设置NT为0。
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="编程技巧" class="headerLink">
+    <a href="#%e7%bc%96%e7%a8%8b%e6%8a%80%e5%b7%a7" class="header-mark"></a>编程技巧</h3><p>在结构体中定义函数指针和数据形成虚表。
+code: lab2/kern/mm/pmm.h</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// pmm_manager is a physical memory management class. A special pmm manager - XXX_pmm_manager
+</span></span></span><span class="line"><span class="cl"><span class="c1">// only needs to implement the methods in pmm_manager class, then XXX_pmm_manager can be used
+</span></span></span><span class="line"><span class="cl"><span class="c1">// by ucore to manage the total physical memory space.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">struct</span> <span class="n">pmm_manager</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// XXX_pmm_manager&#39;s name
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>  
+</span></span><span class="line"><span class="cl">    <span class="c1">// initialize internal description&amp;management data structure
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// (free block list, number of free block) of XXX_pmm_manager 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">init</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl">    <span class="c1">// setup description&amp;management data structcure according to
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// the initial free physical memory space 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">init_memmap</span><span class="p">)(</span><span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">base</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">n</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl">    <span class="c1">// allocate &gt;=n pages, depend on the allocation algorithm 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">alloc_pages</span><span class="p">)(</span><span class="n">size_t</span> <span class="n">n</span><span class="p">);</span>  
+</span></span><span class="line"><span class="cl">    <span class="c1">// free &gt;=n pages with &#34;base&#34; addr of Page descriptor structures(memlayout.h)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">free_pages</span><span class="p">)(</span><span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">base</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">n</span><span class="p">);</span>   
+</span></span><span class="line"><span class="cl">    <span class="c1">// return the number of free pages 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">size_t</span> <span class="p">(</span><span class="o">*</span><span class="n">nr_free_pages</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>                     
+</span></span><span class="line"><span class="cl">    <span class="c1">// check the correctness of XXX_pmm_manager
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">check</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>                               
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>对于双向链表的指针域使用统一的结构定义。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">list_entry</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">list_entry</span> <span class="o">*</span><span class="n">prev</span><span class="p">,</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">Var</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">type</span> <span class="n">var_1</span><span class="p">;</span>          
+</span></span><span class="line"><span class="cl">    <span class="err">……</span>
+</span></span><span class="line"><span class="cl">    <span class="n">list_entry_t</span> <span class="n">link</span><span class="p">;</span>         
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用指针+偏移的方式访问结构体与变量。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// convert list entry to page
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#define le2page(le, member)                 \
+</span></span></span><span class="line"><span class="cl"><span class="cp">to_struct((le), struct Page, member)
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/* Return the offset of &#39;member&#39; relative to the beginning of a struct type */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define offsetof(type, member)                                      \
+</span></span></span><span class="line"><span class="cl"><span class="cp">((size_t)(&amp;((type *)0)-&gt;member))
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/* *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * to_struct - get the struct from a ptr
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @ptr:    a struct pointer of member
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @type:   the type of the struct this is embedded in
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @member: the name of the member within the struct
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define to_struct(ptr, type, member)                               \
+</span></span></span><span class="line"><span class="cl"><span class="cp">((type *)((char *)(ptr) - offsetof(type, member)))
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-07-10</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/ucore-lab-0/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/2021newsctf/" class="prev" rel="prev" title="2021NEWSCTF"><i class="fas fa-angle-left fa-fw"></i>2021NEWSCTF</a>
+            <a href="/ucore-lab-1/" class="next" rel="next" title="UCore Lab 1">UCore Lab 1<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

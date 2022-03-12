@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">CSAPP Lecture 08 - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="CSAPP Lecture 08" />
+<meta property="og:description" content="
+    Lecture 08: Linking和学过的pwn的一部分重合了，所以只记录新的知识。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/csapp-lecture-08/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-02-14T00:25:36+08:00" />
+<meta property="article:modified_time" content="2021-02-14T00:25:36+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="CSAPP Lecture 08"/>
+<meta name="twitter:description" content="
+    Lecture 08: Linking和学过的pwn的一部分重合了，所以只记录新的知识。"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/csapp-lecture-08/" /><link rel="prev" href="http://example.org/csapp-lecture-07/" /><link rel="next" href="http://example.org/csapp-cachelab/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "CSAPP Lecture 08",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/csapp-lecture-08\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  3056 ,
+        "url": "http:\/\/example.org\/csapp-lecture-08\/","datePublished": "2021-02-14T00:25:36+08:00","dateModified": "2021-02-14T00:25:36+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#符号和符号表">符号和符号表</a></li>
+    <li><a href="#符号解析">符号解析</a>
+      <ul>
+        <li><a href="#静态库的链接与解析引用">静态库的链接与解析引用</a></li>
+      </ul>
+    </li>
+    <li><a href="#重定位">重定位</a></li>
+    <li><a href="#库打桩">库打桩</a></li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">CSAPP Lecture 08</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-02-14">2021-02-14</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2021-02-14">2021-02-14</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3056 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 7 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#符号和符号表">符号和符号表</a></li>
+    <li><a href="#符号解析">符号解析</a>
+      <ul>
+        <li><a href="#静态库的链接与解析引用">静态库的链接与解析引用</a></li>
+      </ul>
+    </li>
+    <li><a href="#重定位">重定位</a></li>
+    <li><a href="#库打桩">库打桩</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="lecture-08-linking" class="headerLink">
+    <a href="#lecture-08-linking" class="header-mark"></a>Lecture 08: Linking</h1><p>和学过的pwn的一部分重合了，所以只记录新的知识。</p>
+<h2 id="符号和符号表" class="headerLink">
+    <a href="#%e7%ac%a6%e5%8f%b7%e5%92%8c%e7%ac%a6%e5%8f%b7%e8%a1%a8" class="header-mark"></a>符号和符号表</h2><p>符号表<code>.symtab</code>中的每个条目具有以下格式：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">strcut</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">name</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="nl">type</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    	 <span class="nl">binding</span><span class="p">:</span><span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">reserved</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">short</span> <span class="n">section</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">long</span> <span class="n">value</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">long</span> <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="n">Elf64_Symbol</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>**name：**保存符号的名字，是<code>.strtab</code>的字节偏移量</li>
+<li>**type：**说明该符号的类型，是函数、变量还是数据节等等</li>
+<li>**binding：**说明该符号是局部还是全局的</li>
+<li>**value：**对于可重定位目标文件而言，是定义该符号的节到该符号的偏移量（比如函数就是在<code>.text</code>中，初始化的变量在<code>.data</code>，未初始化的变量在<code>.bss</code>中）；对于可执行目标文件而言，是绝对运行形式地址。</li>
+<li>**size：**是符号的值的字节数目。（通过value和size就能获得该符号的值）</li>
+<li>**section：**说明该符号保存在哪个节中，是节头部表中的偏移量。</li>
+</ul>
+<p>对于像Linux LD这样的<strong>静态链接器（Static Linker）</strong>，是以一组可重定位目标文件和命令参数为输入，生成一个完全链接的、可以加载和运行的可执行目标文件作为输出。为了构造可执行目标文件，<strong>链接器有两个任务：</strong></p>
+<ul>
+<li>**符号解析（Symbol Resolution）：**将每个符号引用和一个符号定义关联起来</li>
+<li>**重定位（Relocation）：<strong>编译器和汇编器生成从地址0开始的代码和数据节，链接器会对代码、数据节、符号分配内存地址，然后使用汇编器产生的</strong>重定位条目（Relocation Entry）**的指令，修改所有对这些符号的引用，使得它们指向正确的内存位置。</li>
+</ul>
+<h2 id="符号解析" class="headerLink">
+    <a href="#%e7%ac%a6%e5%8f%b7%e8%a7%a3%e6%9e%90" class="header-mark"></a>符号解析</h2><p>链接器符号解析是将每个符号引用与输入的所有可重定位目标文件的符号表中的一个确定的符号定义关联起来。</p>
+<p>编译器会向汇编器输出每个全局符号是<strong>强（Strong）<strong>还是</strong>弱（Weak）</strong>，而汇编器会把这些信息隐式编码在可重定位目标文件的符号表中。函数和已初始化的全局符号是强符号，未初始化的全局符号是弱符号。</p>
+<p>然后链接器通过以下规则来处理在多个可重定位目标文件中重复定义的全局符号：</p>
+<ol>
+<li>不允许有多个同名的强符号，如果存在，则链接器会报错</li>
+<li>如果有一个强符号和多个弱符号同名，则符号选择强符号的定义</li>
+<li>如果有多个弱符号同名，符号就随机选择一个弱符号的定义</li>
+</ol>
+<p>关于这部分，书上举了很多例子便于理解。</p>
+<p><strong>判断符号采用哪种定义：</strong></p>
+<ul>
+<li>在各个文件中确定同名全局符号的强弱，其中符号和初始化的全局符号为强符号，未初始化的全局符号为弱符号</li>
+</ul>
+<h3 id="静态库的链接与解析引用" class="headerLink">
+    <a href="#%e9%9d%99%e6%80%81%e5%ba%93%e7%9a%84%e9%93%be%e6%8e%a5%e4%b8%8e%e8%a7%a3%e6%9e%90%e5%bc%95%e7%94%a8" class="header-mark"></a>静态库的链接与解析引用</h3><p>在符号解析阶段，链接器会维护一个可重定位目标文件的集合<code>E</code>，一个引用了但是还未定义的符号集合<code>U</code>，一个前面输入文件中已经定义的符号集合<code>D</code>，然后在命令行中从左到右依次扫描可重定位目标文件和存档文件：</p>
+<ul>
+<li>如果输入文件是可重定位目标文件，链接器就将其添加到<code>E</code>中，然后根据该文件的符号表来修改<code>U</code>和<code>D</code>，然后继续下一个输入文件。</li>
+<li>如果输入文件是存档文件，则链接器会依次扫描存档文件中的成员<code>m</code>，如果<code>m</code>定义了<code>U</code>中的一个符号，则将<code>m</code>添加到<code>E</code>中，然后根据<code>m</code>的符号表来修改<code>U</code>和<code>D</code>。最后没有包含在<code>E</code>中的成员就会被丢弃，然后继续下一个输入文件。</li>
+<li>如果链接器扫描完毕，<code>U</code>中还存在没有确定定义的符号，则链接器会报错并终止，否则链接器会合并和重定位<code>E</code>中的目标文件，得到可执行目标文件。</li>
+</ul>
+<p>根据以上过程的描述，我们<strong>需要小心命令行上库和目标文件的顺序</strong>，要保证前面输入文件中未解析的符号能在后续输入文件中进行解析，否则会出现链接错误，一般是将库放在后面，如果库之间存在依赖，也要注意库之间的顺序，并且为了满足依赖关系，可以在命令行上重复库。</p>
+<h2 id="重定位" class="headerLink">
+    <a href="#%e9%87%8d%e5%ae%9a%e4%bd%8d" class="header-mark"></a>重定位</h2><p>当链接器完成符号解析时，就能确定在多个目标文件中重定义的全局符号的解析，以及获得静态库中需要的目标模块，此时所有符号引用都能和一个符号定义关联起来了。此时开始重定位步骤，<strong>包括：</strong></p>
+<ul>
+<li>链接器将所有目标模块中相同类型的节合并成同一类型的新的聚合节，比如将所有输入目标模块的<code>.data</code>节聚合成可执行文件中的<code>.data</code>节，其他节也如此操作。</li>
+<li>此时链接器知道代码节和数据节的确切大小，就将运行时内存地址赋给新的聚合节，以及输入模块定义的每个符号。此时程序的每条指令和全局变量都有唯一的运行时内存地址了。</li>
+<li>记得之前可重定位目标文件中，由于编译器和汇编器并不知道符号的运行时内存地址，所以使用一个占位符来设置符号引用的地址，而当前链接器已为符号分配了内存地址，所以链接器需要修改代码节和数据节中对每个符号的引用，使它们指向正确的运行时内存地址。</li>
+</ul>
+<p>当汇编器生成目标模块时，它无法确定数据和代码最终会放在内存的什么位置，也无法确定该模块引用外部定义的函数和全局变量的位置，所以汇编器先用占位符来占领位置，然后对地址未知的符号产生一个<strong>重定位条目（Relocation Entry）</strong>，代码的重定位条目会保存在<code>.rel.text</code>节中，已初始化数据的重定位条目会保存在<code>rel.data.</code>节中。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">long</span> <span class="n">offset</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">long</span> <span class="nl">type</span><span class="p">:</span><span class="mi">32</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    	 <span class="nl">symbol</span><span class="p">:</span><span class="mi">32</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">long</span> <span class="n">addend</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="n">Elf_Rela</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>其中，<code>offset</code>表示要修改符号引用的内存地址，<code>type</code>表示重定位的类型，<code>symbol</code>是符号表的索引值，表示引用的符号，可以通过该符号获得真实的内存地址，<code>addend</code>是一个有符号常数，有些重定位需要使用这个参数来修改引用位置。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">int sum(int *a, int n);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">int array[2] = {1, 2};
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">int main()
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">	int val = sum(array, 2);
+</span></span><span class="line"><span class="cl">	return val;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>我们可以通过<code>objdump -dx main.o</code>来得到<code>main.o</code>的反汇编代码，可以发现该函数中无法确定<code>array</code>和其他目标模块中定义的函数<code>sum</code>在内存中的地址，所以会对<code>array</code>和<code>sum</code>产生重定位条目</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">	sub	$0x8,%rsp
+</span></span><span class="line"><span class="cl">	mov $0x2,%esi
+</span></span><span class="line"><span class="cl">	mov	$0x0,%edi
+</span></span><span class="line"><span class="cl">a:R_X86_64_32 array
+</span></span><span class="line"><span class="cl">	callq 13&lt;main+0x13&gt;
+</span></span><span class="line"><span class="cl">f:R_X86_64_PC32 sum-0x4
+</span></span><span class="line"><span class="cl">	add	$0x8,%rsp
+</span></span><span class="line"><span class="cl">	retq
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>R_X86_64_PC32</li>
+</ul>
+<p>该重定位条目主要用来产生32位PC相对地址的引用，即函数调用时的重定位。</p>
+<p>其中<code>call</code>指令的开始地址处于节偏移<code>0xe</code>处，然后有一个字节的操作码<code>e8</code>，后面跟着的就是函数<code>sum</code>的32位PC相对引用的<strong>占位符</strong>，所以链接器修改的位置在当前节偏移<code>0xf</code>处。该重定位条目<code>r</code>包含以下字段</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">r.offset = 0xf //该值是当前节的偏移量，定位到重定位的位置
+</span></span><span class="line"><span class="cl">r.symbol = sum //保存的是要重定位的符号
+</span></span><span class="line"><span class="cl">r.type = R_X86_64_PC32 //保存的是重定位的类型
+</span></span><span class="line"><span class="cl">r.addend = -4 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>当前链接器已经确定了各个节和符号的的内存地址，该代码处于<code>.text</code>节中，则我们可以通过<code>.text</code>和<code>r.offset</code>的值来确定占位符的内存地址</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">ADDR(s) = ADDR(.text) = 0x4004d0
+</span></span><span class="line"><span class="cl">refaddr = ADDR(s) + r.offset
+</span></span><span class="line"><span class="cl">        = 0x4004d0 + 0xf
+</span></span><span class="line"><span class="cl">        = 0x4004df
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后我们需要计算占位符的内容，根据相对地址的计算方法，可以知道占位符的内容是目标地址减去当前PC的下一条指令的地址。可以通过<code>ADDR(r.symbol)</code>来获得目标地址，即<code>sum</code>函数的地址，可以通过<code>refaddr</code>减去4字节来获得下一指令的地址，然后可以通过以下计算公式来计算占位符内容</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">refptr = s + r.offset //占位符的指针
+</span></span><span class="line"><span class="cl">ADDR(r.symbol) = ADDR(sum) = 0x4004e8
+</span></span><span class="line"><span class="cl">*refptr = (unsigned)(ADDR(s.symbol) + r.addend - refaddr)
+</span></span><span class="line"><span class="cl">        = (unsigned)(0x4004e8 + (-4) - 0x4004df)
+</span></span><span class="line"><span class="cl">        = (unsigned) 0x5
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>R_X86_64_32</li>
+</ul>
+<p>该重定位条目主要用来产生32位绝对地址的引用，即数组的重定位。</p>
+<p>使用数组<code>array</code>的指令处于<code>.text</code>节偏移<code>0x9</code>处，后面有一个字节的操作码，后面跟着的就是数组<code>array</code>的32位绝对地址的引用的<strong>占位符</strong>，所以链接器修改的位置在当前节偏移<code>0xa</code>处。该重定位条目<code>r</code>包含以下字段</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">r.offset = 0xa
+</span></span><span class="line"><span class="cl">r.symbol = array
+</span></span><span class="line"><span class="cl">r.type = R_X86_64_32
+</span></span><span class="line"><span class="cl">r.added = 0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>我们可以通过<code>r.symbol</code>的地址来确定数组<code>array</code>的内存地址，然后直接将该内存地址保存到占位符中，即</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">refptr = s + r.offset //占位符的指针
+</span></span><span class="line"><span class="cl">*refptr = (unsigned)(ADDR(r.symbol) + r.addend)
+</span></span><span class="line"><span class="cl">        = (unsigned) 0x601018 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="库打桩" class="headerLink">
+    <a href="#%e5%ba%93%e6%89%93%e6%a1%a9" class="header-mark"></a>库打桩</h2><p>Linux链接器支持**库打桩（Library Interpositioning）**技术，允许你截获对共享库函数的调用，替换成自己的代码。<strong>基本思想</strong>为：创建一个与共享库函数相同函数原型的包装函数，使得系统调用包装函数，而不是调用目标函数。</p></div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-02-14</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/csapp-lecture-08/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/csapp-lecture-07/" class="prev" rel="prev" title="CSAPP Lecture 07"><i class="fas fa-angle-left fa-fw"></i>CSAPP Lecture 07</a>
+            <a href="/csapp-cachelab/" class="next" rel="next" title="CSAPP Cachelab">CSAPP Cachelab<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

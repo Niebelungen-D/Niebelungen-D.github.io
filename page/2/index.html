@@ -1,47 +1,73 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-    <head>
-	<meta name="generator" content="Hugo 0.87.0" />
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="robots" content="noodp" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-        <title>Niebelungen</title><meta name="Description" content=""><meta property="og:title" content="Niebelungen" />
-<meta property="og:description" content="" />
+
+<head>
+	<meta name="generator" content="Hugo 0.94.0" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="Niebelungen" />
+<meta property="og:description" content="Niebelungen" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="http://example.org/" /><meta property="og:image" content="http://example.org/favicon.png"/>
+<meta property="og:url" content="http://example.org/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="og:site_name" content="Niebelungen" />
 
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="http://example.org/favicon.png"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
 
 <meta name="twitter:title" content="Niebelungen"/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="Niebelungen"/>
 <meta name="application-name" content="Niebelungen">
-<meta name="apple-mobile-web-app-title" content="Niebelungen"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/" /><link rel="alternate" href="/index.xml" type="application/rss+xml" title="Niebelungen">
-    <link rel="feed" href="/index.xml" type="application/rss+xml" title="Niebelungen"><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/" /><link rel="alternate" href="/index.xml" type="application/rss+xml" title="Niebelungen">
+    <link rel="feed" href="/index.xml" type="application/rss+xml" title="Niebelungen"><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
     {
         "@context": "http://schema.org",
         "@type": "WebSite",
         "url": "http:\/\/example.org\/","inLanguage": "zh-CN","author": {
                 "@type": "Person",
                 "name": "Niebelungen"
-            },"name": "Niebelungen"
+            },"description": "Niebelungen","name": "Niebelungen"
     }
     </script></head>
-    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
 
-        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
     <div class="header-wrapper">
         <div class="header-title">
             <a href="/" title="Niebelungen">Niebelungen</a>
         </div>
         <div class="menu">
-            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+            <div class="menu-inner"><a class="menu-item active" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
                     <i class="fas fa-adjust fa-fw"></i>
-                </a>
-            </div>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
         </div>
     </div>
 </header><header class="mobile" id="header-mobile">
@@ -54,8 +80,30 @@
                 <span></span><span></span><span></span>
             </div>
         </div>
-        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
                 <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
             </a></div>
     </div>
 </header>
@@ -66,103 +114,61 @@
     <div id="search-dropdown-mobile"></div>
 </div>
 <main class="main">
-                <div class="container"><div class="page home" posts><div class="home-profile"><div class="home-avatar"><a href="/posts/" title="Posts"><img
+            <div class="container"><div class="page home" posts><div class="home-profile"><div class="home-avatar"><a href="/" title="Home"><img
         class="lazyload"
-        src="/svg/loading.min.svg"
         data-src="/logo.jpg"
         data-srcset="/logo.jpg, /logo.jpg 1.5x, /logo.jpg 2x"
         data-sizes="auto"
         alt="/logo.jpg"
-        title="/logo.jpg" /></a></div><h1 class="home-title">Niebelungen</h1><div class="links"><a href="https://github.com/https://github.com/Niebelungen-D" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://twitter.com/https://twitter.com/Niebelungen10" title="Twitter" target="_blank" rel="noopener noreffer me"><i class="fab fa-twitter fa-fw"></i></a></div></div>
+        title="/logo.jpg" height="6rem" width="6rem"></a></div><h1 class="home-title">Niebelungen</h1><h2 class="home-subtitle">while (i &lt; you) i&#43;&#43;</h2><div class="links"><a href="https://github.com/Niebelungen-D" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://twitter.com/Niebelungen10" title="Twitter" target="_blank" rel="noopener noreffer me"><i class="fab fa-twitter fa-fw"></i></a><a href="mailto:NiebelungenOne@outlook.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-malloclab/">CSAPP Malloclab</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-02-21">2021-02-21</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content"><h1 id="csapp-malloclab">CSAPP-Malloclab</h1></div><div class="post-footer">
-        <a href="/posts/csapp-malloclab/">阅读全文</a><div class="post-tags">
+        <a href="/eebpf-tokyowesterns-ctf-2020/">eebpf-Tokyowesterns CTF 2020</a>
+    </h1><div class="post-meta">
+        <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+        </span>&nbsp;<span class="post-publish">发布于 <time datetime="2022-01-17">2022-01-17</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div><div class="content">eebpf一道来自Tokyowesterns CTF 2020的内核题目。在做题之前，需要学习ebpf的相关知识。这里有一篇我的笔记。 Bug题目pa</div><div class="post-footer">
+        <a href="/eebpf-tokyowesterns-ctf-2020/">阅读全文</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/writeups/">Writeups</a>,&nbsp;<a href="/tags/kernel/">Kernel</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/midnightsun2018-filpbit/">MidnightSun2018-filpbit</a>
+    </h1><div class="post-meta">
+        <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+        </span>&nbsp;<span class="post-publish">发布于 <time datetime="2022-01-17">2022-01-17</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div><div class="content">filpbit源码提供： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 #include &lt;linux/kernel.h&gt;#include &lt;linux/init.h&gt;#include &lt;linux/sched.h&gt;#include &lt;linux/syscalls.h&gt; #define MAXFLIT 1 #ifndef __NR_FLITBIP #define FLITBIP 333 #endif long flit_count = 0; EXPORT_SYMBOL(flit_count); SYSCALL_DEFINE2(flitbip, long *, addr, long, bit) { if (flit_count &gt;= MAXFLIT) {</div><div class="post-footer">
+        <a href="/midnightsun2018-filpbit/">阅读全文</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/writeups/">Writeups</a>,&nbsp;<a href="/tags/kernel/">Kernel</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/seccon2020-kstack/">SECCON2020-kstack</a>
+    </h1><div class="post-meta">
+        <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+        </span>&nbsp;<span class="post-publish">发布于 <time datetime="2022-01-17">2022-01-17</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div><div class="content">Kstack这个题目同样提供了源码。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 typedef struct _Element { int owner;</div><div class="post-footer">
+        <a href="/seccon2020-kstack/">阅读全文</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/writeups/">Writeups</a>,&nbsp;<a href="/tags/kernel/">Kernel</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/tsgctf2021-lkgit-userfaultfd/">TSGCTF2021-lkgit(userfaultfd)</a>
+    </h1><div class="post-meta">
+        <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+        </span>&nbsp;<span class="post-publish">发布于 <time datetime="2022-01-17">2022-01-17</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div><div class="content">userfaultfduserfaultfd，这是 kernel 中提供的一种特殊的处理 page fault 的机制，能够让用户态程序自行处理自己的 page fault. 它的调用方式是通过一</div><div class="post-footer">
+        <a href="/tsgctf2021-lkgit-userfaultfd/">阅读全文</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/writeups/">Writeups</a>,&nbsp;<a href="/tags/kernel/">Kernel</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/ebpf-basic-learning/">eBPF-Basic-Learning</a>
+    </h1><div class="post-meta">
+        <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+        </span>&nbsp;<span class="post-publish">发布于 <time datetime="2022-01-17">2022-01-17</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">eBPFWhat is eBPF ？eBPF 全称是 extended Berkeley Packet Filter ，起源于 BPF ( Berkeley Packet Filter )。顾名思义，它向linux内核提供了对数据包的过滤。 早期的网络监控器等都是作为用户级进程运</div><div class="post-footer">
+        <a href="/ebpf-basic-learning/">阅读全文</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-cachelab/">CSAPP Cachelab</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-02-14">2021-02-14</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content"><h1 id="csapp-cachelab">CSAPP-Cachelab</h1></div><div class="post-footer">
-        <a href="/posts/csapp-cachelab/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-lecture-08/">CSAPP Lecture 08</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-02-14">2021-02-14</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content"><h1 id="lecture-08-linking">Lecture 08: Linking</h1>
-<p>和学过的pwn的一部分重合了，所以只记录新的知识。</p></div><div class="post-footer">
-        <a href="/posts/csapp-lecture-08/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-lecture-07/">CSAPP Lecture 07</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-02-13">2021-02-13</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content"><h1 id="lecture-07-cache-memories">Lecture 07: Cache Memories</h1></div><div class="post-footer">
-        <a href="/posts/csapp-lecture-07/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/challenges-100-week-6/">Challenges 100 Week 6</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-02-12">2021-02-12</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div><div class="content"><table>
-<thead>
-<tr>
-<th style="text-align:center">Challenges</th>
-<th style="text-align:center">Tricks</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">pwnable.tw-dubblesort</td>
-<td style="text-align:center"><code>canary</code></td>
-</tr>
-</tbody>
-</table>
-<p>新年快乐！没想到吧！春节我也不消停&hellip;不过做题的速度要变慢了，Sakura师傅还要交这周的作业，下周放一个假，打算把how2heap学完，做点例题。</p></div><div class="post-footer">
-        <a href="/posts/challenges-100-week-6/">阅读全文</a><div class="post-tags">
+        <a href="/dragonctf2021-nim/">DragonCTF2021-Nim</a>
+    </h1><div class="post-meta">
+        <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+        </span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-12-19">2021-12-19</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div><div class="content">Nim周末和Nu1L的师傅一起打了DragonCTF，题目质量很高，被师傅们带了。 Nim实现了尼姆游戏（Nim），玩家和Dealer（电脑）</div><div class="post-footer">
+        <a href="/dragonctf2021-nim/">阅读全文</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/writeups/">Writeups</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-archlab/">CSAPP Archlab</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-02-08">2021-02-08</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content"><h1 id="csapp-archlab">CSAPP-Archlab</h1></div><div class="post-footer">
-        <a href="/posts/csapp-archlab/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/challenges-100-week-5/">Challenges 100 Week 5</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-02-07">2021-02-07</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div><div class="content">Challenges Tricks pwnable.tw-3x17 fini_arry 因为最近一直在读CSAPP刷题量变少了·· 3x17 ida 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 void __fastcall</div><div class="post-footer">
-        <a href="/posts/challenges-100-week-5/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/writeups/">Writeups</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-lecture-04/">CSAPP Lecture 04</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-02-04">2021-02-04</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">Lecture 04: 处理器体系结构 Y86-64ISA 定义一个简单的指令集，作为处理器实现的运行示例。 寄存器：15个程序寄存器：%rax，%rcx，%rdx，%rbx，%rs</div><div class="post-footer">
-        <a href="/posts/csapp-lecture-04/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-attacklab/">CSAPP Attacklab</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-02-02">2021-02-02</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">CSAPP-Attacklab 程序在一系列的初始化之后，会进入test phase_1 1 2 3 4 5 6 7 8 9 10 0000000000401968 &lt;test&gt;: 401968: 48 83 ec 08 sub $0x8,%rsp 40196c: b8 00 00 00 00 mov $0x0,%eax 401971: e8 32 fe ff ff callq 4017a8 &lt;getbuf&gt; 401976: 89 c2 mov %eax,%edx 401978: be 88 31 40 00 mov</div><div class="post-footer">
-        <a href="/posts/csapp-attacklab/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-bomblab/">CSAPP Bomblab</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-01-31">2021-01-31</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">CSAPP-Bmoblab 输入正确的字符串拆除六个炸弹，通过分析汇编代码+调试找出答案。意外地很好玩~~ phase_1 1 2 3 4 5 6 7 8 9 0000000000400ee0 &lt;phase_1&gt;: 400ee0: 48 83 ec 08 sub $0x8,%rsp 400ee4: be 00 24 40 00 mov $0x402400,%esi 400ee9: e8 4a</div><div class="post-footer">
-        <a href="/posts/csapp-bomblab/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/challenges-100-week-4/">Challenges 100 Week 4</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-01-28">2021-01-28</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div><div class="content">Challenges_100-Week_4 Challenges Tricks 0x41414141 CTF-moving-signals SROP 0x41414141 CTF-external stack pivoting pwnable.tw-calc 逻辑漏洞+ROP moving-signals ida 1 2 3 4 5 6 7 8 9 mov rdi, 0 ; Alternative name is &#39;_start&#39; ; __start mov rsi, rsp sub rsi, 8 mov rdx, 1F4h syscall ; LINUX - sys_read retn endp pop rax retn 见过最短的程序了&he</div><div class="post-footer">
-        <a href="/posts/challenges-100-week-4/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/writeups/">Writeups</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-datalab/">CSAPP Datalab</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-01-25">2021-01-25</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">CSAPP-Datalab labs系列的第一个lab，主要考查书中第二章的知识。挺烧脑的。。。 List Name Description Rating Max ops bitCor (x, y) x^y using only ~ and &amp; 1 14 tmin() 返回最小补码 1 4 isTmax(x) 判断是否为补码最</div><div class="post-footer">
-        <a href="/posts/csapp-datalab/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-lecture-03/">CSAPP Lecture 03</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-01-25">2021-01-25</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">Lecture 03 Machine-Level Programming Ⅰ: Basics History of Intel processors and architectures 介绍了Intel x86的历史，不重要。 C, assmbly, machine code **CPU: ** PC: Programmer counter Address of next instruction Called &ldquo;RIP&rdquo; (x86-64) Register file Heaviy used program data（程序主要使用寄存器来实现</div><div class="post-footer">
-        <a href="/posts/csapp-lecture-03/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-lecture-05/">CSAPP Lecture 05</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-01-25">2021-01-25</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">Lecture 05: Program Optimization 程序的性能：引入每元素周期数（Cycles Per Element， CPE）作为衡量标准。因为处理器的活动顺序是由时钟控制的，时间长短代表执</div><div class="post-footer">
-        <a href="/posts/csapp-lecture-05/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/csapp-lecture-06/">CSAPP Lecture 06</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-01-25">2021-01-25</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">Lecture 06: The Memory Hierarchy 存储技术 随机访问存储器 **随机访问存储器（Random-Access Memory，RAM）**根据存储单元实现方式可以分为两类：静</div><div class="post-footer">
-        <a href="/posts/csapp-lecture-06/">阅读全文</a><div class="post-tags">
+        <a href="/ucore-lab-5/">uCore-lab-5</a>
+    </h1><div class="post-meta">
+        <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+        </span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-12-14">2021-12-14</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">练习0在idt_init中添加 1 SETGATE(idt[T_SYSCALL], 0, GD_KTEXT, __vectors[T_SYSCALL], DPL_USER); 修改定时器中断： 1 2 3 4 5 6 ticks ++; if (ticks % TICK_NUM == 0) { assert(current != NULL); current-&gt;need_resched = 1; // print_ticks(); } 在alloc_proc中多出了PC</div><div class="post-footer">
+        <a href="/ucore-lab-5/">阅读全文</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">
@@ -176,17 +182,33 @@
                     <span class="page-link">
                         <a href="/page/3/">3</a>
                     </span>
+                </li><li class="page-item ">
+                    <span class="page-link">
+                        <a href="/page/4/">4</a>
+                    </span>
+                </li><li class="page-item ">
+                    <span class="page-link" aria-hidden="true">&hellip;</span>
+                </li><li class="page-item ">
+                    <span class="page-link">
+                        <a href="/page/9/">9</a>
+                    </span>
                 </li></ul></div></div>
-            </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.87.0">Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
-                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank">Niebelungen</a></span></div>
-        </div>
-    </footer></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
 
-        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
-                <i class="fas fa-arrow-up fa-fw"></i>
-            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
-                <i class="fas fa-comment fa-fw"></i>
-            </a>
-        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
 </html>

@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">uCore-lab-4 - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="uCore-lab-4" />
+<meta property="og:description" content="概述在前几次实验的基础上，我们将实现CPU的虚拟化。可以理解为让每个用户态进程认为自己“独占”CPU资源。 进程对于进程的定义：进程是指一个具" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/ucore-lab-4/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-12-13T23:15:12+08:00" />
+<meta property="article:modified_time" content="2021-12-13T23:15:12+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="uCore-lab-4"/>
+<meta name="twitter:description" content="概述在前几次实验的基础上，我们将实现CPU的虚拟化。可以理解为让每个用户态进程认为自己“独占”CPU资源。 进程对于进程的定义：进程是指一个具"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/ucore-lab-4/" /><link rel="prev" href="http://example.org/ucore-lab-3/" /><link rel="next" href="http://example.org/ucore-lab-5/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "uCore-lab-4",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/ucore-lab-4\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  8462 ,
+        "url": "http:\/\/example.org\/ucore-lab-4\/","datePublished": "2021-12-13T23:15:12+08:00","dateModified": "2021-12-13T23:15:12+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#进程控制块pcb">进程控制块PCB</a></li>
+    <li><a href="#进程状态">进程状态</a>
+      <ul>
+        <li><a href="#进程创建">进程创建</a></li>
+        <li><a href="#进程执行">进程执行</a></li>
+        <li><a href="#进程等待">进程等待</a></li>
+        <li><a href="#进程唤醒">进程唤醒</a></li>
+        <li><a href="#进程结束">进程结束</a></li>
+        <li><a href="#进程挂起">进程挂起</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#概念">概念</a>
+      <ul>
+        <li><a href="#优缺点">优缺点</a></li>
+      </ul>
+    </li>
+    <li><a href="#用户线程">用户线程</a>
+      <ul>
+        <li><a href="#特点">特点</a></li>
+        <li><a href="#缺点">缺点</a></li>
+      </ul>
+    </li>
+    <li><a href="#内核线程">内核线程</a></li>
+    <li><a href="#轻权线程">轻权线程</a></li>
+    <li><a href="#线程与进程的比较">线程与进程的比较</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#ucore的pcb">ucore的PCB</a></li>
+    <li><a href="#切换流程">切换流程</a></li>
+    <li><a href="#进程创建-1">进程创建</a>
+      <ul>
+        <li><a href="#空闲进程的创建">空闲进程的创建</a></li>
+        <li><a href="#第一个内核线程的创建">第一个内核线程的创建</a></li>
+      </ul>
+    </li>
+    <li><a href="#进程终止">进程终止</a>
+      <ul>
+        <li><a href="#wait">wait</a></li>
+        <li><a href="#exit">exit</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#fork的两次返回">fork的两次返回</a></li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">uCore-lab-4</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-12-13">2021-12-13</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2021-12-13">2021-12-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 8462 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 17 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#进程控制块pcb">进程控制块PCB</a></li>
+    <li><a href="#进程状态">进程状态</a>
+      <ul>
+        <li><a href="#进程创建">进程创建</a></li>
+        <li><a href="#进程执行">进程执行</a></li>
+        <li><a href="#进程等待">进程等待</a></li>
+        <li><a href="#进程唤醒">进程唤醒</a></li>
+        <li><a href="#进程结束">进程结束</a></li>
+        <li><a href="#进程挂起">进程挂起</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#概念">概念</a>
+      <ul>
+        <li><a href="#优缺点">优缺点</a></li>
+      </ul>
+    </li>
+    <li><a href="#用户线程">用户线程</a>
+      <ul>
+        <li><a href="#特点">特点</a></li>
+        <li><a href="#缺点">缺点</a></li>
+      </ul>
+    </li>
+    <li><a href="#内核线程">内核线程</a></li>
+    <li><a href="#轻权线程">轻权线程</a></li>
+    <li><a href="#线程与进程的比较">线程与进程的比较</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#ucore的pcb">ucore的PCB</a></li>
+    <li><a href="#切换流程">切换流程</a></li>
+    <li><a href="#进程创建-1">进程创建</a>
+      <ul>
+        <li><a href="#空闲进程的创建">空闲进程的创建</a></li>
+        <li><a href="#第一个内核线程的创建">第一个内核线程的创建</a></li>
+      </ul>
+    </li>
+    <li><a href="#进程终止">进程终止</a>
+      <ul>
+        <li><a href="#wait">wait</a></li>
+        <li><a href="#exit">exit</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#fork的两次返回">fork的两次返回</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="概述" class="headerLink">
+    <a href="#%e6%a6%82%e8%bf%b0" class="header-mark"></a>概述</h1><p>在前几次实验的基础上，我们将实现CPU的虚拟化。可以理解为让每个用户态进程认为自己“独占”CPU资源。</p>
+<h1 id="进程" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b" class="header-mark"></a>进程</h1><p>对于进程的<strong>定义</strong>：进程是指一个具有一定独立功能的程序在一个数据集合上的一次动态执行过程。</p>
+<p>进程包含了正在运行的一个程序的所有状态信息。（代码，数据，寄存器，进程所占资源等）</p>
+<p><strong>进程与程序</strong>
+程序是一个静态可执行文件，是有序代码的集合。而进程是执行中的程序，有内核态和用户态。</p>
+<h2 id="进程控制块pcb" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e6%8e%a7%e5%88%b6%e5%9d%97pcb" class="header-mark"></a>进程控制块PCB</h2><ul>
+<li>PCB描述进程的基本情况以及运行变化的过程</li>
+<li>进程控制块是进程的唯一标识。</li>
+<li>调度和状态信息、进程间通信信息、存储管理信息、进程所用的资源和与PCB相关的进程队列。如用链表维护正在就绪态的所有进程。</li>
+</ul>
+<h2 id="进程状态" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e7%8a%b6%e6%80%81" class="header-mark"></a>进程状态</h2><p>进程生命周期的划分：进程创建、进程执行、进程等待、进程抢占、进程唤醒和进程结束。</p>
+<h3 id="进程创建" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e5%88%9b%e5%bb%ba" class="header-mark"></a>进程创建</h3><p>进程创建的情况：</p>
+<ul>
+<li>系统初始化时</li>
+<li>用户请求创建一个新进程</li>
+<li>正在运行的进程执行了创建进程的系统调用</li>
+</ul>
+<p>创建的进程，在为其准备好相应的资源后，会加入就绪队列。</p>
+<h3 id="进程执行" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e6%89%a7%e8%a1%8c" class="header-mark"></a>进程执行</h3><p>CPU的分时执行，当一个进程执行了一个时间片后，内核从就绪队列基于某种策略选择一个进程执行。</p>
+<h3 id="进程等待" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e7%ad%89%e5%be%85" class="header-mark"></a>进程等待</h3><p>进程等待（阻塞）的情况：</p>
+<ul>
+<li>请求并等待系统服务，无法马上完成</li>
+<li>启动某种操作，无法马上完成</li>
+<li>需要的数据没有到达（例如磁盘读写）</li>
+</ul>
+<p>进程进入等待状态只会是进程自身的原因。</p>
+<h3 id="进程唤醒" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e5%94%a4%e9%86%92" class="header-mark"></a>进程唤醒</h3><p>当等待状态的进程所要求的条件（资源准备好，某事件的发生）满足后，会加入到就绪状态。</p>
+<p>进程只会被别的进程或操作系统唤醒。</p>
+<h3 id="进程结束" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e7%bb%93%e6%9d%9f" class="header-mark"></a>进程结束</h3><p>释放进程所占的所有资源</p>
+<p>结束的情况：正常退出、错误退出、致命错误、被其他进程杀死</p>
+<h3 id="进程挂起" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e6%8c%82%e8%b5%b7" class="header-mark"></a>进程挂起</h3><p>系统的内存不足时，需要将某些进程放到磁盘中，称为进程挂起。</p>
+<ul>
+<li>等待挂起（Blocked-suspend）： 进程在外存并等待某事件的出现。</li>
+<li>就绪挂起（Ready-suspend）：进程在外存，但只要进入内存，即可运行。</li>
+<li>挂起（Suspend）：把一个进程从内存转到外存。
+<ul>
+<li>等待到等待挂起：没有进程处于就绪状态或就绪进程要求更多内存资源。</li>
+<li>就绪到就绪挂起：当有高优先级进程处于等待状态（系统认为很快会就绪的），低优先级就绪进程会挂起，为高优先级进程提供更大的内存空间。</li>
+<li>运行到就绪挂起：当有高优先级等待进程因事件出现而进入就绪挂起。</li>
+<li>等待挂起到就绪挂起：当有等待挂起进程因相关事件出现而转换状态。</li>
+</ul>
+</li>
+<li>激活（Activate）：把一个进程从外存转到内存
+<ul>
+<li>就绪挂起到就绪：没有就绪进程或挂起就绪进程优先级高于就绪进程。</li>
+<li>等待挂起到等待：当一个进程释放足够内存，并有高优先级等待挂起进程。</li>
+</ul>
+</li>
+</ul>
+<h1 id="线程" class="headerLink">
+    <a href="#%e7%ba%bf%e7%a8%8b" class="header-mark"></a>线程</h1><p>线程的出现：我们希望进程之间有更好的并发性，并实现更高程度的数据共享。而这与进程的独立性相矛盾，所以有了线程。</p>
+<h2 id="概念" class="headerLink">
+    <a href="#%e6%a6%82%e5%bf%b5" class="header-mark"></a>概念</h2><p>线程是进程的一部分，描述指令流执行状态，是进程中的指令执行流最小单位，是CPU调度的基本单位。</p>
+<ul>
+<li>
+<p>进程的资源分配角色：进程由一组相关资源构成，包括地址空间、打开的文件等各种资源。</p>
+</li>
+<li>
+<p>线程的处理机调度角色：线程描述在进程资源环境中指令流执行状态。</p>
+</li>
+</ul>
+<p>进程变成了资源分配的单位，线程是CPU调度的单位。</p>
+<h3 id="优缺点" class="headerLink">
+    <a href="#%e4%bc%98%e7%bc%ba%e7%82%b9" class="header-mark"></a>优缺点</h3><ul>
+<li>优点：
+<ul>
+<li>一个进程中可以存在多个线程</li>
+<li>各个线程可以并发执行</li>
+<li>各个线程之间可以共享地址空间和文件等资源。</li>
+</ul>
+</li>
+<li>缺点：
+<ul>
+<li>一个线程崩溃，会导致其所属的进程的所有线程崩溃。</li>
+</ul>
+</li>
+</ul>
+<h2 id="用户线程" class="headerLink">
+    <a href="#%e7%94%a8%e6%88%b7%e7%ba%bf%e7%a8%8b" class="header-mark"></a>用户线程</h2><p>由一组用户级的线程库函数来完成线程的管理，包括线程的创建、终止、同步和调度等。</p>
+<h3 id="特点" class="headerLink">
+    <a href="#%e7%89%b9%e7%82%b9" class="header-mark"></a>特点</h3><p>用户线程不依赖操作系统，在操作系统的角度面对的依然只有每个进程的PCB。而在用户态，有各个进程内部实现线程控制块TCB。并实现自定义的线程调度算法。</p>
+<p>由于不经过操作系统，所有没有了用户态和内核态的切换，减少了很大的开销。且有更自由的线程调用策略。</p>
+<h3 id="缺点" class="headerLink">
+    <a href="#%e7%bc%ba%e7%82%b9" class="header-mark"></a>缺点</h3><p>线程发起系统调用请求操作系统服务时，对操作系统来说是以一个进程的名义操作的。如果阻塞，整个进程都会进入等待状态。而且不支持基于线程的处理机抢占。操作系统仅分配一个进程的时间片，这样所有线程分配到的执行时间很少，只能按进程分配CPU时间。</p>
+<h2 id="内核线程" class="headerLink">
+    <a href="#%e5%86%85%e6%a0%b8%e7%ba%bf%e7%a8%8b" class="header-mark"></a>内核线程</h2><p>将线程的操作加入到内核中，由内核通过系统调用实现的线程机制，由内核完成线程的创建、终止和管理。</p>
+<p>这样解决了用户线程的很多问题，但是加大了线程用户态与内核态之间切换的消耗。</p>
+<h2 id="轻权线程" class="headerLink">
+    <a href="#%e8%bd%bb%e6%9d%83%e7%ba%bf%e7%a8%8b" class="header-mark"></a>轻权线程</h2><ul>
+<li>
+<p>内核支持的用户线程。一个进程可包含一个或多个轻权进程，每个轻权进程由一个单独的内核线程来支持。</p>
+</li>
+<li>
+<p>过于复杂以至于优点没有体现出来，最后演化为单一的内核线程支持。（笑）</p>
+</li>
+</ul>
+<h2 id="线程与进程的比较" class="headerLink">
+    <a href="#%e7%ba%bf%e7%a8%8b%e4%b8%8e%e8%bf%9b%e7%a8%8b%e7%9a%84%e6%af%94%e8%be%83" class="header-mark"></a>线程与进程的比较</h2><ul>
+<li>进程是资源分配单元，而线程是CPU调度单位。</li>
+<li>进程拥有一个完整的资源平台，而线程只独享指令流执行的必要资源，例如寄存器与栈。</li>
+<li>线程具有就绪、等待和运行三种基本状态和状态间的转换关系。</li>
+<li>线程能减小并发执行的事件和空闲开销。
+<ul>
+<li>线程的创建时间和终止时间比进程短。</li>
+<li>同一进程内的线程切换时间比进程短。</li>
+<li>由于同一进程的各线程间共享内存和文件资源，可不通过内核进行直接通信。</li>
+</ul>
+</li>
+</ul>
+<h1 id="进程切换" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e5%88%87%e6%8d%a2" class="header-mark"></a>进程切换</h1><p>暂停当前进程，并从运行状态变成其他状态。调度另一个进程，并从就绪状态转为运行状态。
+进程切换要求：</p>
+<ul>
+<li>切换前，保存上下文</li>
+<li>切换后，恢复上下文</li>
+<li>速度要快</li>
+</ul>
+<h2 id="ucore的pcb" class="headerLink">
+    <a href="#ucore%e7%9a%84pcb" class="header-mark"></a>ucore的PCB</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">enum</span> <span class="n">proc_state</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">PROC_UNINIT</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1">// 未初始化的     -- alloc_proc
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">PROC_SLEEPING</span><span class="p">,</span>    <span class="c1">// 等待状态       -- try_free_pages, do_wait, do_sleep
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">PROC_RUNNABLE</span><span class="p">,</span>    <span class="c1">// 就绪/运行状态   -- proc_init, wakeup_proc,
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">PROC_ZOMBIE</span><span class="p">,</span>      <span class="c1">// 僵死状态       -- do_exit
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">context</span> <span class="p">{</span>  <span class="c1">// 保存的上下文寄存器，注意没有eax寄存器和段寄存器
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">uint32_t</span> <span class="n">eip</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">esp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">ebx</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">ecx</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">edx</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">esi</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">edi</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint32_t</span> <span class="n">ebp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">proc_struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">enum</span> <span class="n">proc_state</span> <span class="n">state</span><span class="p">;</span>                      <span class="c1">// Process state
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">pid</span><span class="p">;</span>                                    <span class="c1">// Process ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">runs</span><span class="p">;</span>                                   <span class="c1">// the running times of Proces
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">uintptr_t</span> <span class="n">kstack</span><span class="p">;</span>                           <span class="c1">// Process kernel stack
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">volatile</span> <span class="kt">bool</span> <span class="n">need_resched</span><span class="p">;</span>                 <span class="c1">// bool value: need to be rescheduled to release CPU?
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">parent</span><span class="p">;</span>                 <span class="c1">// the parent process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">mm_struct</span> <span class="o">*</span><span class="n">mm</span><span class="p">;</span>                       <span class="c1">// Process&#39;s memory management field
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">context</span> <span class="n">context</span><span class="p">;</span>                     <span class="c1">// Switch here to run process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">trapframe</span> <span class="o">*</span><span class="n">tf</span><span class="p">;</span>                       <span class="c1">// Trap frame for current interrupt
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">uintptr_t</span> <span class="n">cr3</span><span class="p">;</span>                              <span class="c1">// CR3 register: the base addr of Page Directroy Table(PDT)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">uint32_t</span> <span class="n">flags</span><span class="p">;</span>                             <span class="c1">// Process flag
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span> <span class="n">name</span><span class="p">[</span><span class="n">PROC_NAME_LEN</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>               <span class="c1">// Process name
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">list_entry_t</span> <span class="n">list_link</span><span class="p">;</span>                     <span class="c1">// Process link list 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">list_entry_t</span> <span class="n">hash_link</span><span class="p">;</span>                     <span class="c1">// Process hash list
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>mm：内存管理的信息，包括内存映射列表、页表指针等。mm成员变量在lab3中用于虚存管理。但在实际OS中，内核线程常驻内存，不需要考虑swap page问题，在lab5中涉及到了用户进程，才考虑进程用户内存空间的swap page问题，mm才会发挥作用。所以在lab4中mm对于内核线程就没有用了，这样内核线程的proc_struct的成员变量*mm=0是合理的。mm里有个很重要的项pgdir，记录的是该进程使用的一级页表的物理地址。由于*mm=NULL，所以在proc_struct数据结构中需要有一个代替pgdir项来记录页表起始地址，这就是proc_struct数据结构中的cr3成员变量。</li>
+<li>state：进程所处的状态。</li>
+<li>parent：用户进程的父进程（创建它的进程）。在所有进程中，只有一个进程没有父进程，就是内核创建的第一个内核线程idleproc。内核根据这个父子关系建立一个树形结构，用于维护一些特殊的操作，例如确定某个进程是否可以对另外一个进程进行某种操作等等。</li>
+<li>context：进程的上下文，用于进程切换（参见switch.S）。在 uCore中，所有的进程在内核中也是相对独立的（例如独立的内核堆栈以及上下文等等）。使用 context 保存寄存器的目的就在于在内核态中能够进行上下文之间的切换。实际利用context进行上下文切换的函数是在kern/process/switch.S中定义switch_to。</li>
+<li>tf：中断帧的指针，总是指向内核栈的某个位置：当进程从用户空间跳到内核空间时，中断帧记录了进程在被中断前的状态。当内核需要跳回用户空间时，需要调整中断帧以恢复让进程继续执行的各寄存器值。除此之外，uCore内核允许嵌套中断。因此为了保证嵌套中断发生时tf 总是能够指向当前的trapframe，uCore 在内核栈上维护了 tf 的链，可以参考trap.c::trap函数做进一步的了解。</li>
+<li>cr3: cr3 保存页表的物理地址，目的就是进程切换的时候方便直接使用 lcr3实现页表切换，避免每次都根据 mm 来计算 cr3。mm数据结构是用来实现用户空间的虚存管理的，但是内核线程没有用户空间，它执行的只是内核中的一小段代码（通常是一小段函数），所以它没有mm 结构，也就是NULL。当某个进程是一个普通用户态进程的时候，PCB 中的 cr3 就是 mm 中页表（pgdir）的物理地址；而当它是内核线程的时候，cr3 等于boot_cr3。而boot_cr3指向了uCore启动时建立好的饿内核虚拟空间的页目录表首地址。</li>
+<li>kstack: 每个线程都有一个内核栈，并且位于内核地址空间的不同位置。对于内核线程，该栈就是运行时的程序使用的栈；而对于普通进程，该栈是发生特权级改变的时候使保存被打断的硬件信息用的栈。uCore在创建进程时分配了 2 个连续的物理页（参见memlayout.h中KSTACKSIZE的定义）作为内核栈的空间。这个栈很小，所以内核中的代码应该尽可能的紧凑，并且避免在栈上分配大的数据结构，以免栈溢出，导致系统崩溃。kstack记录了分配给该进程/线程的内核栈的位置。主要作用有以下几点。首先，当内核准备从一个进程切换到另一个的时候，需要根据kstack 的值正确的设置好 tss （可以回顾一下在实验一中讲述的 tss 在中断处理过程中的作用），以便在进程切换以后再发生中断时能够使用正确的栈。其次，内核栈位于内核地址空间，并且是不共享的（每个线程都拥有自己的内核栈），因此不受到 mm 的管理，当进程退出的时候，内核能够根据 kstack 的值快速定位栈的位置并进行回收。uCore 的这种内核栈的设计借鉴的是 linux 的方法（但由于内存管理实现的差异，它实现的远不如 linux 的灵活），它使得每个线程的内核栈在不同的位置，这样从某种程度上方便调试，但同时也使得内核对栈溢出变得十分不敏感，因为一旦发生溢出，它极可能污染内核中其它的数据使得内核崩溃。如果能够通过页表，将所有进程的内核栈映射到固定的地址上去，能够避免这种问题，但又会使得进程切换过程中对栈的修改变得相当繁琐。感兴趣的同学可以参考 linux kernel 的代码对此进行尝试。</li>
+</ul>
+<p>为了管理系统中所有的进程控制块，uCore维护了如下全局变量（位于kern/process/proc.c）：</p>
+<ul>
+<li><code>static struct proc *current</code>：当前占用CPU且处于“运行”状态进程控制块指针。通常这个变量是只读的，只有在进程切换的时候才进行修改，并且整个切换和修改过程需要保证操作的原子性，目前至少需要屏蔽中断。</li>
+<li><code>static struct proc *initproc</code>：本实验中，指向一个内核线程。本实验以后，此指针将指向第一个用户态进程。</li>
+<li><code>static list_entry_t hash_list[HASH_LIST_SIZE]</code>：所有进程控制块的哈希表，proc_struct中的成员变量hash_link将基于pid链接入这个哈希表中</li>
+<li><code>list_entry_t proc_list</code>：所有进程控制块的双向线性列表，proc_struct中的成员变量list_link将链接入这个链表中。</li>
+</ul>
+<h2 id="切换流程" class="headerLink">
+    <a href="#%e5%88%87%e6%8d%a2%e6%b5%81%e7%a8%8b" class="header-mark"></a>切换流程</h2><ul>
+<li>开始调度：uCore中，内核的第一个进程<code>idleproc</code>会执行<code>cpu_idle</code>函数，并从中调用<code>schedule</code>函数，准备开始调度进程。</li>
+<li>清除调度标志：<code>schedule</code>清除调度标志，不能再次修改</li>
+<li>查找就绪进程：<code>schedule</code>并从当前进程在链表中的位置开始，遍历进程控制块，直到找出处于<strong>就绪状态</strong>的进程。可能找到的还是当前进程。</li>
+<li>修改进程状态：<code>schedule</code>当前进程进入就绪态或等待状态，新的进程改为运行</li>
+<li>进程切换：<code>switch_to</code></li>
+</ul>
+<p><strong>swtich_to</strong>
+<code>switch_to</code>进行进程的切换，为了保证切换速度，这部分的代码使用汇编实现。在不同的操作系统上需要保存的寄存器等信息不同，所以实现也不同。大致为前半段保存进程信息，切换后，从新进程的PCB恢复进程上下文。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="p">.</span><span class="n">text</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span><span class="n">globl</span> <span class="n">switch_to</span>
+</span></span><span class="line"><span class="cl"><span class="nl">switch_to</span><span class="p">:</span>                      <span class="err">#</span> <span class="n">switch_to</span><span class="p">(</span><span class="n">from</span><span class="p">,</span> <span class="n">to</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cp"># save from&#39;s registers
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="n">movl</span> <span class="mi">4</span><span class="p">(</span><span class="o">%</span><span class="n">esp</span><span class="p">),</span> <span class="o">%</span><span class="n">eax</span>          <span class="err">#</span> <span class="n">eax</span> <span class="n">points</span> <span class="n">to</span> <span class="n">from</span>
+</span></span><span class="line"><span class="cl">    <span class="n">popl</span> <span class="mi">0</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">)</span>                <span class="err">#</span> <span class="n">save</span> <span class="n">eip</span> <span class="o">!</span><span class="n">popl</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="o">%</span><span class="n">esp</span><span class="p">,</span> <span class="mi">4</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">)</span>          <span class="err">#</span> <span class="n">save</span> <span class="n">esp</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">from</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="o">%</span><span class="n">ebx</span><span class="p">,</span> <span class="mi">8</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">)</span>          <span class="err">#</span> <span class="n">save</span> <span class="n">ebx</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">from</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="o">%</span><span class="n">ecx</span><span class="p">,</span> <span class="mi">12</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">)</span>         <span class="err">#</span> <span class="n">save</span> <span class="n">ecx</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">from</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="o">%</span><span class="n">edx</span><span class="p">,</span> <span class="mi">16</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">)</span>         <span class="err">#</span> <span class="n">save</span> <span class="n">edx</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">from</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="o">%</span><span class="n">esi</span><span class="p">,</span> <span class="mi">20</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">)</span>         <span class="err">#</span> <span class="n">save</span> <span class="n">esi</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">from</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="o">%</span><span class="n">edi</span><span class="p">,</span> <span class="mi">24</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">)</span>         <span class="err">#</span> <span class="n">save</span> <span class="n">edi</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">from</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="o">%</span><span class="n">ebp</span><span class="p">,</span> <span class="mi">28</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">)</span>         <span class="err">#</span> <span class="n">save</span> <span class="n">ebp</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">from</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cp"># restore to&#39;s registers
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="n">movl</span> <span class="mi">4</span><span class="p">(</span><span class="o">%</span><span class="n">esp</span><span class="p">),</span> <span class="o">%</span><span class="n">eax</span>          <span class="err">#</span> <span class="n">not</span> <span class="mi">8</span><span class="p">(</span><span class="o">%</span><span class="n">esp</span><span class="p">)</span><span class="o">:</span> <span class="n">popped</span> <span class="k">return</span> <span class="n">address</span> <span class="n">already</span>
+</span></span><span class="line"><span class="cl">                                <span class="cp"># eax now points to to
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="n">movl</span> <span class="mi">28</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">),</span> <span class="o">%</span><span class="n">ebp</span>         <span class="err">#</span> <span class="n">restore</span> <span class="n">ebp</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">to</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="mi">24</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">),</span> <span class="o">%</span><span class="n">edi</span>         <span class="err">#</span> <span class="n">restore</span> <span class="n">edi</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">to</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="mi">20</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">),</span> <span class="o">%</span><span class="n">esi</span>         <span class="err">#</span> <span class="n">restore</span> <span class="n">esi</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">to</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="mi">16</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">),</span> <span class="o">%</span><span class="n">edx</span>         <span class="err">#</span> <span class="n">restore</span> <span class="n">edx</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">to</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="mi">12</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">),</span> <span class="o">%</span><span class="n">ecx</span>         <span class="err">#</span> <span class="n">restore</span> <span class="n">ecx</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">to</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="mi">8</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">),</span> <span class="o">%</span><span class="n">ebx</span>          <span class="err">#</span> <span class="n">restore</span> <span class="n">ebx</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">to</span>
+</span></span><span class="line"><span class="cl">    <span class="n">movl</span> <span class="mi">4</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">),</span> <span class="o">%</span><span class="n">esp</span>          <span class="err">#</span> <span class="n">restore</span> <span class="n">esp</span><span class="o">::</span><span class="n">context</span> <span class="n">of</span> <span class="n">to</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">pushl</span> <span class="mi">0</span><span class="p">(</span><span class="o">%</span><span class="n">eax</span><span class="p">)</span>               <span class="err">#</span> <span class="n">push</span> <span class="n">eip</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">ret</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="进程创建-1" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e5%88%9b%e5%bb%ba-1" class="header-mark"></a>进程创建</h2><p>Windows API：<code>CreateProcess()</code>
+Unix API：<code>fork</code>和<code>exec</code></p>
+<ul>
+<li>其中，<code>fork</code>把一个进程复制成两个<strong>除PID以外完全相同</strong>的进程。</li>
+<li><code>exec</code>用新进程来重写当前进程，PID没有改变。</li>
+</ul>
+<p>fork创建一个继承的子进程。该子进程复制父进程的所有变量和内存，以及父进程的所有CPU寄存器（除了某个特殊寄存器，以区分是子进程还是父进程）。
+fork函数一次调用，返回两个值。父进程中返回子进程的PID，子进程中返回0。</p>
+<p>fork函数的开销十分昂贵，其实现开销来源于</p>
+<ul>
+<li>对子进程分配内存。</li>
+<li>复制父进程的内存和寄存器到子进程中。</li>
+</ul>
+<p>而且，在大多数情况下，调用fork函数后就紧接着调用exec，此时fork中的内存复制操作是无用的。因此，fork函数中使用写时复制技术(Copy on Write， COW)。</p>
+<h3 id="空闲进程的创建" class="headerLink">
+    <a href="#%e7%a9%ba%e9%97%b2%e8%bf%9b%e7%a8%8b%e7%9a%84%e5%88%9b%e5%bb%ba" class="header-mark"></a>空闲进程的创建</h3><p>空闲进程<code>idle</code>主要工作是完成内核中各个子系统的初始化，并最后用于调度其他进程。该进程最终会一直在<code>cpu_idle</code>函数中判断当前是否可调度。</p>
+<p>由于该进程是为了调度进程而创建的，所以其<code>need_resched</code>成员初始时为1。</p>
+<h3 id="第一个内核线程的创建" class="headerLink">
+    <a href="#%e7%ac%ac%e4%b8%80%e4%b8%aa%e5%86%85%e6%a0%b8%e7%ba%bf%e7%a8%8b%e7%9a%84%e5%88%9b%e5%bb%ba" class="header-mark"></a>第一个内核线程的创建</h3><p>第一个内核进程是未来所有新进程的父进程或祖先进程。</p>
+<ul>
+<li><code>initproc</code>：在<code>proc_init()</code>创建</li>
+<li>初始化trapframe：<code>kernel_thread</code> &ndash;&gt; <code>do_fork</code> &ndash;&gt; <code>copy_thread()</code></li>
+<li>初始化initproc：初始化它的PCB，<code>alloc_proc</code></li>
+<li>初始化内核堆栈：<code>setup_stack()</code></li>
+<li>内存共享：<code>copy_stack()</code>与其他内核线程共享内核地址空间</li>
+<li>把initproc放到就绪队列</li>
+<li>唤醒</li>
+</ul>
+<h2 id="进程终止" class="headerLink">
+    <a href="#%e8%bf%9b%e7%a8%8b%e7%bb%88%e6%ad%a2" class="header-mark"></a>进程终止</h2><h3 id="wait" class="headerLink">
+    <a href="#wait" class="header-mark"></a>wait</h3><p><code>wait</code>系统调用用于父进程等待子进程的结束</p>
+<ul>
+<li>子进程结束时，通过<code>exit()</code>向父进程返回一个值</li>
+<li>父进程通过<code>wait</code>接收并处理返回值</li>
+</ul>
+<p><code>wait</code>函数调用的功能</p>
+<ul>
+<li>有子进程存活时，父进程进入等待状态，等待子进程返回结果
+当某子进程调用 <code>exit()</code>时，唤醒父进程，将<code>exit()</code>的返回值作为父进程中<code>wait</code>的返回值</li>
+<li>有僵尸子进程等待时，<code>wait()</code>立即返回其中一个值</li>
+<li>无子进程存活时，<code>wait()</code>立即返回</li>
+</ul>
+<h3 id="exit" class="headerLink">
+    <a href="#exit" class="header-mark"></a>exit</h3><p>进程结束时调用<code>exit()</code>，完成进程资源回收。
+<code>exit</code>函数调用的功能</p>
+<ul>
+<li>将调用参数作为进程的“结果”</li>
+<li>关闭所有打开的文件等占用资源。</li>
+<li>释放内存</li>
+<li>释放大部分进程相关的内核数据结构</li>
+<li>检查父进程是否存活
+<ul>
+<li>如果存活，则保留结果的值，直到父进程使用。同时当前进程进入僵尸(zombie)状态。</li>
+<li>如果没有，它将释放所有的数据结构，进程结束。</li>
+</ul>
+</li>
+<li>清理所有等待的僵尸进程。</li>
+</ul>
+<p>进程终止是最终的垃圾收集（资源回收）。</p>
+<h1 id="ucore进程的初始化" class="headerLink">
+    <a href="#ucore%e8%bf%9b%e7%a8%8b%e7%9a%84%e5%88%9d%e5%a7%8b%e5%8c%96" class="header-mark"></a>uCore进程的初始化</h1><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// proc_init - set up the first kernel thread idleproc &#34;idle&#34; by itself and 
+</span></span></span><span class="line"><span class="cl"><span class="c1">//           - create the second kernel thread init_main
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span>
+</span></span><span class="line"><span class="cl"><span class="nf">proc_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">list_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">proc_list</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">HASH_LIST_SIZE</span><span class="p">;</span> <span class="n">i</span> <span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">list_init</span><span class="p">(</span><span class="n">hash_list</span> <span class="o">+</span> <span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">((</span><span class="n">idleproc</span> <span class="o">=</span> <span class="n">alloc_proc</span><span class="p">())</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">panic</span><span class="p">(</span><span class="s">&#34;cannot alloc idleproc.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">idleproc</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">idleproc</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">PROC_RUNNABLE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">idleproc</span><span class="o">-&gt;</span><span class="n">kstack</span> <span class="o">=</span> <span class="p">(</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">bootstack</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">idleproc</span><span class="o">-&gt;</span><span class="n">need_resched</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">set_proc_name</span><span class="p">(</span><span class="n">idleproc</span><span class="p">,</span> <span class="s">&#34;idle&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">nr_process</span> <span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">current</span> <span class="o">=</span> <span class="n">idleproc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">pid</span> <span class="o">=</span> <span class="n">kernel_thread</span><span class="p">(</span><span class="n">init_main</span><span class="p">,</span> <span class="s">&#34;Hello world!!&#34;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">panic</span><span class="p">(</span><span class="s">&#34;create init_main failed.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">initproc</span> <span class="o">=</span> <span class="n">find_proc</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">set_proc_name</span><span class="p">(</span><span class="n">initproc</span><span class="p">,</span> <span class="s">&#34;init&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">idleproc</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="o">&amp;&amp;</span> <span class="n">idleproc</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">initproc</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="o">&amp;&amp;</span> <span class="n">initproc</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">==</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>首先初始化了进程相关的链表，然后通过<code>alloc_proc</code>手动构造了进程<code>idle</code>并设置其中的参数值。
+接着创建了内核线程<code>initproc</code>，使其执行<code>init_main</code>。</p>
+<p>主要函数是<code>kernel_thread</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">kernel_thread</span><span class="p">(</span><span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">fn</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="p">),</span> <span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="kt">uint32_t</span> <span class="n">clone_flags</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">trapframe</span> <span class="n">tf</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">trapframe</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="p">.</span><span class="n">tf_cs</span> <span class="o">=</span> <span class="n">KERNEL_CS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="p">.</span><span class="n">tf_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">tf_es</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">tf_ss</span> <span class="o">=</span> <span class="n">KERNEL_DS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="p">.</span><span class="n">tf_regs</span><span class="p">.</span><span class="n">reg_ebx</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">fn</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="p">.</span><span class="n">tf_regs</span><span class="p">.</span><span class="n">reg_edx</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tf</span><span class="p">.</span><span class="n">tf_eip</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">kernel_thread_entry</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">do_fork</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">|</span> <span class="n">CLONE_VM</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>首先设置了<code>trapframe</code>的必要字段，之后使用<code>do_fork</code>做真正的创建。</p>
+<h1 id="练习1" class="headerLink">
+    <a href="#%e7%bb%83%e4%b9%a01" class="header-mark"></a>练习1</h1><p><strong>分配并初始化一个进程控制块</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// alloc_proc - alloc a proc_struct and init all fields of proc_struct
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">static</span> <span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl"><span class="nf">alloc_proc</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">proc</span> <span class="o">=</span> <span class="n">kmalloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">proc_struct</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">proc</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">PROC_UNINIT</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">kstack</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">need_resched</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">parent</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">mm</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">context</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">context</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">tf</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">cr3</span> <span class="o">=</span> <span class="n">boot_cr3</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">memset</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>请说明proc_struct中<code>struct context context</code>和<code>struct trapframe *tf</code>成员变量含义和在本实验中的作用是啥？</p>
+<p>可以注意到，在进程在我们的内核出现之前，仅有<code>trapframe</code>的存在。<code>trapframe</code>在中断处理时，保存到切换后的栈中，用于在从内核态返回到用户态的进程上下文保存。</p>
+<p>而在内核中断中没有这种结构，只有线程/进程的切换。这时候就要使用到<code>context</code>结构了。在<code>context</code>结构中，只有寄存器的保存，没有段寄存器。因为进程之间切换不涉及特权级的变化。</p>
+<h1 id="练习2" class="headerLink">
+    <a href="#%e7%bb%83%e4%b9%a02" class="header-mark"></a>练习2</h1><p><strong>为新创建的内核线程分配资源</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/* do_fork -     parent process for a new child process
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @clone_flags: used to guide how to clone the child process
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @stack:       the parent&#39;s user stack pointer. if stack==0, It means to fork a kernel thread.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @tf:          the trapframe info, which will be copied to child process&#39;s proc-&gt;tf
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">do_fork</span><span class="p">(</span><span class="kt">uint32_t</span> <span class="n">clone_flags</span><span class="p">,</span> <span class="n">uintptr_t</span> <span class="n">stack</span><span class="p">,</span> <span class="k">struct</span> <span class="n">trapframe</span> <span class="o">*</span><span class="n">tf</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">E_NO_FREE_PROC</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">nr_process</span> <span class="o">&gt;=</span> <span class="n">MAX_PROCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">fork_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">E_NO_MEM</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">    <span class="n">proc</span> <span class="o">=</span> <span class="n">alloc_proc</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">(</span><span class="n">proc</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;alloc_proc faile in do_fork&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">bad_fork_cleanup_proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">((</span><span class="n">ret</span> <span class="o">=</span> <span class="n">setup_kstack</span><span class="p">(</span><span class="n">proc</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;setup_kstack faile in do_fork&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">bad_fork_cleanup_proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">((</span><span class="n">ret</span> <span class="o">=</span> <span class="n">copy_mm</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">proc</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;copy_mm faile in do_fork&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">bad_fork_cleanup_kstack</span><span class="p">;</span>        
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">copy_thread</span><span class="p">(</span><span class="n">proc</span><span class="p">,</span> <span class="n">stack</span><span class="p">,</span> <span class="n">tf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kt">bool</span> <span class="n">intr_flag</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_intr_save</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">proc</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">=</span> <span class="n">get_pid</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">hash_proc</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">list_add</span><span class="p">(</span><span class="n">proc_list</span><span class="p">.</span><span class="n">prev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">list_link</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">nr_process</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_intr_restore</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">wakeup_proc</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ret</span> <span class="o">=</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">fork_out</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">bad_fork_cleanup_kstack</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">put_kstack</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">bad_fork_cleanup_proc</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">kfree</span><span class="p">(</span><span class="n">proc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">goto</span> <span class="n">fork_out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在fork中，为进程申请PCB，设置堆栈，还要将其加入到相关链表中。注意进程相关的一些链表是全局变量！这意味着，多个内核线程都可以访问或修改，所以为了避免条件竞争，我们在进行对应的操作时要屏蔽中断。</p>
+<p>请说明ucore是否做到给每个新fork的线程一个唯一的id？请说明你的分析和理由。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// get_pid - alloc a unique pid for process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">static</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">get_pid</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">static_assert</span><span class="p">(</span><span class="n">MAX_PID</span> <span class="o">&gt;</span> <span class="n">MAX_PROCESS</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">list_entry_t</span> <span class="o">*</span><span class="n">list</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">proc_list</span><span class="p">,</span> <span class="o">*</span><span class="n">le</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">static</span> <span class="kt">int</span> <span class="n">next_safe</span> <span class="o">=</span> <span class="n">MAX_PID</span><span class="p">,</span> <span class="n">last_pid</span> <span class="o">=</span> <span class="n">MAX_PID</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">++</span> <span class="n">last_pid</span> <span class="o">&gt;=</span> <span class="n">MAX_PID</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">last_pid</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">inside</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">last_pid</span> <span class="o">&gt;=</span> <span class="n">next_safe</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nl">inside</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">next_safe</span> <span class="o">=</span> <span class="n">MAX_PID</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nl">repeat</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">le</span> <span class="o">=</span> <span class="n">list</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">while</span> <span class="p">((</span><span class="n">le</span> <span class="o">=</span> <span class="n">list_next</span><span class="p">(</span><span class="n">le</span><span class="p">))</span> <span class="o">!=</span> <span class="n">list</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">proc</span> <span class="o">=</span> <span class="n">le2proc</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">list_link</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">==</span> <span class="n">last_pid</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="p">(</span><span class="o">++</span> <span class="n">last_pid</span> <span class="o">&gt;=</span> <span class="n">next_safe</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">if</span> <span class="p">(</span><span class="n">last_pid</span> <span class="o">&gt;=</span> <span class="n">MAX_PID</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">last_pid</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">next_safe</span> <span class="o">=</span> <span class="n">MAX_PID</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">goto</span> <span class="n">repeat</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">&gt;</span> <span class="n">last_pid</span> <span class="o">&amp;&amp;</span> <span class="n">next_safe</span> <span class="o">&gt;</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">next_safe</span> <span class="o">=</span> <span class="n">proc</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">last_pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>系统第一次调用<code>get_pid</code>时，<code>next_safe == last_pid == MAX_PID</code>，当<code>last_pid</code>自增后大于等于<code>MAX_PID</code>，则当前可能是第一次调用，所以先设置<code>last_pid</code>为1。pid为0的进程是我们手动创建的。接着遍历进程链表，如果这是第一此调用，循环跳出后，<code>last_pid = 1 ~ next_safe = MAX_PID</code>，则下一次只需要在这个范围寻找即可。如果<code>last_pid</code>小于<code>MAX_PID</code>和<code>next_safe</code>那么就可以直接返回。</p>
+<p>如果超过了<code>next_safe</code>，则需要遍历进程列表，若当前进程列表中有PID等于<code>last_pid</code>的进程，则要重新设置<code>last_pid</code>的值。还要判断是否超过了<code>next_safe</code>。</p>
+<p>总之就是在函数中维护了<code>last_pid ~ next_safe</code>的区间减少搜索范围。</p>
+<h2 id="fork的两次返回" class="headerLink">
+    <a href="#fork%e7%9a%84%e4%b8%a4%e6%ac%a1%e8%bf%94%e5%9b%9e" class="header-mark"></a>fork的两次返回</h2><p>在<code>copy_thread</code>中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// copy_thread - setup the trapframe on the  process&#39;s kernel stack top and
+</span></span></span><span class="line"><span class="cl"><span class="c1">//             - setup the kernel entry point and stack of process
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">static</span> <span class="kt">void</span>
+</span></span><span class="line"><span class="cl"><span class="nf">copy_thread</span><span class="p">(</span><span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">proc</span><span class="p">,</span> <span class="n">uintptr_t</span> <span class="n">esp</span><span class="p">,</span> <span class="k">struct</span> <span class="n">trapframe</span> <span class="o">*</span><span class="n">tf</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">proc</span><span class="o">-&gt;</span><span class="n">tf</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">trapframe</span> <span class="o">*</span><span class="p">)(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">kstack</span> <span class="o">+</span> <span class="n">KSTACKSIZE</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">*</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">tf</span><span class="p">)</span> <span class="o">=</span> <span class="o">*</span><span class="n">tf</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">proc</span><span class="o">-&gt;</span><span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_regs</span><span class="p">.</span><span class="n">reg_eax</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">proc</span><span class="o">-&gt;</span><span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_esp</span> <span class="o">=</span> <span class="n">esp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">proc</span><span class="o">-&gt;</span><span class="n">tf</span><span class="o">-&gt;</span><span class="n">tf_eflags</span> <span class="o">|=</span> <span class="n">FL_IF</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">proc</span><span class="o">-&gt;</span><span class="n">context</span><span class="p">.</span><span class="n">eip</span> <span class="o">=</span> <span class="p">(</span><span class="n">uintptr_t</span><span class="p">)</span><span class="n">forkret</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">proc</span><span class="o">-&gt;</span><span class="n">context</span><span class="p">.</span><span class="n">esp</span> <span class="o">=</span> <span class="p">(</span><span class="n">uintptr_t</span><span class="p">)(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">tf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到新线程的eip被设置为<code>forkret</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// forkret -- the first kernel entry point of a new thread/process
+</span></span></span><span class="line"><span class="cl"><span class="c1">// NOTE: the addr of forkret is setted in copy_thread function
+</span></span></span><span class="line"><span class="cl"><span class="c1">//       after switch_to, the current proc will execute here.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">static</span> <span class="kt">void</span>
+</span></span><span class="line"><span class="cl"><span class="nf">forkret</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">forkrets</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">tf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>forkrets</code>以当前进程的tf为参数执行一下代码：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">    # return falls through to trapret...
+</span></span><span class="line"><span class="cl">.globl __trapret
+</span></span><span class="line"><span class="cl">__trapret:
+</span></span><span class="line"><span class="cl">    # restore registers from stack
+</span></span><span class="line"><span class="cl">    popal
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    # restore %ds, %es, %fs and %gs
+</span></span><span class="line"><span class="cl">    popl %gs
+</span></span><span class="line"><span class="cl">    popl %fs
+</span></span><span class="line"><span class="cl">    popl %es
+</span></span><span class="line"><span class="cl">    popl %ds
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    # get rid of the trap number and error code
+</span></span><span class="line"><span class="cl">    addl $0x8, %esp
+</span></span><span class="line"><span class="cl">    iret
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">.globl forkrets
+</span></span><span class="line"><span class="cl">forkrets:
+</span></span><span class="line"><span class="cl">    # set stack to this new process&#39;s trapframe
+</span></span><span class="line"><span class="cl">    movl 4(%esp), %esp
+</span></span><span class="line"><span class="cl">    jmp __trapret
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>从tf恢复段寄存器和通用寄存器的值，并返回。而在<code>copu_thread</code>中将eax的值设置为了0。</p>
+<p>所以，父进程的fork通过<code>do_fork</code>返回新创建进程的PID，而子进程跳转到<code>forkrets</code>通过<code>current-&gt;tf</code>恢复寄存器的值，返回0。由此，实现了一次调用返回两个不同的值。</p>
+<h1 id="练习3" class="headerLink">
+    <a href="#%e7%bb%83%e4%b9%a03" class="header-mark"></a>练习3</h1><p><strong>理解 proc_run 函数和它调用的函数如何完成进程切换的</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// proc_run - make process &#34;proc&#34; running on cpu
+</span></span></span><span class="line"><span class="cl"><span class="c1">// NOTE: before call switch_to, should load  base addr of &#34;proc&#34;&#39;s new PDT
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">void</span>
+</span></span><span class="line"><span class="cl"><span class="nf">proc_run</span><span class="p">(</span><span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">proc</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">proc</span> <span class="o">!=</span> <span class="n">current</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">bool</span> <span class="n">intr_flag</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">prev</span> <span class="o">=</span> <span class="n">current</span><span class="p">,</span> <span class="o">*</span><span class="n">next</span> <span class="o">=</span> <span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">local_intr_save</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">current</span> <span class="o">=</span> <span class="n">proc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">load_esp0</span><span class="p">(</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">kstack</span> <span class="o">+</span> <span class="n">KSTACKSIZE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">lcr3</span><span class="p">(</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">cr3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">switch_to</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">context</span><span class="p">),</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">context</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">local_intr_restore</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在<code>swtich_to</code>之前，设置current、esp和页表寄存器cr3。这个调度过程不能被打断。
+使用根据进程PCB中的context保存之前进程的上下文，恢复下一个进程的上下文。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span>
+</span></span><span class="line"><span class="cl"><span class="nf">schedule</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">bool</span> <span class="n">intr_flag</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">list_entry_t</span> <span class="o">*</span><span class="n">le</span><span class="p">,</span> <span class="o">*</span><span class="n">last</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">proc_struct</span> <span class="o">*</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_intr_save</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">current</span><span class="o">-&gt;</span><span class="n">need_resched</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">last</span> <span class="o">=</span> <span class="p">(</span><span class="n">current</span> <span class="o">==</span> <span class="n">idleproc</span><span class="p">)</span> <span class="o">?</span> <span class="o">&amp;</span><span class="nl">proc_list</span> <span class="p">:</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">list_link</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">le</span> <span class="o">=</span> <span class="n">last</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">do</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">((</span><span class="n">le</span> <span class="o">=</span> <span class="n">list_next</span><span class="p">(</span><span class="n">le</span><span class="p">))</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">proc_list</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">next</span> <span class="o">=</span> <span class="n">le2proc</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">list_link</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="p">(</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">==</span> <span class="n">PROC_RUNNABLE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">le</span> <span class="o">!=</span> <span class="n">last</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">next</span> <span class="o">==</span> <span class="nb">NULL</span> <span class="o">||</span> <span class="n">next</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">!=</span> <span class="n">PROC_RUNNABLE</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">next</span> <span class="o">=</span> <span class="n">idleproc</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">next</span><span class="o">-&gt;</span><span class="n">runs</span> <span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">next</span> <span class="o">!=</span> <span class="n">current</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">proc_run</span><span class="p">(</span><span class="n">next</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_intr_restore</span><span class="p">(</span><span class="n">intr_flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>proc_run</code>由<code>schedule</code>调用。它从进程链表中取出一个就绪态的进程调用<code>proc_run</code>。
+在本实验的执行过程中，创建且运行了几个内核线程？</p>
+<ul>
+<li>两个内核线程，分别是<code>idleproc</code>和<code>initproc</code>。</li>
+<li><code>idleproc</code>负责进程调度</li>
+<li><code>initproc</code>是之后所有新进程的祖先</li>
+</ul>
+<p>语句<code>local_intr_save(intr_flag);....local_intr_restore(intr_flag);</code>在这里有何作用?请说明理由。</p>
+<ul>
+<li>这两句代码的作用分别是<strong>阻塞中断</strong>和<strong>解除中断的阻塞</strong>。</li>
+<li>这两句的配合，使得这两句代码之间的代码块形成<strong>原子操作</strong>，可以使得某些关键的代码不会被打断，从而避免引起一些未预料到的错误，避免条件竞争。</li>
+<li>以进程切换为例，在<code>proc_run</code>中，当刚设置好<code>current</code>指针为下一个进程，但还未完全将控制权转移时，如果该过程突然被一个中断所打断，则中断处理例程的执行可能会引发异常，因为<code>current</code>指针指向的进程与实际使用的进程资源不一致。</li>
+</ul>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-12-13</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/ucore-lab-4/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/ucore-lab-3/" class="prev" rel="prev" title="uCore-lab-3"><i class="fas fa-angle-left fa-fw"></i>uCore-lab-3</a>
+            <a href="/ucore-lab-5/" class="next" rel="next" title="uCore-lab-5">uCore-lab-5<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

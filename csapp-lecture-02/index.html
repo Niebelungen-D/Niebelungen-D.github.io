@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">CSAPP Lecture 02 - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="CSAPP Lecture 02" />
+<meta property="og:description" content="Lecture 02: Floating point浮点数二进制小数与整数一样，个位代表$2^0$,那么小数点后的k位数就是$2^{-k}$。 对于$0.111…111_2$这样" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/csapp-lecture-02/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-01-20T00:25:56+08:00" />
+<meta property="article:modified_time" content="2021-01-20T00:25:56+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="CSAPP Lecture 02"/>
+<meta name="twitter:description" content="Lecture 02: Floating point浮点数二进制小数与整数一样，个位代表$2^0$,那么小数点后的k位数就是$2^{-k}$。 对于$0.111…111_2$这样"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/csapp-lecture-02/" /><link rel="prev" href="http://example.org/challenges-100-week-3/" /><link rel="next" href="http://example.org/csapp-lecture-01/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "CSAPP Lecture 02",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/csapp-lecture-02\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  2665 ,
+        "url": "http:\/\/example.org\/csapp-lecture-02\/","datePublished": "2021-01-20T00:25:56+08:00","dateModified": "2021-01-20T00:25:56+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#浮点数">浮点数</a>
+      <ul>
+        <li><a href="#二进制小数">二进制小数</a></li>
+        <li><a href="#ieee浮点表示">IEEE浮点表示</a></li>
+        <li><a href="#舍入">舍入</a></li>
+        <li><a href="#浮点数乘法">浮点数乘法</a></li>
+        <li><a href="#浮点数加法">浮点数加法</a></li>
+        <li><a href="#homework">homework</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">CSAPP Lecture 02</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-01-20">2021-01-20</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2021-01-20">2021-01-20</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2665 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 6 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#浮点数">浮点数</a>
+      <ul>
+        <li><a href="#二进制小数">二进制小数</a></li>
+        <li><a href="#ieee浮点表示">IEEE浮点表示</a></li>
+        <li><a href="#舍入">舍入</a></li>
+        <li><a href="#浮点数乘法">浮点数乘法</a></li>
+        <li><a href="#浮点数加法">浮点数加法</a></li>
+        <li><a href="#homework">homework</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="lecture-02-floating-point" class="headerLink">
+    <a href="#lecture-02-floating-point" class="header-mark"></a>Lecture 02: Floating point</h1><h2 id="浮点数" class="headerLink">
+    <a href="#%e6%b5%ae%e7%82%b9%e6%95%b0" class="header-mark"></a>浮点数</h2><h3 id="二进制小数" class="headerLink">
+    <a href="#%e4%ba%8c%e8%bf%9b%e5%88%b6%e5%b0%8f%e6%95%b0" class="header-mark"></a>二进制小数</h3><!-- more -->
+<p>与整数一样，个位代表$2^0$,那么小数点后的k位数就是$2^{-k}$。</p>
+<p>对于$0.111…111_2$这样刚好小于1的数，使用简单的$1.0-\varepsilon$。</p>
+<p>但是对于$\frac{1}{3}$这样的数就不能表示，只能近似。</p>
+<h3 id="ieee浮点表示" class="headerLink">
+    <a href="#ieee%e6%b5%ae%e7%82%b9%e8%a1%a8%e7%a4%ba" class="header-mark"></a>IEEE浮点表示</h3><p>IEEE浮点标准用$V=(-1)^s×M×2^E$的形式表示一个数：</p>
+<ul>
+<li>
+<p>符号（sign）</p>
+<p>s决定这数是负数（s=1）还是正数（s=0）。</p>
+</li>
+<li>
+<p>尾数（significand）</p>
+<p>M是一个二进制小数，它的范围是1~2-$\varepsilon$,或0~1-$\varepsilon$</p>
+</li>
+<li>
+<p>阶码（exponent）</p>
+<p>E的作用是对浮点数加权，这个权重是2的E次幂（可能是负数）</p>
+</li>
+</ul>
+<p>将浮点数的位表示划分为三个字段：</p>
+<ul>
+<li>一个单独的符号位s</li>
+<li>k位的阶码字段$exp=e_{k-1}e_{k-2}…e_0$编码阶码E</li>
+<li>n位小数字段$frac=f_{n-1}f_{n-2}…f_0$,编码尾数M，其真实值与E的编码有关</li>
+</ul>
+<p>对于这些字段的位置有精度的划分：</p>
+<p>c语言float中，s、exp和frac字段分别为1位、k=8位和23位，共32位。</p>
+<p>c语言double中，s、exp和frac字段分别为1位、k=11位和52位，共64位。</p>
+<p>单精度的格式也分为几种情况：</p>
+<p><strong>规格化的</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0或1</td>
+<td style="text-align:center">≠0&amp;≠255</td>
+<td style="text-align:center">~</td>
+</tr>
+</tbody>
+</table>
+<p>这种情况阶码的值是E=e-Bias，其中e是无符号数，其位表示为$e_{k-1}e_{k-2}…e_0$，而Bias是一个等于$2^{k-1}-1$的偏置值。</p>
+<p>f的位表示为$0.f_{n-1}f_{n-2}…f_0$，尾数的定义为M=1+f。即在规格化的格式中无法表示0这个数，那么既然不能表示，1也没有必要写在开头变成$1.f_{n-1}f_{n-2}…f_0$，这种就是隐含的以1开头。</p>
+<p><strong>非规格化的</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0或1</td>
+<td style="text-align:center">全为0</td>
+<td style="text-align:center">~</td>
+</tr>
+</tbody>
+</table>
+<p>这种情况阶码的值是E=1-Bias，尾数的定义为M=f。这样我们就可以表示0，和非常接近0的数。</p>
+<p><strong>特殊的</strong></p>
+<p>无穷大：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0或1</td>
+<td style="text-align:center">全为1</td>
+<td style="text-align:center">全为0</td>
+</tr>
+</tbody>
+</table>
+<p>NaN（not a number）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0或1</td>
+<td style="text-align:center">全为1</td>
+<td style="text-align:center">≠0</td>
+</tr>
+</tbody>
+</table>
+<p>下面用一个例子来做演示：</p>
+<p>6.91，其二进制表示为$110.111010001111010111000_2$</p>
+<p>将其规格化，$6.91=(-1)^0×1.10111010001111010111000_2×2^2$</p>
+<p>这样三个字段的值就得到了：</p>
+<blockquote>
+<p>s=0</p>
+<p>exp=E+Bias=$2+(2^{8-1}-1)$=129(十进制)=$1000 0001_2$</p>
+<p>frac=10111010001111010111000</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">s（31）</th>
+<th style="text-align:center">exp（30：23）</th>
+<th style="text-align:center">frac（22：0）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">10000001</td>
+<td style="text-align:center">10111010001111010111000</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">0100</th>
+<th style="text-align:center">0000</th>
+<th style="text-align:center">1101</th>
+<th style="text-align:center">1101</th>
+<th style="text-align:center">0001</th>
+<th style="text-align:center">1110</th>
+<th style="text-align:center">1011</th>
+<th style="text-align:center">1000</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">D</td>
+<td style="text-align:center">D</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">E</td>
+<td style="text-align:center">B</td>
+<td style="text-align:center">8</td>
+</tr>
+</tbody>
+</table>
+<h3 id="舍入" class="headerLink">
+    <a href="#%e8%88%8d%e5%85%a5" class="header-mark"></a>舍入</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">methods</th>
+<th style="text-align:center">1.40</th>
+<th style="text-align:center">1.60</th>
+<th style="text-align:center">1.50</th>
+<th style="text-align:center">2.50</th>
+<th style="text-align:center">-1.50</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">向偶数舍入</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">-2</td>
+</tr>
+<tr>
+<td style="text-align:center">向零舍入</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">-1</td>
+</tr>
+<tr>
+<td style="text-align:center">向下舍入</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">-2</td>
+</tr>
+<tr>
+<td style="text-align:center">向上舍入</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">-1</td>
+</tr>
+</tbody>
+</table>
+<p>一般采用向偶数舍入，因为在大多数情况下它总是有效的。对于二进制小数，将最低有效位的值0认为是偶数，值1认为是奇数。一般在$0.xxxxx&hellip;x100$的情况下这种规则才适用，100为要舍弃的位。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Value</th>
+<th style="text-align:center">Binary</th>
+<th style="text-align:center">Rounded</th>
+<th style="text-align:center">Action</th>
+<th style="text-align:center">Rounded Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">2 3/32</td>
+<td style="text-align:center">10.00011</td>
+<td style="text-align:center">10.00</td>
+<td style="text-align:center">（&lt;1/2&ndash;down）</td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center">2 3/16</td>
+<td style="text-align:center">10.00110</td>
+<td style="text-align:center">10.01</td>
+<td style="text-align:center">(&gt;1/2&ndash;up)</td>
+<td style="text-align:center">2 1/4</td>
+</tr>
+<tr>
+<td style="text-align:center">2 7/8</td>
+<td style="text-align:center">10.11100</td>
+<td style="text-align:center">11.00</td>
+<td style="text-align:center">(1/2&ndash;up)</td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center">2 5/8</td>
+<td style="text-align:center">10.10100</td>
+<td style="text-align:center">10.10</td>
+<td style="text-align:center">(1/2&ndash;down)</td>
+<td style="text-align:center">2 1/2</td>
+</tr>
+</tbody>
+</table>
+<p>对于上面的例子书上解释为：①与②不可能为两个可能值的中间值，而③和④可能，且我们倾向于使最低有效位为零。</p>
+<h3 id="浮点数乘法" class="headerLink">
+    <a href="#%e6%b5%ae%e7%82%b9%e6%95%b0%e4%b9%98%e6%b3%95" class="header-mark"></a>浮点数乘法</h3><p>浮点数运算无法直接通过在位向量上运算得到。</p>
+<p>对于两个浮点数$(-1)^{s_1}×M_1×2^{E_1}$和$(-1)^{s_2}×M_2×2^{E_2}$，计算结果为$(-1)^{s}×M×2^{E}$，其中$s=s_1XORS_2$，$M=M_1×M_2$，$E=E_1+E_2$。</p>
+<ul>
+<li>如果 [公式] ，就将frac右移一位，并对E加一。</li>
+<li>如果E超过了表示范围，就发生了溢出。</li>
+<li>如果M超过了表示范围，对frac进行舍入。</li>
+</ul>
+<p><strong>数学性质：</strong></p>
+<ul>
+<li>可交换</li>
+<li>不可结合：可能出现溢出和不精确的舍入，比如$1e20*(1e20<em>1e-20)-1e20$，而$(1e20</em>1e20)*1e-20=INF$ 。</li>
+<li>不可分配：如果分配了可能会出现NaN，比如$1e20*(1e20-1e20)=0$，而$1e20<em>1e20-1e20</em>1e20=NaN$ 。</li>
+<li>保证，只要$a≠NaN$，则$a*^ta≥0$。</li>
+</ul>
+<h3 id="浮点数加法" class="headerLink">
+    <a href="#%e6%b5%ae%e7%82%b9%e6%95%b0%e5%8a%a0%e6%b3%95" class="header-mark"></a>浮点数加法</h3><p>对于两个浮点数$(-1)^{s_1}×M_1×2^{E_1}$和$(-1)^{s_2}×M_2×2^{E_2}$，计算结果为$(-1)^{s}×M×2^{E}$，其中s，M是对其后的运算结果，$E=max(E_1,E_2)$。</p>
+<ul>
+<li>如果$M≥2$，则frac右移一位，并对E加1。</li>
+<li>如果$M&lt;1$ ，则frac左移一位，并对E减1。</li>
+<li>如果E超过表示范围，就发生溢出。</li>
+<li>如果M超过表示范围，就对frac进行舍入。</li>
+</ul>
+<p><strong>数学性质：</strong></p>
+<ul>
+<li>由于溢出，可能得到无穷。</li>
+<li>可交换</li>
+<li>不可结合（由于舍入），因为较大的数和较小的数相加，由于舍入问题，会将较小的数舍入，比如$(3.14+1e20)-1e20=0$而$3.14+(1e20-1e20)=3.14$ 。</li>
+<li>除了无穷和NaN，存在加法逆元。</li>
+<li>满足单调性，如果$a≥b$，则对于任意a、b和x，都有$x+a≥x+b$。NaN除外。无符号数和补码由于溢出会发生值的跳变，所以不满足单调性。</li>
+</ul>
+<h3 id="homework" class="headerLink">
+    <a href="#homework" class="header-mark"></a>homework</h3><ul>
+<li><code>x==(int)(float)x</code>：int有32位，float尾数有23位，从int强制类型转换到float会出现舍入，所以错误。</li>
+<li><code>x==(int)(double)x</code>：int有32位，double尾数有52位，所以从int强制类型转换到float不会出现舍入，所以正确。</li>
+<li><code>f==(float)(double)f</code>：double的精度和范围都比float大，所以能够无损地从float强制类型转换到double，所以正确。</li>
+<li><code>d==(double)(float)d</code>：因为float的精度和范围都比double小，可能会出现溢出和输入，所以错误。</li>
+<li><code>f==-(-f)</code>：因为只要改变一个符号位，所以正确。</li>
+<li><code>2/3==2/3.0</code>： 因为<code>2/3</code>是int类型，会舍入变成0，而<code>2/3.0</code>是double类型，会得到数值，所以错误。</li>
+<li><code>d&lt;0.0</code>推出<code>((d*2)&lt;0.0)</code>：乘2相当于exp加一，如果出现溢出，也是无穷小，所以正确。</li>
+<li><code>d&gt;f</code>推出<code>-f&gt;-d</code>： 只要改变一个符号位，所以正确。</li>
+<li><code>d*d&gt;=0.0</code>： 正确。</li>
+<li><code>(d+f)-d==f</code>：不符合结合律，可能会出现舍入和溢出。</li>
+</ul>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-01-20</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/csapp-lecture-02/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/challenges-100-week-3/" class="prev" rel="prev" title="Challenges 100 Week 3"><i class="fas fa-angle-left fa-fw"></i>Challenges 100 Week 3</a>
+            <a href="/csapp-lecture-01/" class="next" rel="next" title="CSAPP Lecture 01">CSAPP Lecture 01<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

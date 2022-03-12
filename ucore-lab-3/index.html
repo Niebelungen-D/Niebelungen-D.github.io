@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">uCore-lab-3 - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="uCore-lab-3" />
+<meta property="og:description" content="通过lab2知识的讲解，我们已经对虚拟内存有了一个初步认识， 有了内存地址虚拟化，我们就可以通过设置页表项来限定软件运行时的访问空间，确保软件" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/ucore-lab-3/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-12-01T23:15:25+00:00" />
+<meta property="article:modified_time" content="2021-12-01T23:15:25+00:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="uCore-lab-3"/>
+<meta name="twitter:description" content="通过lab2知识的讲解，我们已经对虚拟内存有了一个初步认识， 有了内存地址虚拟化，我们就可以通过设置页表项来限定软件运行时的访问空间，确保软件"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/ucore-lab-3/" /><link rel="prev" href="http://example.org/cpp-exploitation-basic/" /><link rel="next" href="http://example.org/ucore-lab-4/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "uCore-lab-3",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/ucore-lab-3\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  5002 ,
+        "url": "http:\/\/example.org\/ucore-lab-3\/","datePublished": "2021-12-01T23:15:25+00:00","dateModified": "2021-12-01T23:15:25+00:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#ucore的处理">uCore的处理</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#局部页面置换算法">局部页面置换算法</a>
+      <ul>
+        <li><a href="#最优页面置换算法">最优页面置换算法</a></li>
+        <li><a href="#最近最少用算法lru">最近最少用算法（LRU）</a>
+          <ul>
+            <li><a href="#简介">简介</a></li>
+            <li><a href="#b-具体实现">b. 具体实现</a></li>
+          </ul>
+        </li>
+        <li><a href="#先进先出算法fifo">先进先出算法（FIFO）</a></li>
+        <li><a href="#belady现象">Belady现象</a></li>
+        <li><a href="#改进的时钟页面置换算法clock">改进的时钟页面置换算法（Clock）</a>
+          <ul>
+            <li><a href="#简介-1">简介</a></li>
+            <li><a href="#具体实现">具体实现</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#全局置换算法">全局置换算法</a>
+      <ul>
+        <li><a href="#工作集置换算法">工作集置换算法</a>
+          <ul>
+            <li><a href="#工作集与常驻集">工作集与常驻集</a></li>
+            <li><a href="#思路">思路</a></li>
+            <li><a href="#具体实现-1">具体实现</a></li>
+          </ul>
+        </li>
+        <li><a href="#缺页率置换算法ppf">缺页率置换算法（PPF）</a>
+          <ul>
+            <li><a href="#简介-2">简介</a></li>
+            <li><a href="#具体实现-2">具体实现</a></li>
+          </ul>
+        </li>
+        <li><a href="#抖动问题thrashing">抖动问题（thrashing）</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">uCore-lab-3</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-12-01">2021-12-01</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2021-12-01">2021-12-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 5002 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 10 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#ucore的处理">uCore的处理</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#局部页面置换算法">局部页面置换算法</a>
+      <ul>
+        <li><a href="#最优页面置换算法">最优页面置换算法</a></li>
+        <li><a href="#最近最少用算法lru">最近最少用算法（LRU）</a>
+          <ul>
+            <li><a href="#简介">简介</a></li>
+            <li><a href="#b-具体实现">b. 具体实现</a></li>
+          </ul>
+        </li>
+        <li><a href="#先进先出算法fifo">先进先出算法（FIFO）</a></li>
+        <li><a href="#belady现象">Belady现象</a></li>
+        <li><a href="#改进的时钟页面置换算法clock">改进的时钟页面置换算法（Clock）</a>
+          <ul>
+            <li><a href="#简介-1">简介</a></li>
+            <li><a href="#具体实现">具体实现</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#全局置换算法">全局置换算法</a>
+      <ul>
+        <li><a href="#工作集置换算法">工作集置换算法</a>
+          <ul>
+            <li><a href="#工作集与常驻集">工作集与常驻集</a></li>
+            <li><a href="#思路">思路</a></li>
+            <li><a href="#具体实现-1">具体实现</a></li>
+          </ul>
+        </li>
+        <li><a href="#缺页率置换算法ppf">缺页率置换算法（PPF）</a>
+          <ul>
+            <li><a href="#简介-2">简介</a></li>
+            <li><a href="#具体实现-2">具体实现</a></li>
+          </ul>
+        </li>
+        <li><a href="#抖动问题thrashing">抖动问题（thrashing）</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><p>通过lab2知识的讲解，我们已经对虚拟内存有了一个初步认识，</p>
+<p>有了内存地址虚拟化，我们就可以通过设置页表项来限定软件运行时的访问空间，确保软件运行不越界，完成内存访问保护的功能。</p>
+<p>通过内存地址虚拟化，可以使得软件在没有访问某虚拟内存地址时不分配具体的物理内存，而只有在实际访问某虚拟内存地址时，操作系统再动态地分配物理内存，建立虚拟内存到物理内存的页映射关系，这种技术称为按需分页（demand paging）。</p>
+<p>把不经常访问的数据所占的内存空间临时写到硬盘上，这样可以腾出更多的空闲内存空间给经常访问的数据；当CPU访问到不经常访问的数据时，再把这些数据从硬盘读入到内存中，这种技术称为页换入换出（page　swap in/out）。这种内存管理技术给了程序员更大的内存“空间”，从而可以让更多的程序在内存中并发运行。</p>
+<p>需要注意的是：</p>
+<ul>
+<li>虚拟内存单元不一定有实际的物理内存单元对应，即实际的物理内存单元可能不存在；</li>
+<li>如果虚拟内存单元对应有实际的物理内存单元，那二者的地址一般是不相等的；</li>
+<li>通过操作系统实现的某种内存映射可建立虚拟内存与物理内存的对应关系，使得程序员或CPU访问的虚拟内存地址会自动转换为一个物理内存地址。</li>
+</ul>
+<h1 id="page-fault" class="headerLink">
+    <a href="#page-fault" class="header-mark"></a>Page fault</h1><p>产生页访问异常的原因主要有：</p>
+<ul>
+<li>目标页帧不存在（页表项全为0，即该线性地址与物理地址尚未建立映射或者已经撤销)；</li>
+<li>相应的物理页帧不在内存中（页表项非空，但Present标志位=0，比如在swap分区或磁盘文件上)，这在本次实验中会出现，我们将在下面介绍换页机制实现时进一步讲解如何处理；</li>
+<li>不满足访问权限(此时页表项P标志=1，但低权限的程序试图访问高权限的地址空间，或者有程序试图写只读页面).</li>
+</ul>
+<p>当出现上面情况之一，那么就会产生页面page fault（#PF）异常。CPU会把产生异常的线性地址存储在CR2中，并且把表示页访问异常类型的值（简称页访问异常错误码，errorCode）保存在中断栈中。</p>
+<blockquote>
+<p>页访问异常错误码有32位。位0为１表示对应物理页不存在；位１为１表示写异常（比如写了只读页；位２为１表示访问权限异常（比如用户态程序访问内核空间的数据）</p>
+<p>CR2是页故障线性地址寄存器，保存最后一次出现页故障的全32位线性地址。CR2用于发生页异常时报告出错信息。当发生页异常时，处理器把引起页异常的线性地址保存在CR2中。操作系统中对应的中断服务例程可以检查CR2的内容，从而查出线性地址空间中的哪个页引起本次异常。</p>
+</blockquote>
+<h2 id="ucore的处理" class="headerLink">
+    <a href="#ucore%e7%9a%84%e5%a4%84%e7%90%86" class="header-mark"></a>uCore的处理</h2><p>CPU在当前内核栈保存当前被打断的程序现场，即依次压入当前被打断程序使用的EFLAGS，CS，EIP，errorCode；由于页访问异常的中断号是0xE，CPU把异常中断号0xE对应的中断服务例程的地址（vectors.S中的标号vector14处）加载到CS和EIP寄存器中，开始执行中断服务例程。这时ucore开始处理异常中断，首先需要保存硬件没有保存的寄存器。在vectors.S中的标号vector14处先把中断号压入内核栈，然后再在trapentry.S中的标号<code>__alltraps</code>处把DS、ES和其他通用寄存器都压栈。自此，被打断的程序执行现场（context）被保存在内核栈中。接下来，在trap.c的trap函数开始了中断服务例程的处理流程，大致调用关系为：</p>
+<blockquote>
+<p>trap&ndash;&gt; trap_dispatch&ndash;&gt;pgfault_handler&ndash;&gt;do_pgfault</p>
+</blockquote>
+<p>下面需要具体分析一下<code>do_pgfault</code>函数。<code>do_pgfault</code>的调用关系如下图所示：</p>
+<p><img
+        class="lazyload"
+        data-src="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210620120536.png"
+        data-srcset="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210620120536.png, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210620120536.png 1.5x, https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210620120536.png 2x"
+        data-sizes="auto"
+        alt="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/20210620120536.png"
+        title="image"></p>
+<p>产生页访问异常后，CPU把引起页访问异常的线性地址装到寄存器CR2中，并给出了出错码errorCode，说明了页访问异常的类型。ucore OS会把这个值保存在<code>struct trapframe</code> 中<code>tf_err</code>成员变量中。而中断服务例程会调用页访问异常处理函数<code>do_pgfault</code>进行具体处理。这里的页访问异常处理是实现按需分页、页换入换出机制的关键之处。</p>
+<p>ucore中<code>do_pgfaul</code>t函数是完成页访问异常处理的主要函数，它根据从CPU的控制寄存器CR2中获取的页访问异常的物理地址以及根据errorCode的错误类型来查找此地址是否在某个VMA的地址范围内以及是否满足正确的读写权限，如果在此范围内并且权限也正确，这认为这是一次合法访问，但没有建立虚实对应关系。所以需要分配一个空闲的内存页，并修改页表完成虚地址到物理地址的映射，刷新TLB，然后调用iret中断，返回到产生页访问异常的指令处重新执行此指令。如果该虚地址不在某VMA范围内，则认为是一次非法访问。</p>
+<h1 id="页替换" class="headerLink">
+    <a href="#%e9%a1%b5%e6%9b%bf%e6%8d%a2" class="header-mark"></a>页替换</h1><h2 id="局部页面置换算法" class="headerLink">
+    <a href="#%e5%b1%80%e9%83%a8%e9%a1%b5%e9%9d%a2%e7%bd%ae%e6%8d%a2%e7%ae%97%e6%b3%95" class="header-mark"></a>局部页面置换算法</h2><blockquote>
+<p>置换页面的选择范围仅限于当前进程占用的物理页面内.</p>
+</blockquote>
+<h3 id="最优页面置换算法" class="headerLink">
+    <a href="#%e6%9c%80%e4%bc%98%e9%a1%b5%e9%9d%a2%e7%bd%ae%e6%8d%a2%e7%ae%97%e6%b3%95" class="header-mark"></a>最优页面置换算法</h3><p>最佳(Optimal, OPT)置换算法所选择的被淘汰页面将是以后永不使用的，或者是在最长时间内不再被访问的页面,这样可以保证获得最低的缺页率。但由于人们目前无法预知进程在内存下的若千页面中哪个是未来最长时间内不再被访问的，因而该算法无法实现。</p>
+<p>可用作其他算法的评价的依据（在一个模拟器上运行某个程序，并记录每一次的页面的访问情况，在第二遍运行时间可使用最优算法）</p>
+<h3 id="最近最少用算法lru" class="headerLink">
+    <a href="#%e6%9c%80%e8%bf%91%e6%9c%80%e5%b0%91%e7%94%a8%e7%ae%97%e6%b3%95lru" class="header-mark"></a>最近最少用算法（LRU）</h3><h4 id="简介" class="headerLink">
+    <a href="#%e7%ae%80%e4%bb%8b" class="header-mark"></a>简介</h4><ul>
+<li>思路：选择<strong>最长时间没有被引用</strong>的页面进行置换。</li>
+<li>实现：缺页时，计算内存中每个逻辑页面的上一个访问时间，并选择<strong>上一个使用到当前时间最长</strong>的页面。</li>
+<li>特征：最优置换算法的一种近似。</li>
+</ul>
+<h4 id="b-具体实现" class="headerLink">
+    <a href="#b-%e5%85%b7%e4%bd%93%e5%ae%9e%e7%8e%b0" class="header-mark"></a>b. 具体实现</h4><ul>
+<li>页面链表
+<ul>
+<li>系统维护一个按最近一次访问时间排序的页面链表
+<ul>
+<li>链表首节点是最近刚刚使用过的页面</li>
+<li>链表尾结点是最久未使用的页面</li>
+</ul>
+</li>
+<li>访问内存时，找到相应页面并将其移至链表之首</li>
+<li>缺页时，置换链表尾结点的页面</li>
+</ul>
+</li>
+<li>活动页面栈
+<ul>
+<li>访问页面时，将此页号压入栈底。并将栈内相同的页号抽出</li>
+<li>缺页时，置换栈底的页面。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>上述的两种实现都需要维护以及遍历搜索某个数据结构，</p>
+<p>同时LRU对于过去的访问情况统计<strong>过于细致</strong>，所以该方法较为复杂。</p>
+</blockquote>
+<h3 id="先进先出算法fifo" class="headerLink">
+    <a href="#%e5%85%88%e8%bf%9b%e5%85%88%e5%87%ba%e7%ae%97%e6%b3%95fifo" class="header-mark"></a>先进先出算法（FIFO）</h3><ul>
+<li>
+<p>基本思路：选择在内存中驻留时间最长的页面并淘汰之。</p>
+<p>具体来说，系统维护着一个链表，记录了所有位于内存当中的逻辑页面。从链表的排列顺序来看，链首页面的驻留时间最长，链尾页面的驻留时间最短。当发生一个缺页中断时，把链表首页面淘汰出局，并把新的页面添加到链表的末尾。</p>
+</li>
+<li>
+<p>性能较差，调出的页面有可能是经常要访问的页面，并且有Belady现象。FIFO算法很少单独使用。</p>
+</li>
+<li>
+<p>实现：一个单一的指针就够了</p>
+</li>
+</ul>
+<h3 id="belady现象" class="headerLink">
+    <a href="#belady%e7%8e%b0%e8%b1%a1" class="header-mark"></a>Belady现象</h3><ul>
+<li>现象： 采用FIFO等算法时，可能出现分配的物理页面数增加，缺页次数反而升高的异常情况。</li>
+<li>原因：
+<ul>
+<li>FIFO算法的置换特征与进程访问内存的动态特征矛盾</li>
+<li>被置换出去的页面并不一定是进程近期不会访问的。</li>
+</ul>
+</li>
+</ul>
+<p>LRU算法和FIFO本质上都是先进先出的思路，只不过LRU是针对页面的最近访问时间来进行排序，所以需要在每一次页面访问的时候动态的调整各个页面之间的先后顺序（有一个页面的最近访问时间变了）；</p>
+<p>而FIFO是针对页面进入内存的时间来进行排序。这个时间是固定不变的，所以各页面之间的先后顺序是固定的。如果一个页面在进入内存之后没有被访问，那么它的最近访问时间就是它进入内存的时间。</p>
+<p>换句话说，如果内存当中的所有页面都未曾访问过，那么LRU就退化为FIFO算法。</p>
+<h3 id="改进的时钟页面置换算法clock" class="headerLink">
+    <a href="#%e6%94%b9%e8%bf%9b%e7%9a%84%e6%97%b6%e9%92%9f%e9%a1%b5%e9%9d%a2%e7%bd%ae%e6%8d%a2%e7%ae%97%e6%b3%95clock" class="header-mark"></a>改进的时钟页面置换算法（Clock）</h3><h4 id="简介-1" class="headerLink">
+    <a href="#%e7%ae%80%e4%bb%8b-1" class="header-mark"></a>简介</h4><ul>
+<li>思路：
+<ul>
+<li>仅对页面的访问情况进行大致统计</li>
+<li>减小修改页的缺页处理开销</li>
+</ul>
+</li>
+<li>数据结构：
+<ul>
+<li>在页表项中增加访问位，描述页面在过去一段时间的内访问情况。</li>
+<li>在页表项中增加修改位，以判断当前页面是否修改过但没有存入外存。</li>
+<li>各页面组织成环形链表，同时指针指向最先调入的页面。</li>
+</ul>
+</li>
+<li>算法
+<ul>
+<li>访问页面时，在页表项记录页面访问情况</li>
+<li>缺页时，从指针处开始顺序查找<strong>未被访问与未被修改</strong>的页面进行置换。</li>
+</ul>
+</li>
+<li>特征： 时钟算法是LRU与FIFO的折中。</li>
+</ul>
+<h4 id="具体实现" class="headerLink">
+    <a href="#%e5%85%b7%e4%bd%93%e5%ae%9e%e7%8e%b0" class="header-mark"></a>具体实现</h4><ul>
+<li>页面装入内存时，访问位初始化为0</li>
+<li>访问页面（读/写）时，访问位置为1</li>
+<li>缺页时，从指针当前位置顺序检查环形链表。
+<ul>
+<li>若当前遍历到的页面访问位为0，则<strong>置换该页</strong></li>
+<li>若当前遍历到的页面访问位为1，则<strong>设置该页的访问位为0</strong>，并移动指针到下一个页面，直到找到可置换的页面。</li>
+</ul>
+</li>
+</ul>
+<h2 id="全局置换算法" class="headerLink">
+    <a href="#%e5%85%a8%e5%b1%80%e7%bd%ae%e6%8d%a2%e7%ae%97%e6%b3%95" class="header-mark"></a>全局置换算法</h2><ul>
+<li>思路：全局置换算法为进程分配可变数目的物理页面。</li>
+<li>要解决的问题：
+<ul>
+<li>进程在不同阶段的内存需求是有变化的。</li>
+<li>分配给进程的内存也需要在不同阶段有所变化。</li>
+<li>全局置换算法需要确定分配给进程的物理页面数。</li>
+</ul>
+</li>
+<li>CPU利用率与并发进程数存在相互制约的关系。
+<ul>
+<li>进程数少时，提高并发进程数，可提高CPU利用效率。</li>
+<li>并发进程导致内存访问增加</li>
+<li>并发进程的内存访问会降低了访存的局部性特征。</li>
+<li>局部性特征的下降会导致缺页率上升和CPU利用率下降。</li>
+</ul>
+</li>
+</ul>
+<p>全局页面置换算法置换内存中所有可换出的物理页面，即换进内存的是进程A的页面，换出内存的可能是进程B的页面，所以进程在内存中占用的页面总数是可变的。</p>
+<h3 id="工作集置换算法" class="headerLink">
+    <a href="#%e5%b7%a5%e4%bd%9c%e9%9b%86%e7%bd%ae%e6%8d%a2%e7%ae%97%e6%b3%95" class="header-mark"></a>工作集置换算法</h3><h4 id="工作集与常驻集" class="headerLink">
+    <a href="#%e5%b7%a5%e4%bd%9c%e9%9b%86%e4%b8%8e%e5%b8%b8%e9%a9%bb%e9%9b%86" class="header-mark"></a>工作集与常驻集</h4><ul>
+<li>
+<p>工作集</p>
+<p>是一个进程当前正在使用的逻辑页面集合，可表示为二元函数W(t,Δ)W(t,Δ)</p>
+<ul>
+<li>tt是当前的执行时刻</li>
+<li>Δ 称为<strong>工作集窗口</strong>(working-set window)，即一个定长的页面访问时间的窗口。</li>
+<li>W(t,Δ)W(t,Δ)指在当前时刻tt前的Δ时间窗口中的<strong>所有访问页面</strong>所组成的集合。</li>
+<li>|W(t,Δ)||W(t,Δ)|指工作集的大小，即页面数目。</li>
+</ul>
+</li>
+<li>
+<p><strong>常驻集</strong>是当前时刻进程<strong>实际驻留</strong>在内存中的页面集合。</p>
+</li>
+<li>
+<p>工作集与常驻集的关系</p>
+<ul>
+<li>工作集是进程在运行过程中固有的性质</li>
+<li>常驻集取决于系统分配给进程的物理页面数目和页面置换算法。</li>
+</ul>
+</li>
+</ul>
+<h4 id="思路" class="headerLink">
+    <a href="#%e6%80%9d%e8%b7%af" class="header-mark"></a>思路</h4><ul>
+<li>当前时刻前ττ个内存访问的页引用是工作集。其中ττ被称为<strong>窗口大小</strong>。</li>
+<li>换出不在工作集中的页面</li>
+</ul>
+<h4 id="具体实现-1" class="headerLink">
+    <a href="#%e5%85%b7%e4%bd%93%e5%ae%9e%e7%8e%b0-1" class="header-mark"></a>具体实现</h4><ul>
+<li>访存链表：维护窗口内的访存页面</li>
+<li><strong>访存时，换出不在工作集的页面；</strong> 更新访存链表。</li>
+<li>缺页时，换入页面，更新访存链表。</li>
+</ul>
+<h3 id="缺页率置换算法ppf" class="headerLink">
+    <a href="#%e7%bc%ba%e9%a1%b5%e7%8e%87%e7%bd%ae%e6%8d%a2%e7%ae%97%e6%b3%95ppf" class="header-mark"></a>缺页率置换算法（PPF）</h3><h4 id="简介-2" class="headerLink">
+    <a href="#%e7%ae%80%e4%bb%8b-2" class="header-mark"></a>简介</h4><p>通过调节常驻集大小，使每个进程的缺页率保持在一个合理的范围内。</p>
+<ul>
+<li>若进程缺页率过高，则增加常驻集以分配更多的物理内存</li>
+<li>若进程缺页率过低，则减小常驻集以减小它的物理页面数。</li>
+</ul>
+<h4 id="具体实现-2" class="headerLink">
+    <a href="#%e5%85%b7%e4%bd%93%e5%ae%9e%e7%8e%b0-2" class="header-mark"></a>具体实现</h4><ul>
+<li>访存时，设置引用位标志</li>
+<li>缺页时，计算从上次缺页时间$t_{last}$到现在$t_{current}$的时间间隔
+<ul>
+<li>如果$t_{current}−t_{last}&gt;T$，则置换所有在$[t_{last},t_{current}]$时间内<strong>没有被引用</strong>的页。</li>
+<li>如果$t_{current}−t_{last}&lt;T$，则增加缺失页到常驻集中。</li>
+</ul>
+</li>
+</ul>
+<h3 id="抖动问题thrashing" class="headerLink">
+    <a href="#%e6%8a%96%e5%8a%a8%e9%97%ae%e9%a2%98thrashing" class="header-mark"></a>抖动问题（thrashing）</h3><p>如果分配给一个进程的物理页面太少，不能包含整个的工作集，即常驻集属于工作集，那么进程将会造成很多的页面中断，需要频繁的在内存和外存之间替换页面，从而使进程的运行速度变得很慢，这种状态称为抖动。</p>
+<p>产生抖动的原因：随着驻留内存的进程数目增加，分配给每个进程的物理页面数不断减小，缺页率不断上升。所以操作系统要选择一个适当的进程数目和进程所需要的帧数，以便在并发水平和缺页率之间达到一个平衡。</p>
+<h1 id="练习1" class="headerLink">
+    <a href="#%e7%bb%83%e4%b9%a01" class="header-mark"></a>练习1</h1><p><strong>给未被映射的地址映射上物理页</strong>
+注意发生<code>page falut</code>的两种情况：</p>
+<ul>
+<li>物理页未被映射，页表项为空</li>
+<li>页表项不为空，对应的物理页面被换出到swap</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">    <span class="cm">/*LAB3 EXERCISE 1: YOUR CODE*/</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//(1) try to find a pte, if pte&#39;s PT(Page Table) isn&#39;t existed, then create a PT.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span><span class="p">((</span><span class="n">ptep</span> <span class="o">=</span> <span class="n">get_pte</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>              
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;get_pte in do_pgfalut failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">ptep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//(2) if the phy addr isn&#39;t exist, then alloc a page &amp; map the phy addr with logical addr
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span><span class="p">(</span><span class="n">pgdir_alloc_page</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">perm</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>                    
+</span></span><span class="line"><span class="cl">            <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;pgdir_alloc_page in do_pgfalut failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>        
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*LAB3 EXERCISE 2: YOUR CODE
+</span></span></span><span class="line"><span class="cl"><span class="cm">    * Now we think this pte is a swap entry, we should load data from disk to a page with phy addr,
+</span></span></span><span class="line"><span class="cl"><span class="cm">    * and map the phy addr with logical addr, trigger swap manager to record the access situation of this page.
+</span></span></span><span class="line"><span class="cl"><span class="cm">    *
+</span></span></span><span class="line"><span class="cl"><span class="cm">    *  Some Useful MACROs and DEFINEs, you can use them in below implementation.
+</span></span></span><span class="line"><span class="cl"><span class="cm">    *  MACROs or Functions:
+</span></span></span><span class="line"><span class="cl"><span class="cm">    *    swap_in(mm, addr, &amp;page) : alloc a memory page, then according to the swap entry in PTE for addr,
+</span></span></span><span class="line"><span class="cl"><span class="cm">    *                               find the addr of disk page, read the content of disk page into this memroy page
+</span></span></span><span class="line"><span class="cl"><span class="cm">    *    page_insert ： build the map of phy addr of an Page with the linear addr la
+</span></span></span><span class="line"><span class="cl"><span class="cm">    *    swap_map_swappable ： set the page swappable
+</span></span></span><span class="line"><span class="cl"><span class="cm">    */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span><span class="p">(</span><span class="n">swap_init_ok</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">page</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//(1）According to the mm AND addr, try to load the content of right disk page
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="c1">//    into the memory which page managed.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span><span class="p">((</span><span class="n">ret</span> <span class="o">=</span> <span class="n">swap_in</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">page</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;swap_in in do_pgfalut failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">                <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//(2) According to the mm, addr AND page, setup the map of phy addr &lt;---&gt; logical addr
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">page_insert</span><span class="p">(</span><span class="n">mm</span><span class="o">-&gt;</span><span class="n">pgdir</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">perm</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">//(3) make the page swappable.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">swap_map_swappable</span><span class="p">(</span><span class="n">mm</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">page</span><span class="o">-&gt;</span><span class="n">pra_vaddr</span> <span class="o">=</span> <span class="n">addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cprintf</span><span class="p">(</span><span class="s">&#34;no swap_init_ok but ptep is %x, failed</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="o">*</span><span class="n">ptep</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">goto</span> <span class="n">failed</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">   <span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h1 id="练习2" class="headerLink">
+    <a href="#%e7%bb%83%e4%b9%a02" class="header-mark"></a>练习2</h1><p><strong>补充完成基于FIFO的页面替换算法</strong></p>
+<p>FIFO的PRA维护了一个链表，链表中的页按照从旧（驻留时间最长）到新（最近驻留）的顺序排列。</p>
+<p>所以在换入一个页面时，需要将其加入到链表的尾部。换出时，只要将链表头指向的页换出。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">_fifo_map_swappable</span><span class="p">(</span><span class="k">struct</span> <span class="n">mm_struct</span> <span class="o">*</span><span class="n">mm</span><span class="p">,</span> <span class="n">uintptr_t</span> <span class="n">addr</span><span class="p">,</span> <span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">page</span><span class="p">,</span> <span class="kt">int</span> <span class="n">swap_in</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">list_entry_t</span> <span class="o">*</span><span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="n">list_entry_t</span><span class="o">*</span><span class="p">)</span> <span class="n">mm</span><span class="o">-&gt;</span><span class="n">sm_priv</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">list_entry_t</span> <span class="o">*</span><span class="n">entry</span><span class="o">=&amp;</span><span class="p">(</span><span class="n">page</span><span class="o">-&gt;</span><span class="n">pra_page_link</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">entry</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="o">&amp;&amp;</span> <span class="n">head</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//record the page access situlation
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="cm">/*LAB3 EXERCISE 2: YOUR CODE*/</span> 
+</span></span><span class="line"><span class="cl">    <span class="c1">//(1)link the most recent arrival page at the back of the pra_list_head qeueue.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">list_add</span><span class="p">(</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">prev</span><span class="p">,</span> <span class="n">entry</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">_fifo_swap_out_victim</span><span class="p">(</span><span class="k">struct</span> <span class="n">mm_struct</span> <span class="o">*</span><span class="n">mm</span><span class="p">,</span> <span class="k">struct</span> <span class="n">Page</span> <span class="o">**</span> <span class="n">ptr_page</span><span class="p">,</span> <span class="kt">int</span> <span class="n">in_tick</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">list_entry_t</span> <span class="o">*</span><span class="n">head</span><span class="o">=</span><span class="p">(</span><span class="n">list_entry_t</span><span class="o">*</span><span class="p">)</span> <span class="n">mm</span><span class="o">-&gt;</span><span class="n">sm_priv</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assert</span><span class="p">(</span><span class="n">head</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span><span class="p">(</span><span class="n">in_tick</span><span class="o">==</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/* Select the victim */</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*LAB3 EXERCISE 2: YOUR CODE*/</span> 
+</span></span><span class="line"><span class="cl">    <span class="c1">//(1)  unlink the  earliest arrival page in front of pra_list_head qeueue
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//(2)  assign the value of *ptr_page to the addr of this page
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">list_entry_t</span> <span class="o">*</span><span class="n">le</span> <span class="o">=</span> <span class="n">head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">Page</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">le2page</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">pra_page_link</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">list_del</span><span class="p">(</span><span class="n">le</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">*</span><span class="n">ptr_page</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-12-01</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/ucore-lab-3/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/cpp-exploitation-basic/" class="prev" rel="prev" title="C&#43;&#43; Exploitation Basic"><i class="fas fa-angle-left fa-fw"></i>C&#43;&#43; Exploitation Basic</a>
+            <a href="/ucore-lab-4/" class="next" rel="next" title="uCore-lab-4">uCore-lab-4<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

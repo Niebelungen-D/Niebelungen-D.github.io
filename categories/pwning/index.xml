@@ -1,0 +1,87 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Pwning - 分类 - Niebelungen</title>
+        <link>http://example.org/categories/pwning/</link>
+        <description>Pwning - 分类 - Niebelungen</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 28 Aug 2021 01:27:56 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/pwning/" rel="self" type="application/rss+xml" /><item>
+    <title>C&#43;&#43; Exploitation Basic</title>
+    <link>http://example.org/posts/cpp-exploitation-basic/</link>
+    <pubDate>Sat, 28 Aug 2021 01:27:56 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/cpp-exploitation-basic/</guid>
+    <description><![CDATA[C++ Exploitation Basic Learn from angelboy&rsquo;s slide &amp; reference link &amp; reference link [TOC] Name mangling C++支持函数重载，在C中如果两个函数重名，这将会是非常严重的编译器级错误。问题的关键在于出现了两个相同的s]]></description>
+</item><item>
+    <title>Linux Kernel-Pwn Learning</title>
+    <link>http://example.org/posts/linuxkernel-pwn-learning/</link>
+    <pubDate>Sun, 22 Aug 2021 01:04:36 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/linuxkernel-pwn-learning/</guid>
+    <description><![CDATA[Kernel ROP 学习Linux kernel Pwn的第一次尝试，hxp2020: kernel-rop Thanks @Midas for so great tutorials ! 环境设置 将附件解压得到以下文件： initramfs.cpio.gz：]]></description>
+</item><item>
+    <title>Musl Libc Pwn Learning</title>
+    <link>http://example.org/posts/musl-libc-pwn-learning/</link>
+    <pubDate>Sun, 22 Aug 2021 01:04:16 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/musl-libc-pwn-learning/</guid>
+    <description><![CDATA[musl libc pwn浅析 在defcon结束后，国内外的很多比赛都出现了musl libc的heap exploit，前几天的BSides Noida CTF中的bab]]></description>
+</item><item>
+    <title>UCore Lab 2</title>
+    <link>http://example.org/posts/ucore-lab-2/</link>
+    <pubDate>Sat, 10 Jul 2021 01:53:05 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/ucore-lab-2/</guid>
+    <description><![CDATA[<p>在正式开始写代码之前，我们先看看，整个内存管理的框架</p>
+<p>参考：<a href="https://jishuin.proginn.com/p/763bfbd248c0" target="_blank" rel="noopener noreffer">内存管理迷雾</a></p>]]></description>
+</item><item>
+    <title>UCore Lab 1</title>
+    <link>http://example.org/posts/ucore-lab-1/</link>
+    <pubDate>Sat, 10 Jul 2021 01:21:18 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/ucore-lab-1/</guid>
+    <description><![CDATA[<h1 id="启动">启动</h1>]]></description>
+</item><item>
+    <title>UCore Lab 0</title>
+    <link>http://example.org/posts/ucore-lab-0/</link>
+    <pubDate>Sat, 10 Jul 2021 01:01:20 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/ucore-lab-0/</guid>
+    <description><![CDATA[<h1 id="概述">概述</h1>
+<blockquote>
+<p>在学习一个东西之前，我都喜欢思考，这个东西解决了什么问题？</p>
+<p>所有的技术都不是无故产生的，面向问题的学习能更好的理解它的设计思路。</p>
+</blockquote>
+<p>操作系统是系统软件，在硬件层与应用软件之间。</p>
+<p><strong>为什么需要操作系统？</strong></p>
+<p>为用户提供更加方便的使用计算机的方式。对资源进行有效的管理。</p>]]></description>
+</item><item>
+    <title>Glibc 2 20 Malloc源码分析</title>
+    <link>http://example.org/posts/glibc-2-20-malloc%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/</link>
+    <pubDate>Sun, 07 Mar 2021 00:52:59 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/glibc-2-20-malloc%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/</guid>
+    <description><![CDATA[<h1 id="glibc-220-malloc源码分析">Glibc-2.20-malloc源码分析</h1>
+<p>第一次看源码，都算不上分析只是写写自己的理解。不知如何入手，所以记录的内容难免凌乱缺少条理，还请见谅。</p>]]></description>
+</item><item>
+    <title>CSAPP Malloclab</title>
+    <link>http://example.org/posts/csapp-malloclab/</link>
+    <pubDate>Sun, 21 Feb 2021 01:25:46 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/csapp-malloclab/</guid>
+    <description><![CDATA[<h1 id="csapp-malloclab">CSAPP-Malloclab</h1>]]></description>
+</item><item>
+    <title>CSAPP Cachelab</title>
+    <link>http://example.org/posts/csapp-cachelab/</link>
+    <pubDate>Sun, 14 Feb 2021 00:58:44 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/csapp-cachelab/</guid>
+    <description><![CDATA[<h1 id="csapp-cachelab">CSAPP-Cachelab</h1>]]></description>
+</item><item>
+    <title>CSAPP Lecture 08</title>
+    <link>http://example.org/posts/csapp-lecture-08/</link>
+    <pubDate>Sun, 14 Feb 2021 00:25:36 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>http://example.org/posts/csapp-lecture-08/</guid>
+    <description><![CDATA[<h1 id="lecture-08-linking">Lecture 08: Linking</h1>
+<p>和学过的pwn的一部分重合了，所以只记录新的知识。</p>]]></description>
+</item></channel>
+</rss>

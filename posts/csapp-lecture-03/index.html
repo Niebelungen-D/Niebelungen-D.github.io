@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>CSAPP Lecture 03 - Niebelungen</title><meta name="Description" content=""><meta property="og:title" content="CSAPP Lecture 03" />
+<meta property="og:description" content="Lecture 03 Machine-Level Programming Ⅰ: Basics History of Intel processors and architectures 介绍了Intel x86的历史，不重要。 C, assmbly, machine code **CPU: ** PC: Programmer counter Address of next instruction Called &ldquo;RIP&rdquo; (x86-64) Register file Heaviy used program data（程序主要使用寄存器来实现" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/csapp-lecture-03/" /><meta property="og:image" content="http://example.org/favicon.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-01-25T00:25:54+08:00" />
+<meta property="article:modified_time" content="2021-01-25T00:25:54+08:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/favicon.png"/>
+
+<meta name="twitter:title" content="CSAPP Lecture 03"/>
+<meta name="twitter:description" content="Lecture 03 Machine-Level Programming Ⅰ: Basics History of Intel processors and architectures 介绍了Intel x86的历史，不重要。 C, assmbly, machine code **CPU: ** PC: Programmer counter Address of next instruction Called &ldquo;RIP&rdquo; (x86-64) Register file Heaviy used program data（程序主要使用寄存器来实现"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/csapp-lecture-03/" /><link rel="prev" href="http://example.org/posts/csapp-lecture-05/" /><link rel="next" href="http://example.org/posts/csapp-datalab/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "CSAPP Lecture 03",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/csapp-lecture-03\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  3183 ,
+        "url": "http:\/\/example.org\/posts\/csapp-lecture-03\/","datePublished": "2021-01-25T00:25:54+08:00","dateModified": "2021-01-25T00:25:54+08:00","publisher": {
+            "@type": "Organization",
+            "name": "Niebelungen"},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">目录</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">CSAPP Lecture 03</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-01-25">2021-01-25</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 3183 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 7 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#history-of-intel-processors-and-architectures">History of Intel processors and architectures</a></li>
+    <li><a href="#c-assmbly-machine-code">C, assmbly, machine code</a></li>
+    <li><a href="#汇编代码">汇编代码</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#数据传送指令">数据传送指令</a></li>
+    <li><a href="#控制">控制</a></li>
+    <li><a href="#循环">循环</a></li>
+  </ul>
+
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#数组与指针运算">数组与指针运算</a></li>
+        <li><a href="#浮点数">浮点数</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#linux的内存结构">Linux的内存结构：</a></li>
+    <li><a href="#buffer-overflow">Buffer overflow</a>
+      <ul>
+        <li><a href="#保护机制">保护机制</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="lecture-03">Lecture 03</h1>
+<h1 id="machine-level-programming--basics">Machine-Level Programming Ⅰ: Basics</h1>
+<!-- more -->
+<h2 id="history-of-intel-processors-and-architectures">History of Intel processors and architectures</h2>
+<p>介绍了Intel x86的历史，不重要。</p>
+<h2 id="c-assmbly-machine-code">C, assmbly, machine code</h2>
+<p>**CPU: **</p>
+<ul>
+<li>PC: Programmer counter
+<ul>
+<li>Address of next instruction</li>
+<li>Called &ldquo;RIP&rdquo; (x86-64)</li>
+</ul>
+</li>
+<li>Register file
+<ul>
+<li>Heaviy used program data（程序主要使用寄存器来实现功能）</li>
+</ul>
+</li>
+<li>Condition codes
+<ul>
+<li>储存状态信息</li>
+</ul>
+</li>
+</ul>
+<p>由<strong>指令集体系结构</strong>或**指令集架构（Instruction Set Architecture，ISA）**来定义机器级程序的格式和行为，它定义了处理器状态、指令的格式，以及每条指令对状态的影响。大多数ISA都将程序的行为描述为按顺序执行每条指令。这是编译器的目标，提供一系列指令告诉机器要做什么。而微结构是指这个架构的实现。</p>
+<p><strong>Memory:</strong></p>
+<ul>
+<li>内存可认为是个字节数组</li>
+<li>代码和数据</li>
+<li>栈支持程序运行</li>
+</ul>
+<p>x86-64，它是Intel 64位体系结构，它的前身是32位的IA32。x86是对Intel处理器的口头称呼，因为第一个芯片被称为8086。x86又被称为<strong>复杂指令集计算机（Complex Instruction Set Computer，CISC）</strong>。目前处理器和常用的另一大类是<strong>ARM（Acorn RISC Machine）</strong>，RISC是<strong>精简指令集计算机（Reduced Instruction Set Computer）</strong>，由于它更简单，所以它比x86机器功耗更低。</p>
+<p><code>gcc -Og -S xxx.c</code>: 编译命令，最后生成，xxx.o文件。</p>
+<ul>
+<li><code>-Og</code>：是生成机器代码的优化等级，这个表示编译器会生成符合原始C代码整体结构的机器代码，这是用于调试的级别，便于我们学习观察。其他的<code>-O1</code>或<code>-O2</code>会得到更好的程序性能，但是机器代码和源代码的关系就比较难以理解。</li>
+<li><code>-S</code>：只生成到汇编代码</li>
+<li><code>-c</code>：生成二进制文件</li>
+</ul>
+<p><code>objdump -d xxx.o</code>: 反汇编命令。将机器码反编译为汇编代码。</p>
+<h2 id="汇编代码">汇编代码</h2>
+<p>汇编指令的两种格式Intel和AT&amp;T。书中展示的为AT&amp;T的格式。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">C声明</th>
+<th style="text-align:center">Intel数据结构</th>
+<th style="text-align:center">汇编代码后缀</th>
+<th style="text-align:center">大小（字节）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">char</td>
+<td style="text-align:center">字节</td>
+<td style="text-align:center">b</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">short</td>
+<td style="text-align:center">字</td>
+<td style="text-align:center">w</td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center">int</td>
+<td style="text-align:center">双字</td>
+<td style="text-align:center">l</td>
+<td style="text-align:center">4</td>
+</tr>
+<tr>
+<td style="text-align:center">long</td>
+<td style="text-align:center">四字</td>
+<td style="text-align:center">q</td>
+<td style="text-align:center">8</td>
+</tr>
+<tr>
+<td style="text-align:center">char*</td>
+<td style="text-align:center">四字</td>
+<td style="text-align:center">q</td>
+<td style="text-align:center">8</td>
+</tr>
+<tr>
+<td style="text-align:center">float</td>
+<td style="text-align:center">单精度</td>
+<td style="text-align:center">s</td>
+<td style="text-align:center">4</td>
+</tr>
+<tr>
+<td style="text-align:center">double</td>
+<td style="text-align:center">双精度</td>
+<td style="text-align:center">l</td>
+<td style="text-align:center">8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>寄存器信息：</strong></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://ctf-wiki.org/pwn/linux/stackoverflow/figure/register.png"
+        data-srcset="https://ctf-wiki.org/pwn/linux/stackoverflow/figure/register.png, https://ctf-wiki.org/pwn/linux/stackoverflow/figure/register.png 1.5x, https://ctf-wiki.org/pwn/linux/stackoverflow/figure/register.png 2x"
+        data-sizes="auto"
+        alt="https://ctf-wiki.org/pwn/linux/stackoverflow/figure/register.png"
+        title="寄存器" /></p>
+<p><strong>AT&amp;T指令操作格式：</strong></p>
+<h1 id="machine-level-programming--control">Machine-Level Programming Ⅱ: Control</h1>
+<h2 id="数据传送指令">数据传送指令</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">指令</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">movzbw</td>
+<td style="text-align:center">零扩展的字节到字</td>
+</tr>
+<tr>
+<td style="text-align:center">movzbl</td>
+<td style="text-align:center">零扩展的字节到双字</td>
+</tr>
+<tr>
+<td style="text-align:center">movzwl</td>
+<td style="text-align:center">零扩展的字到双字</td>
+</tr>
+<tr>
+<td style="text-align:center">movzbq</td>
+<td style="text-align:center">零扩展的字节到四字</td>
+</tr>
+<tr>
+<td style="text-align:center">movzwq</td>
+<td style="text-align:center">零扩展的字到四字</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">指令</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">movsbw</td>
+<td style="text-align:center">符号扩展的字节到字</td>
+</tr>
+<tr>
+<td style="text-align:center">movsbl</td>
+<td style="text-align:center">符号扩展的字节到双字</td>
+</tr>
+<tr>
+<td style="text-align:center">movswl</td>
+<td style="text-align:center">符号扩展的字到双字</td>
+</tr>
+<tr>
+<td style="text-align:center">movsbq</td>
+<td style="text-align:center">符号扩展的字节到四字</td>
+</tr>
+<tr>
+<td style="text-align:center">movswq</td>
+<td style="text-align:center">符号扩展的字到四字</td>
+</tr>
+<tr>
+<td style="text-align:center">movslq</td>
+<td style="text-align:center">符号扩展的双字到四字</td>
+</tr>
+<tr>
+<td style="text-align:center">cltq</td>
+<td style="text-align:center">把%eax符号扩展到%rax</td>
+</tr>
+</tbody>
+</table>
+<p><strong>整数算术操作</strong></p>
+<h2 id="控制">控制</h2>
+<p><strong>条件码</strong></p>
+<ul>
+<li>
+<p>**ZF：**零标志，最近的操作得到的结果是否为0。</p>
+</li>
+<li>
+<p><strong>无符号数：</strong></p>
+</li>
+<li>
+<ul>
+<li>**CF：**进位标志，最近的操作使得最高位产生进位。可用来检查无符号数是否存在溢出。</li>
+</ul>
+</li>
+<li>
+<p><strong>补码：</strong></p>
+</li>
+<li>
+<ul>
+<li>**SF：**符号标志，最近的操作得到的结果为负数。</li>
+<li>**OF：**溢出标志，最近的操作导致补码溢出。</li>
+</ul>
+</li>
+<li>
+<p><code>lea</code>不会设置条件码，因为它只是单纯计算地址。</p>
+</li>
+<li>
+<p><code>CMP S1, S2</code>：用来比较<code>S1</code>和<code>S2</code>，根据<code>S2-S1</code>的结果来设置条件码。</p>
+</li>
+<li>
+<p><code>TEST S1, S2</code>：根据<code>S1 &amp; S2</code>的结果来设置条件码。</p>
+</li>
+</ul>
+<p>还有一系列的<code>set</code>指令专门用来设置条件码</p>
+<p>无条件跳转：<code>jmp</code></p>
+<p>有条件跳转：</p>
+<p>在汇编中通过条件码实现分支控制与循环。</p>
+<p>x86-64上提供了一些条件传送指令<code>CMOV</code>，只有在满足条件时，才会将源数据传送到目的中：</p>
+<h2 id="循环">循环</h2>
+<p><strong>do-while：</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">long</span> <span class="nf">fact_do</span><span class="p">(</span><span class="kt">long</span> <span class="n">n</span><span class="p">){</span>
+  <span class="kt">long</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">do</span><span class="p">{</span>
+    <span class="n">result</span> <span class="o">*=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span><span class="k">while</span><span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">);</span>
+  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">fact_do:
+  movl $1, %eax
+.L1:
+  imulq %rdi, %rax
+  subq $1, %rdi
+  cmpq $1, %rdi
+  jg .L1
+  rep; ret
+</code></pre></td></tr></table>
+</div>
+</div><p>在循环体的结尾处进行判断或跳转。</p>
+<p><strong>while：</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">long</span> <span class="nf">fact_while</span><span class="p">(</span><span class="kt">long</span> <span class="n">n</span><span class="p">){</span>
+  <span class="kt">long</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span><span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">){</span>
+    <span class="n">result</span> <span class="o">*=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">resul</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>Jump-to-middle：一开始就有一个无条件跳转指令，用来跳转到判断语句。就是相等于在do-while循环的外面套了一层跳转。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">fact_while:
+  movl $1, %eax
+  jmp .JUDGE
+.L1:
+  imulq %rdi, %rax
+  subq $1, %rdi
+.JUDGE:
+  cmpq $1, %rdi
+  jg .L1
+  rep; ret
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>guarded-do：在开始直接进行判断。这个之所以更加高效，是因为一开始进入循环时，通常不会不满足循环条件，即一开始不会跳转到后面，所以会直接顺序一直执行循环体。，当使用较高优化等级时，比如<code>-O1</code>时，GCC会使用这种策略。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">fact_while:
+  cmpq $1, %rdi
+  jle .L1
+  movl $1, %eax
+.L2:
+  imulq %rdi, %rax
+  subq $1, %rdi
+  cmpq $1, %rdi
+  jne .L2
+  rep; ret
+.L1:
+  movl $1, %eax
+  ret 
+</code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+<p><strong>for:</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">long</span> <span class="nf">fact_for</span><span class="p">(</span><span class="kt">long</span> <span class="n">n</span><span class="p">){</span>
+  <span class="kt">long</span> <span class="n">i</span><span class="p">;</span>
+  <span class="kt">long</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">){</span>
+    <span class="n">result</span> <span class="o">*=</span> <span class="n">i</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>将其转化为while语句，按照while循环的方式进行优化。</p>
+<p><strong>switch:</strong></p>
+<p><code>switch</code>语句可以根据一个整数索引数值进行多重分支。通常使用**跳转表（Jump Table）**数据结构使得实现更加高效，它是一个数组，每个元素是对应的代码块起始地址，根据整数索引得到对应的代码地址后，就可以直接跳转到对应的代码块。相比很长的<code>if-else</code>语句的优势在于：执行<code>switch</code>语句的时间与分支数目无关，只需要计算一次偏移。</p>
+<h1 id="machine-level-programming--procedures">Machine-Level Programming Ⅲ: Procedures</h1>
+<p>函数调用约定。</p>
+<p>stack的思想，<code>pop</code>与<code>push</code>指令。</p>
+<p>保存到内存中进行参数传输时，要求每个参数大小为8字节的倍数，即要求相对<code>%rsp</code>的偏移量为8的倍数</p>
+<p><code>call</code>: 下一条指令地址入栈，栈地址<code>rbp</code>入栈，<code>rip</code>变为目的地址。返回值放入<code>rax</code></p>
+<h1 id="machine-level-programming--data">Machine-Level Programming Ⅳ: Data</h1>
+<p>结构体的内存分布</p>
+<ul>
+<li>结构的所有组成部分都存放在内存中一段<strong>连续的</strong>区域内，指向结构的<strong>指针</strong>是结构第一字节的地址。</li>
+<li>要求结构的初始地址一定是结构体中最大对象大小的倍数，使得偏移量加上初始地址才是真的满足倍数关系的。</li>
+<li>在结构体末尾填充，使其是结构体中最大对象大小的倍数，使得结构数组中下一个元素的地址也是成倍数关系的。我们可以改变声明的顺序，按照从大到小的形式进行声明，可以减少填充的字节数目，节省该结构的空间大小</li>
+</ul>
+<p>对齐原则是任何K字节的基本对象的地址必须是K的倍数</p>
+<p>共用体的内存分布</p>
+<ul>
+<li>
+<p>保存在<strong>公共的</strong>一块内存中，通过不同对象的类型来赋予这块内存不同的含义。内存大小为最大字段的大小。</p>
+</li>
+<li>
+<p>如果我们事先知道两个不同字段是互斥的，就能将其定义在一个union中，就能节省内存空间。</p>
+</li>
+</ul>
+<h3 id="数组与指针运算">数组与指针运算</h3>
+<p>在c语言中，二维数组的定义：char buf[x][y]，其中x可缺省，y不能缺省。对于二维数组，我们可以这样理解：二维数组是一维数组的嵌套，即一维数组中所有元素为同类型数组。
+例如：char array[3][3],我们可以将其理解成array数组是一个一维数组，数组的元素分别是array[0],array[1],array[2]三个char[3]型数组。
+而对于一个数组元素的访问，c是这样实现的：先取出数组首元素地址，目标元素地址=首地址+sizeof(type)*N，得到被访问元素的地址，type是指针指向数据类型。
+如上面提到的array，它是一个二维数组的函数名其每个元素为一个行数组，它就是数组指针，在这个指针上加减一个整数都是移动整行。
+而array[0],array[1],array[2]其每个元素为一个char，将它们视作单独的数组，那么其函数名就是指针！在其上进行加减是对移动一个type(char)的大小。
+注意，区别指针数组，指针数组的元素是指针。</p>
+<p>一个重要的数据访问思想：基址+<code>offset</code></p>
+<h3 id="浮点数">浮点数</h3>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.stack.imgur.com/aMt3C.png"
+        data-srcset="https://i.stack.imgur.com/aMt3C.png, https://i.stack.imgur.com/aMt3C.png 1.5x, https://i.stack.imgur.com/aMt3C.png 2x"
+        data-sizes="auto"
+        alt="https://i.stack.imgur.com/aMt3C.png"
+        title="https://i.stack.imgur.com/aMt3C.png" /></p>
+<p>在浮点运算中，指令被分成了<strong>标量指令（Scalar Operations）<strong>和</strong>SIMD指令</strong>，在指令中分别用<code>s</code>和<code>p</code>表示。</p>
+<p>标量指令只对低4字节或8字节进行操作，而向量指令会对其他的字节采取并行的操作。</p>
+<p><strong>浮点传送</strong></p>
+<p>其中，最后两个指令的a表示对齐，当读写内存时，要求满足16字节对齐（因为XMM是16字节的），否则会报错。</p>
+<p>传入参数，如果是浮点数，就保存在XMM寄存器中，如果是指针或整型，就保存在常规寄存器中。而返回值也是如此。</p>
+<p><strong>浮点转换</strong></p>
+<ul>
+<li>
+<p>浮点数&ndash;&gt;整型</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://imgbed.niebelungen-d.top/images/2021/02/04/1506992-20181208151250319-378942177.png"
+        data-srcset="https://imgbed.niebelungen-d.top/images/2021/02/04/1506992-20181208151250319-378942177.png, https://imgbed.niebelungen-d.top/images/2021/02/04/1506992-20181208151250319-378942177.png 1.5x, https://imgbed.niebelungen-d.top/images/2021/02/04/1506992-20181208151250319-378942177.png 2x"
+        data-sizes="auto"
+        alt="https://imgbed.niebelungen-d.top/images/2021/02/04/1506992-20181208151250319-378942177.png"
+        title="https://imgbed.niebelungen-d.top/images/2021/02/04/1506992-20181208151250319-378942177.png" /></p>
+</li>
+<li>
+<p>整型&ndash;&gt;浮点数</p>
+<p>在整型转换成浮点数时，提供了三操作数指令，这里通常可以忽略第二个操作数，因为它的值只会影响高位字节，通常使用目的寄存器。</p>
+</li>
+</ul>
+<p><strong>运算操作</strong></p>
+<p>和整数运算操作不同，AVX浮点操作不能用立即数作为常数。编译器会为浮点常数分配和初始化存储空间，然后代码再从内存中读取这些值。比如以下代码</p>
+<p><strong>浮点数位级操作</strong></p>
+<p><strong>比较操作</strong></p>
+<h1 id="machine-level-programming-advanced-topics">Machine-Level ProgrammingⅤ: Advanced Topics</h1>
+<h2 id="linux的内存结构">Linux的内存结构：</h2>
+<ul>
+<li>Stack
+<ul>
+<li>8MB limit</li>
+</ul>
+</li>
+<li>Heap
+<ul>
+<li>Dynamically allocated as needed</li>
+<li><code>malloc</code>, <code>calloc</code>, <code>new</code></li>
+</ul>
+</li>
+<li>Data
+<ul>
+<li>statically allocated data</li>
+</ul>
+</li>
+<li>Text / Shared Libraries
+<ul>
+<li>read-only</li>
+<li>executable machine instructions</li>
+</ul>
+</li>
+</ul>
+<h2 id="buffer-overflow">Buffer overflow</h2>
+<h3 id="保护机制">保护机制</h3>
+<ul>
+<li>
+<p>ASLR</p>
+<p>栈地址随机化</p>
+</li>
+<li>
+<p>Canary</p>
+<p>金丝雀保护，栈破坏随机化</p>
+</li>
+<li>
+<p>NX</p>
+<p>限制可执行代码区域</p>
+</li>
+</ul>
+<p>ROP</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-01-25</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/csapp-lecture-05/" class="prev" rel="prev" title="CSAPP Lecture 05"><i class="fas fa-angle-left fa-fw"></i>CSAPP Lecture 05</a>
+            <a href="/posts/csapp-datalab/" class="next" rel="next" title="CSAPP Datalab">CSAPP Datalab<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.87.0">Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank">Niebelungen</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

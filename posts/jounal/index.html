@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Niebelungenのjournal - Niebelungen</title><meta name="Description" content=""><meta property="og:title" content="Niebelungenのjournal" />
+<meta property="og:description" content="普普通通的周报 Keep going, never stop. 続けて、止まらない。 Niebelungenのjournal 2021-3.1~3.7 Glibc-2.20-malloc review IDApython learning 学习了基础的MIPS指令与函数调用，使用IDApy" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/jounal/" /><meta property="og:image" content="http://example.org/favicon.png"/><meta property="article:section" content="posts" />
+
+
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/favicon.png"/>
+
+<meta name="twitter:title" content="Niebelungenのjournal"/>
+<meta name="twitter:description" content="普普通通的周报 Keep going, never stop. 続けて、止まらない。 Niebelungenのjournal 2021-3.1~3.7 Glibc-2.20-malloc review IDApython learning 学习了基础的MIPS指令与函数调用，使用IDApy"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/jounal/" /><link rel="prev" href="http://example.org/posts/cpp-exploitation-basic/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Niebelungenのjournal",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/jounal\/"
+        },"genre": "posts","keywords": "Journal","wordcount":  1586 ,
+        "url": "http:\/\/example.org\/posts\/jounal\/","publisher": {
+            "@type": "Organization",
+            "name": "Niebelungen"},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">目录</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Niebelungenのjournal</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-category">收录于 <a href="/categories/life/"><i class="far fa-folder fa-fw"></i>Life</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="0001-01-01">0001-01-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1586 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 4 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#2021-3137">2021-3.1~3.7</a></li>
+    <li><a href="#2021-38314">2021-3.8~3.14</a></li>
+    <li><a href="#2021-315321">2021-3.15~3.21</a></li>
+    <li><a href="#2021-322328">2021-3.22~3.28</a></li>
+    <li><a href="#2021-32944">2021-3.29~4.4</a></li>
+    <li><a href="#2021-45411">2021-4.5~4.11</a></li>
+    <li><a href="#2021-412418">2021-4.12~4.18</a></li>
+    <li><a href="#2021-419425">2021-4.19~4.25</a></li>
+    <li><a href="#2021-426502">2021-4.26~5.02</a></li>
+    <li><a href="#2021-503509">2021-5.03~5.09</a></li>
+    <li><a href="#2021-510516">2021-5.10~5.16</a></li>
+    <li><a href="#2021-517523">2021-5.17~5.23</a></li>
+    <li><a href="#2021-524530">2021-5.24~5.30</a></li>
+    <li><a href="#2021-531606">2021-5.31~6.06</a></li>
+    <li><a href="#2021-607613">2021-6.07~6.13</a></li>
+    <li><a href="#2021-614620">2021-6.14~6.20</a></li>
+    <li><a href="#2021-621627">2021-6.21~6.27</a></li>
+    <li><a href="#2021-628704">2021-6.28~7.04</a></li>
+    <li><a href="#2021-705711">2021-7.05~7.11</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><p>普普通通的周报</p>
+<p><strong>Keep going, never stop.</strong></p>
+<p><strong>続けて、止まらない。</strong></p>
+<h1 id="niebelungenのjournal">Niebelungenのjournal</h1>
+<h2 id="2021-3137">2021-3.1~3.7</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> Glibc-2.20-malloc review</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> IDApython learning</p>
+</li>
+</ul>
+<p>学习了基础的MIPS指令与函数调用，使用IDApython可以实现对敏感函数及其参数标识，但是参数溯源功能还是有很多的bug。下周继续学习ing</p>
+<h2 id="2021-38314">2021-3.8~3.14</h2>
+<ul>
+<li><i class="far fa-check-square fa-fw"></i> IDApython learning</li>
+<li><i class="far fa-check-square fa-fw"></i> 摸了NahamCon CTF</li>
+<li><i class="far fa-check-square fa-fw"></i> 摸了V&amp;N CTF</li>
+</ul>
+<p>大失败啊，一天做了两个easy，还是要刷题啊。</p>
+<h2 id="2021-315321">2021-3.15~3.21</h2>
+<ul>
+<li><i class="far fa-check-square fa-fw"></i> How2heap-Glibc-2.23</li>
+<li><i class="far fa-check-square fa-fw"></i> FIDL反编译层API学习</li>
+<li><i class="far fa-check-square fa-fw"></i> NepCTF</li>
+</ul>
+<p>自己的不足还是很多的，下周希望能投入更多的精力到做题上，多加练习。</p>
+<h2 id="2021-322328">2021-3.22~3.28</h2>
+<ul>
+<li><i class="far fa-check-square fa-fw"></i> How2heap-Glibc-2.27 &amp; Glibc-2.31</li>
+<li><i class="far fa-check-square fa-fw"></i> CodeQL 初学</li>
+</ul>
+<p>CodeQL很强，但是这次只是学了一些基本的语法和数据流。以后有机会再深入学习漏洞模式。做了一些PWN的练习题，但是很多都是已经掌握的利用方式，只能当成巩固了。</p>
+<p>给新生赛出了几个签到题，学习了一下gcc的保护选项。</p>
+<h2 id="2021-32944">2021-3.29~4.4</h2>
+<ul>
+<li><i class="far fa-check-square fa-fw"></i> Unix环境编程，对进程、线程和信号等重点学习了。</li>
+<li><i class="far fa-check-square fa-fw"></i> 虎符</li>
+<li><i class="far fa-check-square fa-fw"></i> 安恒三月赛</li>
+</ul>
+<p>现在打这种虎符ctf，对像我这样基础的pwn手来说很不友好😥，我没有一个深入的方向。Re逆向能力有待提升，要学习加密与解密。</p>
+<h2 id="2021-45411">2021-4.5~4.11</h2>
+<ul>
+<li><i class="far fa-check-square fa-fw"></i> 疯狂的刷题</li>
+<li><i class="far fa-check-square fa-fw"></i> angstromctf 2021碰到几个很有趣的思路</li>
+<li><i class="far fa-check-square fa-fw"></i> 复现了前几周没做出来的比赛题</li>
+<li><i class="far fa-check-square fa-fw"></i> 复现了一个HTB的wp（方班摸鱼），依然在研究能学到很多东西。</li>
+</ul>
+<p>天问的任务有点拉下了，最近还有很多的作业😥</p>
+<h2 id="2021-412418">2021-4.12~4.18</h2>
+<ul>
+<li><i class="far fa-check-square fa-fw"></i> 疯狂的刷题</li>
+<li><i class="far fa-check-square fa-fw"></i> 代码审计</li>
+<li><i class="far fa-check-square fa-fw"></i> python的垃圾回收机制</li>
+</ul>
+<p>代码审计的艺术yyds！</p>
+<h2 id="2021-419425">2021-4.19~4.25</h2>
+<ul>
+<li><i class="far fa-check-square fa-fw"></i> 疯狂的刷题</li>
+<li><i class="far fa-check-square fa-fw"></i> python的垃圾回收机制review</li>
+</ul>
+<p>？怎么感觉这周什么都没干？？多了两门课头大</p>
+<h2 id="2021-426502">2021-4.26~5.02</h2>
+<ul>
+<li><i class="far fa-check-square fa-fw"></i> 刷题</li>
+</ul>
+<p>摸鱼太狠了，已经忘了自己干过什么了~~</p>
+<p>听了一些学长的看法，如果想要直接就业的话，还是要尽早去实习。我总觉得我现在的技术能力并不知道会有什么公司要我。另外，越来越觉得CTF并不能打一辈子，还是要尽快转到漏洞挖掘的实战中。公司面试的时候都要求在CTF中取得一定成绩，现在我也是很想打出一定的成绩后再退役的，至少要进过线下。啊，要学的东西太多了（不想上学了呜呜呜~</p>
+<p>天问那边最近划水了，要尽快跟上。</p>
+<h2 id="2021-503509">2021-5.03~5.09</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 刷题</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 加入NaN</p>
+<p>带我的学长很多都去考研了，Kirin我也没怎么和他交流，问题怪不好意思的，现在只能慢慢摸索了</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 津门杯&amp;红帽杯</p>
+<p>第一次体会到一起做题的快乐，太爽了，师傅们都很棒！虽然没有进线下，电脑还进水了（借的电脑临时搭环境做题），但是rank37距离线下已经很近了，加油！</p>
+</li>
+</ul>
+<p>这周和下周是有很多考试，真的要死了~</p>
+<h2 id="2021-510516">2021-5.10~5.16</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 刷题</p>
+<p>简单的搭建了一个异构汇编的运行调试环境，还尝试了使用vscode ssh远程做题</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 参加国赛</p>
+</li>
+</ul>
+<p>题目比去年难了一点，阴间的堆风水，阴间的比赛时间（三张试卷？冲刺卷？宁搁这高考呢？</p>
+<h2 id="2021-517523">2021-5.17~5.23</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 三天复习算法</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 两天学完集合论与图论</p>
+<p>在学院<strong>极度合理</strong>的活动安排下，让我有了那么多的复习时间，真是太棒了！（什么垃圾，赶快爬好吗</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 搭建AFL源码调试环境</p>
+<p>开始阅读AFL源码了，电脑依旧坏，真是难受。现在看了<code>afl-gcc</code>的部分，代码写的条理很清晰。</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 暑期实习get</p>
+<p>没想到真的通过了，太好了，不是没人要了呜呜呜~</p>
+</li>
+</ul>
+<h2 id="2021-524530">2021-5.24~5.30</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 一周三次实验</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 春秋杯-战队考核</p>
+<p>虽然是考核，但是太难了根本没人做出来。。。</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> DASCTF-May</p>
+<p>安恒的月赛，两道基础的heap，ak了</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 调试fmt漏洞</p>
+</li>
+</ul>
+<p>挺过死亡考试周，摸鱼了（</p>
+<h2 id="2021-531606">2021-5.31~6.06</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> uCore-Tiny Kernel Learing</p>
+<p>sakura的任务罢了，虽然快要考试了，但是写内核这么酷的事谁能拒绝呢？（</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> NEWSCTF</p>
+<p>三道pwn题，baby_heap+fmt+orwheap，都是最近见过的思路，ak了</p>
+</li>
+</ul>
+<h2 id="2021-607613">2021-6.07~6.13</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 继续写内核</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 强网杯</p>
+<p>自闭了，简单题都没做出来。虽然都能找出来洞，但是利用思路却想不到，心态有点问题 : (</p>
+</li>
+</ul>
+<h2 id="2021-614620">2021-6.14~6.20</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 内核-lab2</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 国赛分区赛</p>
+<p>第一次AWD比赛，缺少很多经验，大部分的题目都是通过流量转发出来的，而自己能patch正确的很少</p>
+</li>
+</ul>
+<h2 id="2021-621627">2021-6.21~6.27</h2>
+<ul>
+<li><i class="far fa-check-square fa-fw"></i> 开始上班（xxx）</li>
+<li><i class="far fa-check-square fa-fw"></i> 准备考试周</li>
+</ul>
+<h2 id="2021-628704">2021-6.28~7.04</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> GKCTF</p>
+<p>简单的md5都没看出来</p>
+</li>
+</ul>
+<h2 id="2021-705711">2021-7.05~7.11</h2>
+<ul>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 0CTF</p>
+<p>一场很好的国际赛，看了两道简单题<code>abs8()</code>没看出来，也第一次听说了musl，现学源码写了一半的利用，可惜要考试搞不懂了。</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 准备教学课件</p>
+<p>与社团办了一个创新课，自己讲述二进制相关内容。</p>
+</li>
+<li>
+<p><i class="far fa-check-square fa-fw"></i> 摸鱼看了看ctfshow的比赛。</p>
+</li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 0001-01-01</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/journal/">Journal</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/cpp-exploitation-basic/" class="prev" rel="prev" title="C&#43;&#43; Exploitation Basic"><i class="fas fa-angle-left fa-fw"></i>C&#43;&#43; Exploitation Basic</a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.87.0">Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank">Niebelungen</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

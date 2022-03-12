@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>CSAPP Malloclab - Niebelungen</title><meta name="Description" content=""><meta property="og:title" content="CSAPP Malloclab" />
+<meta property="og:description" content="CSAPP-Malloclab" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/csapp-malloclab/" /><meta property="og:image" content="http://example.org/favicon.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-02-21T01:25:46+08:00" />
+<meta property="article:modified_time" content="2021-02-21T01:25:46+08:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/favicon.png"/>
+
+<meta name="twitter:title" content="CSAPP Malloclab"/>
+<meta name="twitter:description" content="CSAPP-Malloclab"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/csapp-malloclab/" /><link rel="prev" href="http://example.org/posts/csapp-cachelab/" /><link rel="next" href="http://example.org/posts/glibc-2-20-malloc%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "CSAPP Malloclab",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/csapp-malloclab\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  1806 ,
+        "url": "http:\/\/example.org\/posts\/csapp-malloclab\/","datePublished": "2021-02-21T01:25:46+08:00","dateModified": "2021-02-21T01:25:46+08:00","publisher": {
+            "@type": "Organization",
+            "name": "Niebelungen"},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">目录</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">CSAPP Malloclab</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-02-21">2021-02-21</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 1806 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 4 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#改进显式链表first-fit">改进：显式链表+first fit</a></li>
+    <li><a href="#改进分离链表first-fit">改进：分离链表+first fit</a></li>
+    <li><a href="#改进realloc">改进：realloc</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="csapp-malloclab">CSAPP-Malloclab</h1>
+<p>大致框架使用课本上的示例，补充一些宏定义。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cm">/* Basic constants and macros */</span>
+<span class="cp">#define WSIZE 4             </span><span class="cm">/* Word and header/footer size (bytes) */</span><span class="cp">
+</span><span class="cp">#define DSIZE 8             </span><span class="cm">/* Double word size (bytes) */</span><span class="cp">
+</span><span class="cp">#define CHUNKSIZE (1&lt;&lt;12)   </span><span class="cm">/* Extend heap by this amount (bytes) */</span><span class="cp">
+</span><span class="cp">#define MINBLOCKSIZE 16
+</span><span class="cp"></span>
+<span class="cp">#define MAX(x, y) ((x) &gt; (y) ? (x) : (y))
+</span><span class="cp"></span>
+<span class="cm">/* Pack a size and allocated bit into a word */</span>
+<span class="cp">#define PACK(size, alloc) ((size) | (alloc)) 
+</span><span class="cp"></span>
+<span class="cm">/* Read and write a word at address p */</span>
+<span class="cp">#define GET(p)      (*(unsigned int *)(p)) </span><span class="cm">/* read a word at address p */</span><span class="cp">
+</span><span class="cp">#define PUT(p, val) (*(unsigned int *)(p) = (val)) </span><span class="cm">/* write a word at address p */</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cp">#define GET_SIZE(p)     (GET(p) &amp; ~0x7) </span><span class="cm">/* read the size field from address p */</span><span class="cp">
+</span><span class="cp">#define GET_ALLOC(p)    (GET(p) &amp; 0x1) </span><span class="cm">/* read the alloc field from address p */</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cp">#define HDRP(bp) ((char*)(bp) - WSIZE) </span><span class="cm">/* given block ptr bp, compute address of its header */</span><span class="cp">
+</span><span class="cp">#define FTRP(bp) ((char*)(bp) + GET_SIZE(HDRP(bp)) - DSIZE) </span><span class="cm">/* given block ptr bp, compute address of its footer */</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cp">#define NEXT_BLKP(bp) ((char*)(bp) + GET_SIZE(HDRP(bp))) </span><span class="cm">/* given block ptr bp, compute address of next blocks */</span><span class="cp">
+</span><span class="cp">#define PREV_BLKP(bp) ((char*)(bp) - GET_SIZE((char*)(bp)-DSIZE)) </span><span class="cm">/* given block ptr bp, compute address of prev blocks */</span><span class="cp">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>此时，chunk的结构为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">chunk</span><span class="p">{</span>
+	<span class="kt">int</span> <span class="n">header</span><span class="p">;</span>			<span class="cm">/*header==footer*/</span>
+	<span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="n">size</span><span class="p">];</span>
+	<span class="kt">char</span> <span class="n">padding</span><span class="p">[</span><span class="n">align</span><span class="p">];</span>
+	<span class="kt">int</span> <span class="n">footer</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>书中实现了<code>mm_init</code>, <code>mm_malloc</code>, <code>mm_free</code>, <code>extend_heap</code>, <code>coalesce</code>, 根据书中的代码我们实现：
+<strong>mm_realloc</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">*</span><span class="nf">mm_realloc</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">new_ptr</span><span class="p">;</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">ptr</span><span class="o">==</span><span class="nb">NULL</span><span class="p">){</span>
+        <span class="n">new_ptr</span><span class="o">=</span><span class="n">mm_malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">new_ptr</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">new_ptr</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">size</span><span class="o">==</span><span class="mi">0</span><span class="p">){</span>
+        <span class="n">mm_free</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">size</span><span class="o">==</span><span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">ptr</span><span class="p">))){</span>
+        <span class="k">return</span> <span class="n">ptr</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>  
+        <span class="n">new_ptr</span><span class="o">=</span><span class="n">mm_malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">new_ptr</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="n">memcpy</span><span class="p">(</span><span class="n">new_ptr</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="o">-</span><span class="n">WSIZE</span><span class="p">);</span>
+        <span class="n">mm_free</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">new_ptr</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>place</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">void</span> <span class="nf">place</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">bp</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">asize</span><span class="p">){</span>
+    <span class="n">size_t</span> <span class="n">size</span><span class="o">=</span><span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">));</span>
+    <span class="n">PUT</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span><span class="n">PACK</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+    <span class="n">PUT</span><span class="p">(</span><span class="n">FTRP</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span><span class="n">PACK</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+    
+    <span class="n">split_block</span><span class="p">(</span><span class="n">bp</span><span class="p">,</span><span class="n">asize</span><span class="p">);</span>
+
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>split_block</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">void</span> <span class="nf">split_block</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">bp</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">asize</span><span class="p">){</span>
+    <span class="n">size_t</span> <span class="n">size</span> <span class="o">=</span><span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">));</span>
+    <span class="k">if</span><span class="p">((</span><span class="n">size</span><span class="o">-</span><span class="n">asize</span><span class="p">)</span><span class="o">&gt;=</span><span class="n">MINBLOCKSIZE</span><span class="p">){</span>
+        <span class="n">PUT</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span> <span class="n">PACK</span><span class="p">(</span><span class="n">asize</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+        <span class="n">PUT</span><span class="p">(</span><span class="n">FTRP</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span> <span class="n">PACK</span><span class="p">(</span><span class="n">asize</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+        <span class="n">bp</span> <span class="o">=</span> <span class="n">NEXT_BLKP</span><span class="p">(</span><span class="n">bp</span><span class="p">);</span>
+        <span class="n">PUT</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span> <span class="n">PACK</span><span class="p">((</span><span class="n">size</span><span class="o">-</span><span class="n">asize</span><span class="p">),</span><span class="mi">0</span><span class="p">));</span>
+        <span class="n">PUT</span><span class="p">(</span><span class="n">FTRP</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span><span class="n">PACK</span><span class="p">((</span><span class="n">size</span><span class="o">-</span><span class="n">asize</span><span class="p">),</span><span class="mi">0</span><span class="p">));</span>
+        <span class="n">coalesce</span><span class="p">(</span><span class="n">bp</span><span class="p">);</span>    
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>next_fit</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">void</span> <span class="o">*</span><span class="nf">next_fit</span><span class="p">(</span><span class="n">size_t</span> <span class="n">asize</span><span class="p">){</span>
+    <span class="kt">char</span><span class="o">*</span> <span class="n">bp</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span> <span class="n">bp</span> <span class="o">=</span> <span class="n">prev_listp</span><span class="p">;</span> <span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="n">bp</span> <span class="o">=</span> <span class="n">NEXT_BLKP</span><span class="p">(</span><span class="n">bp</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">GET_ALLOC</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="n">asize</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">prev_listp</span> <span class="o">=</span> <span class="n">bp</span><span class="p">;</span>
+            <span class="k">return</span> <span class="n">bp</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span> <span class="n">bp</span> <span class="o">=</span> <span class="n">heap_listp</span><span class="p">;</span> <span class="n">bp</span> <span class="o">!=</span> <span class="n">prev_listp</span><span class="p">;</span> <span class="n">bp</span> <span class="o">=</span> <span class="n">NEXT_BLKP</span><span class="p">(</span><span class="n">bp</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">GET_ALLOC</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="n">asize</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">prev_listp</span> <span class="o">=</span> <span class="n">bp</span><span class="p">;</span>
+            <span class="k">return</span> <span class="n">bp</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里使用的是隐式链表+next fit，得分：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">Results for mm malloc:
+trace  valid  util     ops      secs  Kops
+ 0       yes   91%    5694  0.001710  3329
+ 1       yes   92%    5848  0.000948  6166
+ 2       yes   95%    6648  0.002903  2290
+ 3       yes   97%    5380  0.003700  1454
+ 4       yes   66%   14400  0.000099146193
+ 5       yes   91%    4800  0.004307  1114
+ 6       yes   89%    4800  0.003500  1371
+ 7       yes   55%   12000  0.014687   817
+ 8       yes   51%   24000  0.007490  3204
+ 9       yes   27%   14401  0.048774   295
+10       yes   45%   14401  0.001818  7919
+Total          73%  112372  0.089937  1249
+
+Perf index = 44 (util) + 40 (thru) = 84/100
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="改进显式链表first-fit">改进：显式链表+first fit</h2>
+<p>最开始使用的是<code>first_fit</code>只有50+，改为<code>next_fit</code>之后达到了80+，在搜索的时候几乎是在遍历整个堆段，所以想到使用显示链表的方法来管理空闲chunk。
+修改free_chunk结构：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">chunk</span><span class="p">{</span>
+	<span class="kt">int</span> <span class="n">header</span><span class="p">;</span>			<span class="cm">/*header==footer*/</span>
+	<span class="n">chunk</span> <span class="o">*</span><span class="n">fd</span><span class="p">;</span>			<span class="cm">/*prev free chunk*/</span>
+	<span class="n">chunk</span> <span class="o">*</span><span class="n">bk</span><span class="p">;</span>			<span class="cm">/*next free chunk*/</span>
+	<span class="kt">int</span> <span class="n">footer</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>添加定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#define FD(bp)  ((char *)(bp))
+</span><span class="cp">#define BK(bp)  ((char *)(bp)+WSIZE)
+</span><span class="cp"></span>
+<span class="cp">#define SET_PTR(p,ptr)  (*(unsigned int *)(p) = (unsigned int)(ptr))
+</span><span class="cp"></span>
+<span class="cp">#define GET_NEXT(bp)    (*(char **)(BK(bp)))
+</span><span class="cp">#define GET_PREV(bp)    (*(char **)(bp)) 
+</span><span class="cp"></span>
+<span class="k">static</span> <span class="kt">char</span><span class="o">*</span> <span class="n">free_listp</span><span class="p">;</span>	<span class="c1">//manage all free chunk
+</span><span class="c1"></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">insert_freelist</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">bp</span><span class="p">);</span>	
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">remove_freelist</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">bp</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里的fd，bk与glibc中的malloc是相似的。
+<strong>insert_freelist</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">void</span> <span class="nf">insert_freelist</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">bp</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">bp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">free_listp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">free_listp</span> <span class="o">=</span> <span class="n">bp</span><span class="p">;</span>
+        <span class="n">SET_PTR</span><span class="p">(</span><span class="n">FD</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span><span class="nb">NULL</span><span class="p">);</span>       <span class="c1">//at the end of the list fd will be null;
+</span><span class="c1"></span>        <span class="n">SET_PTR</span><span class="p">(</span><span class="n">BK</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span><span class="nb">NULL</span><span class="p">);</span>       <span class="c1">//at the begin of the list bk will be null;
+</span><span class="c1"></span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="kt">void</span> <span class="o">*</span><span class="n">old</span><span class="o">=</span><span class="n">free_listp</span><span class="p">;</span>
+        <span class="n">free_listp</span> <span class="o">=</span> <span class="n">bp</span><span class="p">;</span>
+        <span class="n">SET_PTR</span><span class="p">(</span><span class="n">FD</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span><span class="n">old</span><span class="p">);</span>
+        <span class="n">SET_PTR</span><span class="p">(</span><span class="n">BK</span><span class="p">(</span><span class="n">bp</span><span class="p">),</span><span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">SET_PTR</span><span class="p">(</span><span class="n">BK</span><span class="p">(</span><span class="n">old</span><span class="p">),</span><span class="n">bp</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>remove_freelist</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">void</span> <span class="nf">remove_freelist</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">bp</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">GET_NEXT</span><span class="p">(</span><span class="n">bp</span><span class="p">)</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">GET_PREV</span><span class="p">(</span><span class="n">bp</span><span class="p">)</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">)</span>  <span class="cm">/* free_listp--&gt;xxx-&gt;bp--&gt;xxx */</span>
+        <span class="p">{</span>      
+            <span class="n">SET_PTR</span><span class="p">(</span><span class="n">FD</span><span class="p">(</span><span class="n">GET_NEXT</span><span class="p">(</span><span class="n">bp</span><span class="p">)),</span><span class="n">GET_PREV</span><span class="p">(</span><span class="n">bp</span><span class="p">));</span>
+            <span class="n">SET_PTR</span><span class="p">(</span><span class="n">BK</span><span class="p">(</span><span class="n">GET_PREV</span><span class="p">(</span><span class="n">bp</span><span class="p">)),</span><span class="n">GET_NEXT</span><span class="p">(</span><span class="n">bp</span><span class="p">));</span>
+        <span class="p">}</span>
+        <span class="k">else</span>                    <span class="cm">/* free_listp--&gt;xxx-&gt;bp */</span>
+        <span class="p">{</span>
+            <span class="n">SET_PTR</span><span class="p">(</span><span class="n">FD</span><span class="p">(</span><span class="n">GET_NEXT</span><span class="p">(</span><span class="n">bp</span><span class="p">)),</span><span class="nb">NULL</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">GET_PREV</span><span class="p">(</span><span class="n">bp</span><span class="p">)</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">)</span>  <span class="cm">/* free_listp--&gt;bp--&gt;xxx */</span>
+        <span class="p">{</span>
+            <span class="n">SET_PTR</span><span class="p">(</span><span class="n">BK</span><span class="p">(</span><span class="n">GET_PREV</span><span class="p">(</span><span class="n">bp</span><span class="p">)),</span><span class="nb">NULL</span><span class="p">);</span>
+            <span class="n">free_listp</span><span class="o">=</span><span class="n">GET_PREV</span><span class="p">(</span><span class="n">bp</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span>                    <span class="cm">/* free_listp--&gt;bp */</span>
+        <span class="p">{</span>
+            <span class="n">free_listp</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>first_fit</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">void</span> <span class="o">*</span><span class="nf">find_fit</span><span class="p">(</span><span class="n">size_t</span> <span class="n">asize</span><span class="p">)</span>
+<span class="p">{</span>  
+    <span class="kt">void</span> <span class="o">*</span><span class="n">bp</span><span class="o">=</span><span class="n">free_listp</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(;</span><span class="n">bp</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">;</span><span class="n">bp</span><span class="o">=</span><span class="n">GET_PREV</span><span class="p">(</span><span class="n">bp</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">asize</span><span class="o">&lt;=</span><span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="n">bp</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>但是分数没有变化。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">Results for mm malloc:
+trace  valid  util     ops      secs  Kops
+ 0       yes   89%    5694  0.000159 35789
+ 1       yes   92%    5848  0.000106 55326
+ 2       yes   94%    6648  0.000232 28717
+ 3       yes   96%    5380  0.000177 30361
+ 4       yes  100%   14400  0.000095151739
+ 5       yes   88%    4800  0.000379 12668
+ 6       yes   85%    4800  0.000507  9471
+ 7       yes   55%   12000  0.004043  2968
+ 8       yes   51%   24000  0.002807  8549
+ 9       yes   26%   14401  0.058122   248
+10       yes   34%   14401  0.002460  5854
+Total          74%  112372  0.069087  1627
+
+Perf index = 44 (util) + 40 (thru) = 84/100
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="改进分离链表first-fit">改进：分离链表+first fit</h2>
+<p>依据2的次幂分为16个组：{1}，{2}，{3，4}，{5~8}，…，{1025~2048}，{2049~4096}&hellip;
+修改宏定义：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#define MAX_FREE_LIST 16
+</span><span class="cp"></span>
+<span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">free_listp</span><span class="p">[</span><span class="n">MAX_FREE_LIST</span><span class="p">];</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">insert_freelist</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">bp</span><span class="p">,</span><span class="n">size_t</span> <span class="n">size</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>first_fit</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">void</span> <span class="o">*</span><span class="nf">first_fit</span><span class="p">(</span><span class="n">size_t</span> <span class="n">asize</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">index</span><span class="o">=</span><span class="n">free_index</span><span class="p">(</span><span class="n">asize</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">bp</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">index</span><span class="o">&lt;</span><span class="n">MAX_FREE_LIST</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">bp</span><span class="o">=</span><span class="n">free_listp</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+        <span class="k">while</span><span class="p">((</span><span class="n">bp</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">)</span><span class="o">&amp;&amp;</span><span class="p">(</span><span class="n">asize</span><span class="o">&gt;</span><span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">bp</span><span class="p">))))</span>
+        <span class="p">{</span>
+            <span class="n">bp</span> <span class="o">=</span> <span class="n">GET_PREV</span><span class="p">(</span><span class="n">bp</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">bp</span><span class="o">!=</span><span class="nb">NULL</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">bp</span><span class="p">;</span>
+        <span class="n">index</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+    
+    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>free_index</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">int</span> <span class="nf">free_index</span><span class="p">(</span><span class="n">size_t</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">((</span><span class="n">index</span><span class="o">&lt;</span><span class="n">MAX_FREE_LIST</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">size</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">size</span><span class="o">&gt;&gt;=</span><span class="mi">1</span><span class="p">;</span>
+            <span class="n">index</span><span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+            <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">index</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>此版得分：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">trace  valid  util     ops      secs  Kops
+ 0       yes   98%    5694  0.000244 23307
+ 1       yes   97%    5848  0.000362 16168
+ 2       yes   96%    6648  0.000287 23156
+ 3       yes   98%    5380  0.000518 10386
+ 4       yes  100%   14400  0.000306 47105
+ 5       yes   93%    4800  0.000338 14189
+ 6       yes   90%    4800  0.000517  9283
+ 7       yes   55%   12000  0.000311 38598
+ 8       yes   51%   24000  0.000735 32666
+ 9       yes   28%   14401  0.058034   248
+10       yes   28%   14401  0.002643  5448
+Total          76%  112372  0.064295  1748
+
+Perf index = 46 (util) + 40 (thru) = 86/100
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="改进realloc">改进：realloc</h2>
+<p>在之前的版本中，<code>realloc</code>都依赖了<code>malloc</code>和<code>free</code>函数，实现很暴力。在改进中，若当前块的后一个块是free且相加后的大小满足需求就可以进行合并。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">*</span><span class="nf">mm_realloc</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">void</span> <span class="o">*</span><span class="n">new_ptr</span><span class="p">;</span>
+    <span class="n">size_t</span> <span class="n">asize</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">ptr</span><span class="o">==</span><span class="nb">NULL</span><span class="p">){</span>
+        <span class="n">new_ptr</span><span class="o">=</span><span class="n">mm_malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">new_ptr</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">new_ptr</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">size</span><span class="o">==</span><span class="mi">0</span><span class="p">){</span>
+        <span class="n">mm_free</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">size</span> <span class="o">&lt;=</span> <span class="n">DSIZE</span><span class="p">)</span>
+        <span class="n">asize</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">DSIZE</span><span class="p">;</span>
+    <span class="k">else</span>
+        <span class="n">asize</span> <span class="o">=</span> <span class="n">ALIGN</span><span class="p">(</span><span class="n">size</span> <span class="o">+</span> <span class="n">DSIZE</span><span class="p">);</span>
+    <span class="n">size_t</span> <span class="n">oldsize</span><span class="o">=</span><span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">ptr</span><span class="p">));</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">asize</span><span class="o">&lt;=</span><span class="n">oldsize</span><span class="p">){</span>
+        <span class="n">place</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span><span class="n">asize</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">ptr</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+        <span class="n">size_t</span> <span class="n">next_alloc</span><span class="o">=</span><span class="n">GET_ALLOC</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">NEXT_BLKP</span><span class="p">(</span><span class="n">ptr</span><span class="p">)));</span>
+        <span class="n">size_t</span> <span class="n">new_size</span><span class="p">;</span>
+        <span class="n">new_size</span><span class="o">=</span><span class="n">GET_SIZE</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">NEXT_BLKP</span><span class="p">(</span><span class="n">ptr</span><span class="p">)))</span><span class="o">+</span><span class="n">oldsize</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">next_alloc</span><span class="o">&amp;&amp;</span><span class="p">(</span><span class="n">asize</span><span class="o">&lt;=</span><span class="n">new_size</span><span class="p">))</span> <span class="c1">//next is free
+</span><span class="c1"></span>        <span class="p">{</span>
+            <span class="n">remove_freelist</span><span class="p">(</span><span class="n">NEXT_BLKP</span><span class="p">(</span><span class="n">ptr</span><span class="p">));</span>
+            <span class="n">PUT</span><span class="p">(</span><span class="n">HDRP</span><span class="p">(</span><span class="n">ptr</span><span class="p">),</span> <span class="n">PACK</span><span class="p">(</span><span class="n">new_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+            <span class="n">PUT</span><span class="p">(</span><span class="n">FTRP</span><span class="p">(</span><span class="n">ptr</span><span class="p">),</span> <span class="n">PACK</span><span class="p">(</span><span class="n">new_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+            <span class="k">return</span> <span class="n">ptr</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+            <span class="n">new_ptr</span><span class="o">=</span><span class="n">mm_malloc</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">new_ptr</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+                <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+            <span class="n">memcpy</span><span class="p">(</span><span class="n">new_ptr</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="o">-</span><span class="n">WSIZE</span><span class="p">);</span>
+            <span class="n">mm_free</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+            <span class="k">return</span> <span class="n">new_ptr</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里我认为合并后可以再次细化进行分割，但是分割后分数反而低了（黑人？？？.jpg）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">Results for mm malloc:
+trace  valid  util     ops      secs  Kops
+ 0       yes   98%    5694  0.000216 26361
+ 1       yes   97%    5848  0.000214 27340
+ 2       yes   96%    6648  0.000308 21556
+ 3       yes   98%    5380  0.000197 27365
+ 4       yes  100%   14400  0.000250 57554
+ 5       yes   93%    4800  0.000344 13970
+ 6       yes   90%    4800  0.000310 15469
+ 7       yes   55%   12000  0.000334 35907
+ 8       yes   51%   24000  0.000761 31521
+ 9       yes   99%   14401  0.000260 55367
+10       yes   57%   14401  0.000234 61464
+Total          85%  112372  0.003429 32771
+
+Perf index = 51 (util) + 40 (thru) = 91/100
+</code></pre></td></tr></table>
+</div>
+</div><p>目前分数最高的一版。</p></div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-02-21</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/csapp-cachelab/" class="prev" rel="prev" title="CSAPP Cachelab"><i class="fas fa-angle-left fa-fw"></i>CSAPP Cachelab</a>
+            <a href="/posts/glibc-2-20-malloc%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="next" rel="next" title="Glibc 2 20 Malloc源码分析">Glibc 2 20 Malloc源码分析<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.87.0">Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank">Niebelungen</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

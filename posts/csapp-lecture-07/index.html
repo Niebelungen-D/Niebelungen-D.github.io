@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>CSAPP Lecture 07 - Niebelungen</title><meta name="Description" content=""><meta property="og:title" content="CSAPP Lecture 07" />
+<meta property="og:description" content="Lecture 07: Cache Memories" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/csapp-lecture-07/" /><meta property="og:image" content="http://example.org/favicon.png"/><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-02-13T00:25:43+08:00" />
+<meta property="article:modified_time" content="2021-02-13T00:25:43+08:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://example.org/favicon.png"/>
+
+<meta name="twitter:title" content="CSAPP Lecture 07"/>
+<meta name="twitter:description" content="Lecture 07: Cache Memories"/>
+<meta name="application-name" content="Niebelungen">
+<meta name="apple-mobile-web-app-title" content="Niebelungen"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/csapp-lecture-07/" /><link rel="prev" href="http://example.org/posts/challenges-100-week-6/" /><link rel="next" href="http://example.org/posts/csapp-lecture-08/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "CSAPP Lecture 07",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/csapp-lecture-07\/"
+        },"genre": "posts","keywords": "Pwn","wordcount":  2456 ,
+        "url": "http:\/\/example.org\/posts\/csapp-lecture-07\/","datePublished": "2021-02-13T00:25:43+08:00","dateModified": "2021-02-13T00:25:43+08:00","publisher": {
+            "@type": "Organization",
+            "name": "Niebelungen"},"author": {
+                "@type": "Person",
+                "name": "Niebelungen"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Niebelungen">Niebelungen</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> Posts </a><a class="menu-item" href="/tags/"> Tags </a><a class="menu-item" href="/categories/"> Categories </a><a class="menu-item" href="/about/"> About </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Niebelungen">Niebelungen</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><a class="menu-item" href="/posts/" title="">Posts</a><a class="menu-item" href="/tags/" title="">Tags</a><a class="menu-item" href="/categories/" title="">Categories</a><a class="menu-item" href="/about/" title="">About</a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">目录</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">CSAPP Lecture 07</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel=" author" class="author"><i class="fas fa-user-circle fa-fw"></i>Niebelungen</a></span>&nbsp;<span class="post-category">收录于 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-02-13">2021-02-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 2456 字&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 5 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#高速缓存存储器">高速缓存存储器</a>
+      <ul>
+        <li><a href="#通用的高速缓存存储器组织结构">通用的高速缓存存储器组织结构</a></li>
+        <li><a href="#直接映射高速缓存single-blockline-per-set">直接映射高速缓存（single block/line per set）</a></li>
+        <li><a href="#组相联高速缓存e-way-set-associative-cache-or-e-blockslines-per-set">组相联高速缓存（E-way Set-Associative Cache or E blocks/lines per set）</a></li>
+        <li><a href="#全相联高速缓存">全相联高速缓存</a></li>
+        <li><a href="#写操作">写操作</a></li>
+        <li><a href="#真实高速缓存结构">真实高速缓存结构</a></li>
+        <li><a href="#参数对性能的影响">参数对性能的影响</a></li>
+      </ul>
+    </li>
+    <li><a href="#改善程序">改善程序</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="lecture-07-cache-memories">Lecture 07: Cache Memories</h1>
+<h2 id="高速缓存存储器">高速缓存存储器</h2>
+<h3 id="通用的高速缓存存储器组织结构">通用的高速缓存存储器组织结构</h3>
+<p>较早期的计算机系统的存储器层次结构只有三层：CPU寄存器、主存和磁盘，但是随着CPU的发展，使得主存和CPU之间的读取速度逐渐拉大，由此在CPU和主存之间插入一个小而快速的SRAM高速缓存存储器，称为<strong>L1高速缓存</strong>，随着后续的发展，又增加了<strong>L2高速缓存</strong>和<strong>L3高速缓存</strong>。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://imgbed.niebelungen-d.top/images/2021/02/13/9fooj.jpg"
+        data-srcset="https://imgbed.niebelungen-d.top/images/2021/02/13/9fooj.jpg, https://imgbed.niebelungen-d.top/images/2021/02/13/9fooj.jpg 1.5x, https://imgbed.niebelungen-d.top/images/2021/02/13/9fooj.jpg 2x"
+        data-sizes="auto"
+        alt="https://imgbed.niebelungen-d.top/images/2021/02/13/9fooj.jpg"
+        title="https://imgbed.niebelungen-d.top/images/2021/02/13/9fooj.jpg" /></p>
+<p>考虑一个计算机系统，其中每个存储器地址有 m 位，形成 M=2mM=2m 个不同的地址。这样一个机器的高速缓存被组织成一个有 S=2sS=2s 个高速缓存组（cache set）的数组。每个组包含 E 个<strong>高速缓存行（cache line）</strong>。每个行是由一个 B=2bB=2b 字节的<strong>数据块（block）<strong>组成的，一个</strong>有效位（valid bit）<strong>指明这个行是否包含有意义的信息（为了方便），还有 t = m-(b+s) 个</strong>标记位（tag bit）</strong>（是当前块的内存地址的位的一个子集），它们唯一地标识存储在这个高速缓存行中的块。该高速缓存的结构可以通过元组<code>(S, E, B, m)</code>来描述，且容量C为所有块的大小之和，$C=S<em>E</em>B$。</p>
+<p>参数 S 和 B 将 m 个地址位分为了三个字段。</p>
+<ul>
+<li>地址 A 中有 s 个组索引位是一个到 S 个组的数组的索引，是一个无符号整数。</li>
+<li>地址 A 中的 t 个标记位告诉我们这个组中的哪一行包含这个字。当且仅当设置了有效位并且该行的标记位与地址 A 中的标记位相匹配时，组中的这一行才包含这个字。(Valid bits are also used in the context of multiprocessors)</li>
+<li>一旦我们在由组索引标识的组中定位了由标号所标识的行，那么 b 个块偏移位给出了 B 个字节的数据块中的字偏移。</li>
+</ul>
+<h3 id="直接映射高速缓存single-blockline-per-set">直接映射高速缓存（single block/line per set）</h3>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://imgbed.niebelungen-d.top/images/2021/02/13/0u9ml.jpg"
+        data-srcset="https://imgbed.niebelungen-d.top/images/2021/02/13/0u9ml.jpg, https://imgbed.niebelungen-d.top/images/2021/02/13/0u9ml.jpg 1.5x, https://imgbed.niebelungen-d.top/images/2021/02/13/0u9ml.jpg 2x"
+        data-sizes="auto"
+        alt="https://imgbed.niebelungen-d.top/images/2021/02/13/0u9ml.jpg"
+        title="https://imgbed.niebelungen-d.top/images/2021/02/13/0u9ml.jpg" /></p>
+<p>当E=1 时，高速缓存称为<strong>直接映射高速缓存（Direct-mapped Cache）</strong>，每个高速缓存组中只含有一个高速缓存行。</p>
+<ul>
+<li>
+<p>组选择</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://imgbed.niebelungen-d.top/images/2021/02/13/h30cu.jpg"
+        data-srcset="https://imgbed.niebelungen-d.top/images/2021/02/13/h30cu.jpg, https://imgbed.niebelungen-d.top/images/2021/02/13/h30cu.jpg 1.5x, https://imgbed.niebelungen-d.top/images/2021/02/13/h30cu.jpg 2x"
+        data-sizes="auto"
+        alt="https://imgbed.niebelungen-d.top/images/2021/02/13/h30cu.jpg"
+        title="https://imgbed.niebelungen-d.top/images/2021/02/13/h30cu.jpg" /></p>
+</li>
+<li>
+<p>行匹配</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://imgbed.niebelungen-d.top/images/2021/02/13/hnx69.jpg"
+        data-srcset="https://imgbed.niebelungen-d.top/images/2021/02/13/hnx69.jpg, https://imgbed.niebelungen-d.top/images/2021/02/13/hnx69.jpg 1.5x, https://imgbed.niebelungen-d.top/images/2021/02/13/hnx69.jpg 2x"
+        data-sizes="auto"
+        alt="https://imgbed.niebelungen-d.top/images/2021/02/13/hnx69.jpg"
+        title="https://imgbed.niebelungen-d.top/images/2021/02/13/hnx69.jpg" /></p>
+</li>
+<li>
+<p>字抽取</p>
+<p>如果找到了对应的高速缓存行，则可以将b位表示为无符号数作为块偏移量，得到对应位置的字。最后，如果不命中则进行行替换，需要驱逐出一个现存的行。</p>
+</li>
+</ul>
+<p>x 与 y 块之间的<strong>抖动（thrash）</strong>，即高速缓存反复地加载和驱逐相同的高速缓存块的组。</p>
+<h3 id="组相联高速缓存e-way-set-associative-cache-or-e-blockslines-per-set">组相联高速缓存（E-way Set-Associative Cache or E blocks/lines per set）</h3>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://imgbed.niebelungen-d.top/images/2021/02/13/bbzww.jpg"
+        data-srcset="https://imgbed.niebelungen-d.top/images/2021/02/13/bbzww.jpg, https://imgbed.niebelungen-d.top/images/2021/02/13/bbzww.jpg 1.5x, https://imgbed.niebelungen-d.top/images/2021/02/13/bbzww.jpg 2x"
+        data-sizes="auto"
+        alt="https://imgbed.niebelungen-d.top/images/2021/02/13/bbzww.jpg"
+        title="https://imgbed.niebelungen-d.top/images/2021/02/13/bbzww.jpg" /></p>
+<p>直接映射高速缓存的冲突不命中是由于每个高速缓存组中只有一个高速缓存行，所以扩大E的值，当$1&lt;E&lt;C/B$ 时，称为<strong>E路组相联高速缓存（Set Associative Cache）</strong>，此时需要额外的硬件逻辑来进行行匹配，所以更加昂贵。（$E&lt;C/B$即要求$S&gt;1$)</p>
+<p>当缓存不命中时需要进行缓存行替换，如果对应的高速缓存组中有空的高速缓存行，则直接将其保存到空行中。但是如果没有空行，就要考虑合适的<strong>替换策略</strong>：</p>
+<ul>
+<li>最简单的替换策略是随机选择要替换的行</li>
+<li>**最不常使用（Least-Frequently-Used，LFU）策略：**替换过去某个时间窗口内引用次数最少的一行。</li>
+<li>**最近最少使用（Least-Recently-Used，LRU）策略：**替换最后一次访问时间最久远的那一行</li>
+</ul>
+<h3 id="全相联高速缓存">全相联高速缓存</h3>
+<p>**全相联高速缓存（Full Associative Cache）**是用一个包含所有高速缓存行的组组成的，其中$E=C/B$ ，即$S=1$ 。</p>
+<p>由于全相联高速缓存只有一个组，所以不包含组索引编码</p>
+<h3 id="写操作">写操作</h3>
+<p>当CPU想要对地址A进行写操作时，会通过地址A判断是否缓存了该地址，如果缓存了称为<strong>写命中（Write Hit）</strong>，否则称为<strong>写不命中（Write Miss）</strong>。</p>
+<ul>
+<li>
+<p>**写命中：**高速缓存会先更新缓存的副本，然后可以采取不同方法更新下一层的副本</p>
+</li>
+<li>
+<ul>
+<li>**直写（Write-Though）：**立即更新下一层的副本值。缺点是每次写都会引起总线流量。</li>
+<li><strong>写回（Write-Back）：<strong>为每个高速缓存行维护一个</strong>修改位（Dirty Bit）</strong>，表明这个高速缓存块是否被修改。当被修改的高速缓存块被驱逐时，会查看修改位，判断该块是否被修改，只有被修改才会更新下一层的副本值。能够显著减少总线流量，但是复杂性高。</li>
+</ul>
+</li>
+<li>
+<p><strong>写不命中：</strong></p>
+</li>
+<li>
+<ul>
+<li>**写不分配（Not-Write-Allocate）：**直接将字写到下一层中。</li>
+<li>**写分配（Write-Allocate）：**加载相应的下一层的块到当前层的高速缓存中，然后更新当前高速缓存块。得益于空间局部性，进行一次写分配后，下一次有较高几率会写命中，但是缺点是每次写不命中就要将块从第一层向上传输。</li>
+</ul>
+</li>
+</ul>
+<h3 id="真实高速缓存结构">真实高速缓存结构</h3>
+<p>可以将高速缓存分成以下几种：</p>
+<ul>
+<li>**i-cache：**只保存指令的高速缓存</li>
+<li>**d-cache：**只保存程序数据的高速缓存</li>
+<li>**Unified Cache：**即能保存指令，也能保存程序数据的高速缓存</li>
+</ul>
+<h3 id="参数对性能的影响">参数对性能的影响</h3>
+<p>衡量高速缓存的指标有：</p>
+<ul>
+<li>**命中率（Hit Rate）：**内存引用命中的比率，<code>命中数量/引用数量</code>。</li>
+<li>**不命中率（Miss Rate）：**内存引用不命中的比率，<code>不命中数量/引用数量</code>。通常，L1高速缓存为3~10%，L2高速缓存为&lt;1%。</li>
+<li><strong>命中时间（Hit Time）：</strong> 从高速缓存传输一个字到CPU的时间，包括组选择、行匹配和字选择时间。通常，L1高速缓存需要4个时钟周期，L2高速缓存需要10个时钟周期。</li>
+<li>**不命中处罚（Miss Penalty）：**当缓存不命中时，要从下一层的存储结构中传输对应块到当前层中，需要额外的时间（不包含命中时间）。通常，主存需要50~200个时钟周期。</li>
+</ul>
+<p>想要编写高速缓存友好（Cache Friendly）的代码，<strong>基本方法为：</strong></p>
+<ul>
+<li>让最常见的情况运行得快，将注意力集中在核心函数的循环中</li>
+<li>尽可能减少每个循环内部的缓存不命中，可以对局部变量反复引用，因为编译器会将其保存到寄存器中，其他的变量最好使用步长为1的引用模式。</li>
+</ul>
+<p>之后就是大段的数据分析不同的参数对性能的影响，这里最重要的一点是命中率，命中和不命中两者对性能影响很大，比如99%命中率的性能会比97%命中率高两倍。</p>
+<h2 id="改善程序">改善程序</h2>
+<p><strong>重新排列循环来改善空间局部性</strong></p>
+<p>对循环重排列，来提高空间局部性，增加命中率。</p>
+<p><strong>使用分块来提高时间局部性</strong></p>
+<p>分块的主要思想是将一个程序中的数据结构组织成大的<strong>片（Chunk）</strong>，使得能够将一个片加载到L1高速缓存中，并在这个偏重进行读写。分块降低不命中率是因为加载一个块后，就反复使用该块，提高了空间局部性。</p></div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2021-02-13</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/challenges-100-week-6/" class="prev" rel="prev" title="Challenges 100 Week 6"><i class="fas fa-angle-left fa-fw"></i>Challenges 100 Week 6</a>
+            <a href="/posts/csapp-lecture-08/" class="next" rel="next" title="CSAPP Lecture 08">CSAPP Lecture 08<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.87.0">Hugo</a> 强力驱动 | 主题 - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank">Niebelungen</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":100},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

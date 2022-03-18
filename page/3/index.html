@@ -122,6 +122,13 @@
         alt="/logo.jpg"
         title="/logo.jpg" height="6rem" width="6rem"></a></div><h1 class="home-title">Niebelungen</h1><h2 class="home-subtitle">while (i &lt; you) i&#43;&#43;</h2><div class="links"><a href="https://github.com/Niebelungen-D" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://twitter.com/Niebelungen10" title="Twitter" target="_blank" rel="noopener noreffer me"><i class="fab fa-twitter fa-fw"></i></a><a href="mailto:NiebelungenOne@outlook.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/ucore-lab-5/">uCore-lab-5</a>
+    </h1><div class="post-meta">
+        <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
+        </span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-12-14">2021-12-14</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content">练习0在idt_init中添加 1 SETGATE(idt[T_SYSCALL], 0, GD_KTEXT, __vectors[T_SYSCALL], DPL_USER); 修改定时器中断： 1 2 3 4 5 6 ticks ++; if (ticks % TICK_NUM == 0) { assert(current != NULL); current-&gt;need_resched = 1; // print_ticks(); } 在alloc_proc中多出了PC</div><div class="post-footer">
+        <a href="/ucore-lab-5/">阅读全文</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/ucore-lab-4/">uCore-lab-4</a>
     </h1><div class="post-meta">
         <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
@@ -163,14 +170,6 @@
         </span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-07-10">2021-07-10</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content"><p>在正式开始写代码之前，我们先看看，整个内存管理的框架</p>
 <p>参考：<a href="https://jishuin.proginn.com/p/763bfbd248c0" target="_blank" rel="noopener noreffer">内存管理迷雾</a></p></div><div class="post-footer">
         <a href="/ucore-lab-2/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/ucore-lab-1/">UCore Lab 1</a>
-    </h1><div class="post-meta">
-        <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
-        </span>&nbsp;<span class="post-publish">发布于 <time datetime="2021-07-10">2021-07-10</time></span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div><div class="content"><h1 id="启动" class="headerLink">
-    <a href="#%e5%90%af%e5%8a%a8" class="header-mark"></a>启动</h1></div><div class="post-footer">
-        <a href="/ucore-lab-1/">阅读全文</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/pwn/">Pwn</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">

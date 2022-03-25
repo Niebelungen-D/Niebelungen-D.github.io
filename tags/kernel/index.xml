@@ -9,7 +9,7 @@
     <pubDate>Fri, 18 Mar 2022 16:09:07 &#43;0800</pubDate><author>
         <name>Niebelungen</name>
     </author><guid>http://example.org/corctf2021-msg_msg/</guid>
-    <description><![CDATA[在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如何leak内核地址信息。在offic]]></description>
+    <description><![CDATA[Writeup msg_msg在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如何leak内核地址信]]></description>
 </item><item>
     <title>SECCON2021-kone_gadget</title>
     <link>http://example.org/seccon2021-kone-gadget/</link>

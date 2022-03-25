@@ -1,11 +1,13 @@
 # CorCTF2021 Msg_msg
 
 
+# Writeup msg_msg
+
 在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如何leak内核地址信息。在official writep中提到了msg_msg可以leak。所以我就去找了相关的资料，发现了这两个题目 `corCTF2021` 的 `Fire-of-Salvation` 和 `Wall-of-Perdition` 。这两个题目是一个系列，前者为简单模式，后者为困难模式。比赛中为零解，作者在博客中使用 `msg_msg` 结构构造了内核任意地址读写原语。
 
 题目Github仓库：
 
-[corCTF-2021-public-challenge-archive/pwn](https://github.com/Crusaders-of-Rust/corCTF-2021-public-challenge-archive/tree/main/pwn)
+[corCTF-2021-public-challenge-archive/pwn at main · Crusaders-of-Rust/corCTF-2021-public-challenge-archive](https://github.com/Crusaders-of-Rust/corCTF-2021-public-challenge-archive/tree/main/pwn)
 
 # 程序分析
 
@@ -84,7 +86,7 @@ SMEP, SMAP, and KPTI are of course on. Note that this is an easier variation of 
 
 # 内核IPC —— `msgsnd()`与`msgrcv()`源码分析
 
-**介绍**：内核提供了两个syscall来进行IPC通信， [msgsnd()](https://linux.die.net/man/2/msgsnd) 和 [msgrcv()](https://linux.die.net/man/2/msgrcv)，内核消息包含两个部分，消息头 [msg_msg](https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9) 结构和紧跟的消息数据。长度从`kmalloc-64` 到 `kmalloc-4096`。消息头 [msg_msg](https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9) 结构如下所示。
+**介绍**：内核提供了两个syscall来进行IPC通信， [msgsnd()](https://linux.die.net/man/2/msgsnd) 和 [msgrcv()](https://linux.die.net/man/2/msgrcv)，内核消息包含两个部分，消息头 [msg_msg](https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9) 结构和紧跟的消息数据。长度从`kmalloc-64` 到 `kmalloc-4096`。消息头 [msg_msg](https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9) 结构如下所示。
 
 ```c
 struct msg_msg {
@@ -99,7 +101,7 @@ struct msg_msg {
 
 ## `msgsnd()` 数据发送
 
-**总体流程**：当调用 [msgsnd()](https://linux.die.net/man/2/msgsnd) 来发送消息时，调用 [msgsnd()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L966) -> [ksys_msgsnd()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L953) -> [do_msgsnd()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L840) -> [load_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84) -> [alloc_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L46) 来分配消息头和消息数据，然后调用 [load_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84) -> `copy_from_user()` 来将用户数据拷贝进内核。
+**总体流程**：当调用 [msgsnd()](https://linux.die.net/man/2/msgsnd) 来发送消息时，调用 [msgsnd()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L966) -> [ksys_msgsnd()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L953) -> [do_msgsnd()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L840) -> [load_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84) -> [alloc_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L46) 来分配消息头和消息数据，然后调用 [load_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84) -> `copy_from_user()` 来将用户数据拷贝进内核。
 
 重点看一下内存的分配：
 
@@ -143,15 +145,15 @@ out_err:
 }
 ```
 
-如果消息长度超过0xfd0，则分段存储，采用单链表连接，第1个称为消息头，用 [msg_msg](https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9) 结构存储；第2、3个称为segment，用 [msg_msgseg](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L37) 结构存储。消息的最大长度 `/proc/sys/kernel/msgmax`
+如果消息长度超过0xfd0，则分段存储，采用单链表连接，第1个称为消息头，用 [msg_msg](https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9) 结构存储；第2、3个称为segment，用 [msg_msgseg](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L37) 结构存储。消息的最大长度 `/proc/sys/kernel/msgmax`
 确定， 默认大小为 8192 字节，所以最多链接3个成员。
 
-![Untitled](https://gitee.com/slientNoir/image-bed/raw/master/image-bed/2022-03-18-671a9c7d13c7643329792cf53fe3e889-2bce7e.png)
+![Untitled](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-671a9c7d13c7643329792cf53fe3e889.png)
 
-## `msgsrv()` 数据接收
+## `msgsrv()` 数据接收
 
-**总体流程**： [msgrcv()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1265) -> [ksys_msgrcv()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1256) -> [do_msgrcv()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1090) -> [find_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066) & [do_msg_fill()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018) & [free_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L169)。 调用 [find_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066) 来定位正确的消息，将消息从队列中unlink，再调用 [do_msg_fill()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018) -> [store_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L150)
- 来将内核数据拷贝到用户空间，最后调用 [free_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L169) 释放消息。
+**总体流程**： [msgrcv()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1265) -> [ksys_msgrcv()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1256) -> [do_msgrcv()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1090) -> [find_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066) & [do_msg_fill()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018) & [free_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L169)。 调用 [find_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066) 来定位正确的消息，将消息从队列中unlink，再调用 [do_msg_fill()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018) -> [store_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L150)
+ 来将内核数据拷贝到用户空间，最后调用 [free_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L169) 释放消息。
 
 ```c
 static long do_msgrcv(int msqid, void __user *buf, size_t bufsz, long msgtyp, int msgflg,
@@ -217,7 +219,7 @@ out_unlock1:
 
 如果发现了合适的消息，会将其拷贝给用户，若是未设置`MSG_COPY` 字段，会将消息进行unlink。
 
-消息拷贝：[do_msg_fill()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018) -> [store_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L150) 。和创建消息的过程一样，先拷贝消息头（`msg_msg`结构对应的数据），再拷贝segment（`msg_msgseg`结构对应的数据）。
+消息拷贝：[do_msg_fill()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018) -> [store_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L150) 。和创建消息的过程一样，先拷贝消息头（`msg_msg`结构对应的数据），再拷贝segment（`msg_msgseg`结构对应的数据）。
 
 ```c
 static long do_msg_fill(void __user *dest, struct msg_msg *msg, size_t bufsz)
@@ -275,7 +277,7 @@ void free_msg(struct msg_msg *msg)
 }
 ```
 
-**[MSG_COPY](https://elixir.bootlin.com/linux/v5.8/source/include/uapi/linux/msg.h#L15)**：如果用flag [MSG_COPY](https://elixir.bootlin.com/linux/v5.8/source/include/uapi/linux/msg.h#L15)来调用 `msgrcv()` （内核编译时需配置`CONFIG_CHECKPOINT_RESTORE`选项，默认已配置），就会调用 [prepare_copy()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1037) 分配临时消息，并调用 [copy_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L118) 将请求的数据拷贝到该临时消息。在将消息拷贝到用户空间之后，原始消息会被保留，不会从队列中unlink，然后调用`free_msg()`删除该临时消息，这对于利用很重要。
+**[MSG_COPY](https://elixir.bootlin.com/linux/v5.8/source/include/uapi/linux/msg.h#L15)**：如果用flag [MSG_COPY](https://elixir.bootlin.com/linux/v5.8/source/include/uapi/linux/msg.h#L15)来调用 `msgrcv()` （内核编译时需配置`CONFIG_CHECKPOINT_RESTORE`选项，默认已配置），就会调用 [prepare_copy()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1037) 分配临时消息，并调用 [copy_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L118) 将请求的数据拷贝到该临时消息。在将消息拷贝到用户空间之后，原始消息会被保留，不会从队列中unlink，然后调用`free_msg()`删除该临时消息，这对于利用很重要。
 
 为什么？因为本漏洞在第一次UAF的时候，没有泄露正确地址，所以会破坏`msg_msg->m_list`
 双链表指针，unlink会触发崩溃
@@ -286,7 +288,7 @@ void free_msg(struct msg_msg *msg)
 
 首先，对一个rule_t进行UAF，只要add，dup，free即可。此时，我们控制了一个空闲的kmalloc-4096结构。
 
-接着，发送一个0xfd0+0x30大小的消息。msg_msg结构会占据我们控制的kmalloc-4096，其next指向了一个kmalloc-64内存块。然后，通过UAF改大msg_msg的`m_ts`结构就能越界读segment后面的内存。
+接着，发送一个0xfd0+0x30大小的消息。msg_msg结构会占据我们控制的kmalloc-4096，其next指向了一个kmalloc-64内存块。然后，通过UAF改大msg_msg的m_ts结构就能越界读segment后面的内存。
 
 这里的问题是不能确定segment后面有什么样的地址信息。为此，我们可以在发送消息后，喷射大量的shm_file_data结构。
 
@@ -299,7 +301,7 @@ struct shm_file_data {
 };
 ```
 
-这样就可以读到`init_ipc_ns`的值，该数据为全局变量不受FG_KALSR影响。
+这样就可以读到init_ipc_ns的值，该数据为全局变量不受FG_KALSR影响。
 
 ```c
   send_msg(qid, message, 0x1010 - 0x30, 0);
@@ -663,7 +665,7 @@ int main() {
 
 UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行越界读。在我们得到内核的基址后，似乎并不能进行任意地址写了。
 
-实现任意地址写需要控制next指针，如果想要控制msg_msg结构的next，消息大小就大于64，不会申请到kmalloc-64。如果想控制kmalloc-64的segment的next，`m_ts`不能修改，不能进行越界。另一种思路是直接修改next，但是此时会遇到与第一种相同的情况，segment大小大于64无法UAF。
+实现任意地址写需要控制next指针，如果想要控制msg_msg结构的next，消息大小就大于64，不会申请到kmalloc-64。如果想控制kmalloc-64的segment的next，m_ts不能修改，不能进行越界。另一种思路是直接修改next，但是此时会遇到与第一种相同的情况，segment大小大于64无法UAF。
 
 实现任意写最重要的是使一个msg_msg结构出现在可控的空间。
 
@@ -699,11 +701,11 @@ UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行
 
 此时的堆布局如下
 
-![https://syst3mfailure.io/assets/images/wall_of_perdition/1.png](https://gitee.com/slientNoir/image-bed/raw/master/image-bed/2022-03-18-9d961fa4c7bafd23e4a5d9065eeb43cf-b260c2.png)
+![https://syst3mfailure.io/assets/images/wall_of_perdition/1.png](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-9d961fa4c7bafd23e4a5d9065eeb43cf.png)
 
-一个msg_msg消息的最大为0x2000，我们修改QID#0消息的大小，读取数据。因为QID#0和QID#1的0x10消息属于同一个大小，两者的距离可能很近。我们就能读取QID#2的0x10消息的`list_head`，还能得到全局变量 `dynamic_kobj_ktype` 泄露内核基址。题目作者泄露的是`sysfs_bin_kfops_ro`。 如下图：
+一个msg_msg消息的最大为0x2000，我们修改QID#0消息的大小，读取数据。因为QID#0和QID#1的0x10消息属于同一个大小，两者的距离可能很近。我们就能读取QID#2的0x10消息的list_head，还能得到全局变量 `dynamic_kobj_ktype` 泄露内核基址。题目作者泄露的是**sysfs_bin_kfops_ro。 如下图：**
 
-![https://syst3mfailure.io/assets/images/wall_of_perdition/2.png](https://gitee.com/slientNoir/image-bed/raw/master/image-bed/2022-03-18-562b8e6c4fdca71d7dcec9d6913deabf-f7b5d6.png)
+![https://syst3mfailure.io/assets/images/wall_of_perdition/2.png](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-562b8e6c4fdca71d7dcec9d6913deabf.png)
 
 ```c
   ((struct msg_msg *)rule)->m_list.next = (void *)0xAAAAAAAA;
@@ -750,7 +752,7 @@ UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行
 
 ## 任意地址读 & task_struct 遍历
 
-修改UAF的块的next为目标地址-8即可实现任意地址读，同第一题对tasks进行遍历找到当前进程的`task_struct`。
+修改UAF的块的next为目标地址-8即可实现任意地址读，同第一题对tasks进行遍历找到当前进程的task_struct。
 
 ```c
   printf("[*] Task struct searching...\n");
@@ -789,15 +791,15 @@ UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行
 
 下面到了最关键的部分，我们将通过堆风水与userfaultfd实现任意地址写，从而提权！
 
-首先，接收QID#1的所有消息，不带`MSG_COPY`标志。这样QID#1中的kmalloc-64和两个kmalloc-4096都被free了，且先被free的是msg_msg部分。
+首先，接收QID#1的所有消息，不带MSG_COPY标志。这样QID#1中的kmalloc-64和两个kmalloc-4096都被free了，且先被free的是msg_msg部分。
 
-![https://syst3mfailure.io/assets/images/wall_of_perdition/5.png](https://gitee.com/slientNoir/image-bed/raw/master/image-bed/2022-03-18-52863bf05c8addae24e0e806de3cd178-e835ac.png)
+![https://syst3mfailure.io/assets/images/wall_of_perdition/5.png](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-52863bf05c8addae24e0e806de3cd178.png)
 
-接着，我们再申请一个消息队列QID#2，发送一个0x1ff8 - 0x30大小的消息，msg_msg使用的正是原来的segment结构，而其next指向了原本的msg_msg结构，这部分的地址是我们已知的，即`list_head→next`。同时，我们在其拷贝msg_msg消息数据时，使用userfaultfd卡住。布局如下图：
+接着，我们再申请一个消息队列QID#2，发送一个0x1ff8 - 0x30大小的消息，msg_msg使用的正是原来的segment结构，而其next指向了原本的msg_msg结构，这部分的地址是我们已知的，即list_head→next。同时，我们在其拷贝msg_msg消息数据时，使用userfaultfd卡住。布局如下图：
 
-![https://syst3mfailure.io/assets/images/wall_of_perdition/7.png](https://gitee.com/slientNoir/image-bed/raw/master/image-bed/2022-03-18-1497edaba6180bf0f0f874817c827846-940cf7.png)
+![https://syst3mfailure.io/assets/images/wall_of_perdition/7.png](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-1497edaba6180bf0f0f874817c827846.png)
 
-在userfault handler中，修改QID#0的消息的next指向QID#2消息的segment，修正其`list_head`和`m_ts`，然后接收所有消息，不带`MSG_COPY`标志。这样，QID#2的segment就会被free了。
+在userfault handler中，修改QID#0的消息的next指向QID#2消息的segment，修正其list和m_ts，然后接收所有消息，不带MSG_COPY标志。这样，QID#2的segment就会被free了。
 
 ```c
     printf("[+] page fault: %p\n", (void *)uf_msg.arg.pagefault.address);
@@ -828,19 +830,19 @@ UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行
 
 堆布局如下：
 
-![https://syst3mfailure.io/assets/images/wall_of_perdition/9.png](https://gitee.com/slientNoir/image-bed/raw/master/image-bed/2022-03-18-6ad8a7575a4daad28a9d7d65e34a70ea-58ca39.png)
+![https://syst3mfailure.io/assets/images/wall_of_perdition/9.png](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-6ad8a7575a4daad28a9d7d65e34a70ea.png)
 
 接着，不释放userfault handler1。而是申请一个新的消息队列QID#3。并创建一个0xfd8+0x30的消息。此时，QID#2的segment被分配给了新的msg_msg结构。同样，我们在QID#3拷贝消息数据时，使用userfaultfd卡住。堆布局如下：
 
-![https://syst3mfailure.io/assets/images/wall_of_perdition/10.png](https://gitee.com/slientNoir/image-bed/raw/master/image-bed/2022-03-18-2f5cfb64523b7c423f80095d97fdfc92-d5572c.png)
+![https://syst3mfailure.io/assets/images/wall_of_perdition/10.png](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-2f5cfb64523b7c423f80095d97fdfc92.png)
 
-在userfaulr handler2中，释放userfault handler1。使得QID#3的msg_msg结构的next被修改为目标地址。即当前进程的`&task_struct→cred - 8 `
+在userfaulr handler2中，释放userfault handler1。使得QID#3的msg_msg结构的next被修改为目标地址。即当前进程的task_struct→cred -8 
 
 堆布局如下：
 
-![https://syst3mfailure.io/assets/images/wall_of_perdition/11.png](https://gitee.com/slientNoir/image-bed/raw/master/image-bed/2022-03-18-f383f31c66e169b1e9fea090cbdd71b4-5e99d6.png)
+![https://syst3mfailure.io/assets/images/wall_of_perdition/11.png](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-f383f31c66e169b1e9fea090cbdd71b4.png)
 
-继续处理userfault 2，使用`init_cred`覆写`cred`和`read_cred`即可提权。
+继续处理userfault 2，使用init_cred覆写cred和read_cred即可提权。
 
 ```c
     printf("[+] user 2 page fault: %p\n", (void *)uf_msg.arg.pagefault.address);
@@ -1223,5 +1225,4 @@ done:
 }
 ```
 
-![Untitled](https://gitee.com/slientNoir/image-bed/raw/master/image-bed/2022-03-18-e07d3bcf413381f42704b85a6e2998f0-d94f11.png)
-
+![Untitled](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-e07d3bcf413381f42704b85a6e2998f0.png)

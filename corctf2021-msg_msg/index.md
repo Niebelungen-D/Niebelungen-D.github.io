@@ -1,7 +1,7 @@
 # CorCTF2021 Msg_msg
 
 
-# Writeup msg_msg
+# corCTF2021-msg_msg
 
 在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如何leak内核地址信息。在official writep中提到了msg_msg可以leak。所以我就去找了相关的资料，发现了这两个题目 `corCTF2021` 的 `Fire-of-Salvation` 和 `Wall-of-Perdition` 。这两个题目是一个系列，前者为简单模式，后者为困难模式。比赛中为零解，作者在博客中使用 `msg_msg` 结构构造了内核任意地址读写原语。
 
@@ -9,7 +9,7 @@
 
 [corCTF-2021-public-challenge-archive/pwn at main · Crusaders-of-Rust/corCTF-2021-public-challenge-archive](https://github.com/Crusaders-of-Rust/corCTF-2021-public-challenge-archive/tree/main/pwn)
 
-# 程序分析
+## 程序分析
 
 两个题目都实现了Netfilter hooks，可以对内核收到网络数据包进行回调处理。但是与本题利用无关，更详细的知识可以看下面的博客：
 
@@ -84,7 +84,7 @@ SMEP, SMAP, and KPTI are of course on. Note that this is an easier variation of 
 
 内核使用`SLAB` 分配器，开启了freelist保护，且`modprobe_path`不可写，还开启了`FG_KASLR`。
 
-# 内核IPC —— `msgsnd()`与`msgrcv()`源码分析
+## 内核IPC —— `msgsnd()`与`msgrcv()`源码分析
 
 **介绍**：内核提供了两个syscall来进行IPC通信， [msgsnd()](https://linux.die.net/man/2/msgsnd) 和 [msgrcv()](https://linux.die.net/man/2/msgrcv)，内核消息包含两个部分，消息头 [msg_msg](https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9) 结构和紧跟的消息数据。长度从`kmalloc-64` 到 `kmalloc-4096`。消息头 [msg_msg](https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9) 结构如下所示。
 
@@ -99,7 +99,7 @@ struct msg_msg {
 };
 ```
 
-## `msgsnd()` 数据发送
+### `msgsnd()` 数据发送
 
 **总体流程**：当调用 [msgsnd()](https://linux.die.net/man/2/msgsnd) 来发送消息时，调用 [msgsnd()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L966) -> [ksys_msgsnd()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L953) -> [do_msgsnd()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L840) -> [load_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84) -> [alloc_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L46) 来分配消息头和消息数据，然后调用 [load_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84) -> `copy_from_user()` 来将用户数据拷贝进内核。
 
@@ -150,7 +150,7 @@ out_err:
 
 ![Untitled](https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-671a9c7d13c7643329792cf53fe3e889.png)
 
-## `msgsrv()` 数据接收
+### `msgsrv()` 数据接收
 
 **总体流程**： [msgrcv()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1265) -> [ksys_msgrcv()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1256) -> [do_msgrcv()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1090) -> [find_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066) & [do_msg_fill()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018) & [free_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L169)。 调用 [find_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066) 来定位正确的消息，将消息从队列中unlink，再调用 [do_msg_fill()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018) -> [store_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L150)
  来将内核数据拷贝到用户空间，最后调用 [free_msg()](https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L169) 释放消息。
@@ -282,9 +282,9 @@ void free_msg(struct msg_msg *msg)
 为什么？因为本漏洞在第一次UAF的时候，没有泄露正确地址，所以会破坏`msg_msg->m_list`
 双链表指针，unlink会触发崩溃
 
-# Fire-of-Salvation
+## Fire-of-Salvation
 
-## 越界读泄露内核地址
+### 越界读泄露内核地址
 
 首先，对一个rule_t进行UAF，只要add，dup，free即可。此时，我们控制了一个空闲的kmalloc-4096结构。
 
@@ -378,13 +378,13 @@ struct shm_file_data {
   printf("[+] task_struct:\t0x%lx\n", task_struct);
 ```
 
-## 任意地址写
+### 任意地址写
 
 在发送消息时，内核先将内存空间准备好，再进行数据拷贝。我们可以使用userfaultfd，在其拷贝msg_msg结构数据时，挂起。修改其next字段指向当前进程的cred-8，保持segment的next为NULL。
 
 释放，修改cred和real_cred为init_cred实现提权。
 
-## EXP
+### EXP
 
 ```c
 #include "./exploit.h"
@@ -661,7 +661,7 @@ int main() {
 }
 ```
 
-# Wall-of-Perdition
+## Wall-of-Perdition
 
 UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行越界读。在我们得到内核的基址后，似乎并不能进行任意地址写了。
 
@@ -669,7 +669,7 @@ UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行
 
 实现任意写最重要的是使一个msg_msg结构出现在可控的空间。
 
-## 泄露内核基址 & msg 链表
+### 泄露内核基址 & msg 链表
 
 构造一个UAF的kmalloc-64，然后申请两个消息队列：
 
@@ -750,7 +750,7 @@ UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行
 
 这里得到next和prev的值有一定的概率。
 
-## 任意地址读 & task_struct 遍历
+### 任意地址读 & task_struct 遍历
 
 修改UAF的块的next为目标地址-8即可实现任意地址读，同第一题对tasks进行遍历找到当前进程的task_struct。
 
@@ -787,7 +787,7 @@ UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行
   printf("[+] task_struct:\t0x%lx\n", task_struct);
 ```
 
-## 堆风水构造任意地址写
+### 堆风水构造任意地址写
 
 下面到了最关键的部分，我们将通过堆风水与userfaultfd实现任意地址写，从而提权！
 
@@ -867,7 +867,7 @@ UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行
     uffd_copy(uffd, payload, &uf_msg);
 ```
 
-## EXP
+### EXP
 
 ```c
 #include "./exploit.h"

@@ -20,7 +20,7 @@
     <pubDate>Fri, 18 Mar 2022 16:09:07 &#43;0800</pubDate><author>
         <name>Niebelungen</name>
     </author><guid>http://example.org/corctf2021-msg_msg/</guid>
-    <description><![CDATA[Writeup msg_msg在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如何leak内核地址信]]></description>
+    <description><![CDATA[corCTF2021-msg_msg在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如]]></description>
 </item><item>
     <title>D^3CTF2022-d3bpf&amp;v2</title>
     <link>http://example.org/d-3ctf2022-d3bpf/</link>

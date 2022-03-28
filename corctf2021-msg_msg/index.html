@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noodp" />
     <title class="pjax-title">CorCTF2021 Msg_msg - Niebelungen</title><meta name="Description" content="Niebelungen"><meta property="og:title" content="CorCTF2021 Msg_msg" />
-<meta property="og:description" content="Writeup msg_msg在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如何leak内核地址信" />
+<meta property="og:description" content="corCTF2021-msg_msg在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://example.org/corctf2021-msg_msg/" /><meta property="og:image" content="http://example.org/logo.png"/><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-03-18T16:09:07+08:00" />
@@ -16,7 +16,7 @@
 <meta name="twitter:image" content="http://example.org/logo.png"/>
 
 <meta name="twitter:title" content="CorCTF2021 Msg_msg"/>
-<meta name="twitter:description" content="Writeup msg_msg在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如何leak内核地址信"/>
+<meta name="twitter:description" content="corCTF2021-msg_msg在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如"/>
 <meta name="application-name" content="Niebelungen">
 <meta name="apple-mobile-web-app-title" content="Niebelungen">
 
@@ -31,7 +31,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/corctf2021-msg_msg\/"
-        },"genre": "posts","keywords": "Pwn, Kernel","wordcount":  7874 ,
+        },"genre": "posts","keywords": "Pwn, Kernel","wordcount":  7884 ,
         "url": "http:\/\/example.org\/corctf2021-msg_msg\/","datePublished": "2022-03-18T16:09:07+08:00","dateModified": "2022-03-18T16:09:07+08:00","publisher": {
             "@type": "Organization",
             "name": ""},"author": {
@@ -126,29 +126,39 @@
         <h2 class="toc-title">目录</h2>
         <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
   <ul>
-    <li><a href="#msgsnd-数据发送"><code>msgsnd()</code> 数据发送</a></li>
-    <li><a href="#msgsrv数据接收"><code>msgsrv()</code> 数据接收</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#越界读泄露内核地址">越界读泄露内核地址</a></li>
-    <li><a href="#任意地址读--task_struct-遍历">任意地址读 &amp; task_struct 遍历</a></li>
-    <li><a href="#任意地址写">任意地址写</a></li>
-    <li><a href="#exp">EXP</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#泄露内核基址--msg-链表">泄露内核基址 &amp; msg 链表</a></li>
-    <li><a href="#任意地址读--task_struct-遍历-1">任意地址读 &amp; task_struct 遍历</a></li>
-    <li><a href="#堆风水构造任意地址写">堆风水构造任意地址写</a></li>
-    <li><a href="#exp-1">EXP</a></li>
+    <li><a href="#程序分析">程序分析</a></li>
+    <li><a href="#内核ipc--msgsnd与msgrcv源码分析">内核IPC —— <code>msgsnd()</code>与<code>msgrcv()</code>源码分析</a>
+      <ul>
+        <li><a href="#msgsnd-数据发送"><code>msgsnd()</code> 数据发送</a></li>
+        <li><a href="#msgsrv数据接收"><code>msgsrv()</code> 数据接收</a></li>
+      </ul>
+    </li>
+    <li><a href="#fire-of-salvation">Fire-of-Salvation</a>
+      <ul>
+        <li><a href="#越界读泄露内核地址">越界读泄露内核地址</a></li>
+      </ul>
+    </li>
+    <li><a href="#任意地址读--task_struct-遍历">任意地址读 &amp; task_struct 遍历</a>
+      <ul>
+        <li><a href="#任意地址写">任意地址写</a></li>
+        <li><a href="#exp">EXP</a></li>
+      </ul>
+    </li>
+    <li><a href="#wall-of-perdition">Wall-of-Perdition</a>
+      <ul>
+        <li><a href="#泄露内核基址--msg-链表">泄露内核基址 &amp; msg 链表</a></li>
+        <li><a href="#任意地址读--task_struct-遍历-1">任意地址读 &amp; task_struct 遍历</a></li>
+        <li><a href="#堆风水构造任意地址写">堆风水构造任意地址写</a></li>
+        <li><a href="#exp-1">EXP</a></li>
+      </ul>
+    </li>
   </ul>
 </nav></div>
     </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">CorCTF2021 Msg_msg</h1><div class="post-meta">
             <div class="post-meta-line">
                 <span class="post-author"><i class="author fas fa-user-circle fa-fw"></i><a href="/" title="Author" rel=" author" class="author">Niebelungen</a>
                 </span>&nbsp;<span class="post-category">收录于 </span>&nbsp;<span class="post-category">类别 <a href="/categories/pwning/"><i class="far fa-folder fa-fw"></i>Pwning</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-03-18">2022-03-18</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-03-18">2022-03-18</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 7874 字&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-03-18">2022-03-18</time>&nbsp;<i class="far fa-edit fa-fw"></i>&nbsp;<time datetime="2022-03-18">2022-03-18</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;约 7884 字&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;预计阅读 16 分钟&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="">
                 <div class="details-summary toc-title">
@@ -157,30 +167,40 @@
                 </div>
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
-    <li><a href="#msgsnd-数据发送"><code>msgsnd()</code> 数据发送</a></li>
-    <li><a href="#msgsrv数据接收"><code>msgsrv()</code> 数据接收</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#越界读泄露内核地址">越界读泄露内核地址</a></li>
-    <li><a href="#任意地址读--task_struct-遍历">任意地址读 &amp; task_struct 遍历</a></li>
-    <li><a href="#任意地址写">任意地址写</a></li>
-    <li><a href="#exp">EXP</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#泄露内核基址--msg-链表">泄露内核基址 &amp; msg 链表</a></li>
-    <li><a href="#任意地址读--task_struct-遍历-1">任意地址读 &amp; task_struct 遍历</a></li>
-    <li><a href="#堆风水构造任意地址写">堆风水构造任意地址写</a></li>
-    <li><a href="#exp-1">EXP</a></li>
+    <li><a href="#程序分析">程序分析</a></li>
+    <li><a href="#内核ipc--msgsnd与msgrcv源码分析">内核IPC —— <code>msgsnd()</code>与<code>msgrcv()</code>源码分析</a>
+      <ul>
+        <li><a href="#msgsnd-数据发送"><code>msgsnd()</code> 数据发送</a></li>
+        <li><a href="#msgsrv数据接收"><code>msgsrv()</code> 数据接收</a></li>
+      </ul>
+    </li>
+    <li><a href="#fire-of-salvation">Fire-of-Salvation</a>
+      <ul>
+        <li><a href="#越界读泄露内核地址">越界读泄露内核地址</a></li>
+      </ul>
+    </li>
+    <li><a href="#任意地址读--task_struct-遍历">任意地址读 &amp; task_struct 遍历</a>
+      <ul>
+        <li><a href="#任意地址写">任意地址写</a></li>
+        <li><a href="#exp">EXP</a></li>
+      </ul>
+    </li>
+    <li><a href="#wall-of-perdition">Wall-of-Perdition</a>
+      <ul>
+        <li><a href="#泄露内核基址--msg-链表">泄露内核基址 &amp; msg 链表</a></li>
+        <li><a href="#任意地址读--task_struct-遍历-1">任意地址读 &amp; task_struct 遍历</a></li>
+        <li><a href="#堆风水构造任意地址写">堆风水构造任意地址写</a></li>
+        <li><a href="#exp-1">EXP</a></li>
+      </ul>
+    </li>
   </ul>
 </nav></div>
-            </div><div class="content" id="content"><h1 id="writeup-msg_msg" class="headerLink">
-    <a href="#writeup-msg_msg" class="header-mark"></a>Writeup msg_msg</h1><p>在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如何leak内核地址信息。在official writep中提到了msg_msg可以leak。所以我就去找了相关的资料，发现了这两个题目 <code>corCTF2021</code> 的 <code>Fire-of-Salvation</code> 和 <code>Wall-of-Perdition</code> 。这两个题目是一个系列，前者为简单模式，后者为困难模式。比赛中为零解，作者在博客中使用 <code>msg_msg</code> 结构构造了内核任意地址读写原语。</p>
+            </div><div class="content" id="content"><h1 id="corctf2021-msg_msg" class="headerLink">
+    <a href="#corctf2021-msg_msg" class="header-mark"></a>corCTF2021-msg_msg</h1><p>在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如何leak内核地址信息。在official writep中提到了msg_msg可以leak。所以我就去找了相关的资料，发现了这两个题目 <code>corCTF2021</code> 的 <code>Fire-of-Salvation</code> 和 <code>Wall-of-Perdition</code> 。这两个题目是一个系列，前者为简单模式，后者为困难模式。比赛中为零解，作者在博客中使用 <code>msg_msg</code> 结构构造了内核任意地址读写原语。</p>
 <p>题目Github仓库：</p>
 <p><a href="https://github.com/Crusaders-of-Rust/corCTF-2021-public-challenge-archive/tree/main/pwn" target="_blank" rel="noopener noreffer">corCTF-2021-public-challenge-archive/pwn at main · Crusaders-of-Rust/corCTF-2021-public-challenge-archive</a></p>
-<h1 id="程序分析" class="headerLink">
-    <a href="#%e7%a8%8b%e5%ba%8f%e5%88%86%e6%9e%90" class="header-mark"></a>程序分析</h1><p>两个题目都实现了Netfilter hooks，可以对内核收到网络数据包进行回调处理。但是与本题利用无关，更详细的知识可以看下面的博客：</p>
+<h2 id="程序分析" class="headerLink">
+    <a href="#%e7%a8%8b%e5%ba%8f%e5%88%86%e6%9e%90" class="header-mark"></a>程序分析</h2><p>两个题目都实现了Netfilter hooks，可以对内核收到网络数据包进行回调处理。但是与本题利用无关，更详细的知识可以看下面的博客：</p>
 <p><a href="https://infosecwriteups.com/linux-kernel-communication-part-1-netfilter-hooks-15c07a5a5c4e" target="_blank" rel="noopener noreffer">Linux Kernel Communication - Netfilter Hooks</a></p>
 <p>模块实现了5个功能：</p>
 <ul>
@@ -297,8 +317,8 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>内核使用<code>SLAB</code> 分配器，开启了freelist保护，且<code>modprobe_path</code>不可写，还开启了<code>FG_KASLR</code>。</p>
-<h1 id="内核ipc--msgsnd与msgrcv源码分析" class="headerLink">
-    <a href="#%e5%86%85%e6%a0%b8ipc--msgsnd%e4%b8%8emsgrcv%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90" class="header-mark"></a>内核IPC —— <code>msgsnd()</code>与<code>msgrcv()</code>源码分析</h1><p><strong>介绍</strong>：内核提供了两个syscall来进行IPC通信， <a href="https://linux.die.net/man/2/msgsnd" target="_blank" rel="noopener noreffer">msgsnd()</a> 和 <a href="https://linux.die.net/man/2/msgrcv" target="_blank" rel="noopener noreffer">msgrcv()</a>，内核消息包含两个部分，消息头 <a href="https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9" target="_blank" rel="noopener noreffer">msg_msg</a> 结构和紧跟的消息数据。长度从<code>kmalloc-64</code> 到 <code>kmalloc-4096</code>。消息头 <a href="https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9" target="_blank" rel="noopener noreffer">msg_msg</a> 结构如下所示。</p>
+<h2 id="内核ipc--msgsnd与msgrcv源码分析" class="headerLink">
+    <a href="#%e5%86%85%e6%a0%b8ipc--msgsnd%e4%b8%8emsgrcv%e6%ba%90%e7%a0%81%e5%88%86%e6%9e%90" class="header-mark"></a>内核IPC —— <code>msgsnd()</code>与<code>msgrcv()</code>源码分析</h2><p><strong>介绍</strong>：内核提供了两个syscall来进行IPC通信， <a href="https://linux.die.net/man/2/msgsnd" target="_blank" rel="noopener noreffer">msgsnd()</a> 和 <a href="https://linux.die.net/man/2/msgrcv" target="_blank" rel="noopener noreffer">msgrcv()</a>，内核消息包含两个部分，消息头 <a href="https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9" target="_blank" rel="noopener noreffer">msg_msg</a> 结构和紧跟的消息数据。长度从<code>kmalloc-64</code> 到 <code>kmalloc-4096</code>。消息头 <a href="https://elixir.bootlin.com/linux/v5.8/source/include/linux/msg.h#L9" target="_blank" rel="noopener noreffer">msg_msg</a> 结构如下所示。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -321,8 +341,8 @@
 </span></span><span class="line"><span class="cl"><span class="p">};</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="msgsnd-数据发送" class="headerLink">
-    <a href="#msgsnd-%e6%95%b0%e6%8d%ae%e5%8f%91%e9%80%81" class="header-mark"></a><code>msgsnd()</code> 数据发送</h2><p><strong>总体流程</strong>：当调用 <a href="https://linux.die.net/man/2/msgsnd" target="_blank" rel="noopener noreffer">msgsnd()</a> 来发送消息时，调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L966" target="_blank" rel="noopener noreffer">msgsnd()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L953" target="_blank" rel="noopener noreffer">ksys_msgsnd()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L840" target="_blank" rel="noopener noreffer">do_msgsnd()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84" target="_blank" rel="noopener noreffer">load_msg()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L46" target="_blank" rel="noopener noreffer">alloc_msg()</a> 来分配消息头和消息数据，然后调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84" target="_blank" rel="noopener noreffer">load_msg()</a> -&gt; <code>copy_from_user()</code> 来将用户数据拷贝进内核。</p>
+</div><h3 id="msgsnd-数据发送" class="headerLink">
+    <a href="#msgsnd-%e6%95%b0%e6%8d%ae%e5%8f%91%e9%80%81" class="header-mark"></a><code>msgsnd()</code> 数据发送</h3><p><strong>总体流程</strong>：当调用 <a href="https://linux.die.net/man/2/msgsnd" target="_blank" rel="noopener noreffer">msgsnd()</a> 来发送消息时，调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L966" target="_blank" rel="noopener noreffer">msgsnd()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L953" target="_blank" rel="noopener noreffer">ksys_msgsnd()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L840" target="_blank" rel="noopener noreffer">do_msgsnd()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84" target="_blank" rel="noopener noreffer">load_msg()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L46" target="_blank" rel="noopener noreffer">alloc_msg()</a> 来分配消息头和消息数据，然后调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L84" target="_blank" rel="noopener noreffer">load_msg()</a> -&gt; <code>copy_from_user()</code> 来将用户数据拷贝进内核。</p>
 <p>重点看一下内存的分配：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -413,8 +433,8 @@
         data-sizes="auto"
         alt="https://raw.githubusercontent.com/Niebelungen-D/Imgbed-blog/main/img/2022-03-25-671a9c7d13c7643329792cf53fe3e889.png"
         title="Untitled"></p>
-<h2 id="msgsrv数据接收" class="headerLink">
-    <a href="#msgsrv%e6%95%b0%e6%8d%ae%e6%8e%a5%e6%94%b6" class="header-mark"></a><code>msgsrv()</code> 数据接收</h2><p><strong>总体流程</strong>： <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1265" target="_blank" rel="noopener noreffer">msgrcv()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1256" target="_blank" rel="noopener noreffer">ksys_msgrcv()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1090" target="_blank" rel="noopener noreffer">do_msgrcv()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066" target="_blank" rel="noopener noreffer">find_msg()</a> &amp; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018" target="_blank" rel="noopener noreffer">do_msg_fill()</a> &amp; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L169" target="_blank" rel="noopener noreffer">free_msg()</a>。 调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066" target="_blank" rel="noopener noreffer">find_msg()</a> 来定位正确的消息，将消息从队列中unlink，再调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018" target="_blank" rel="noopener noreffer">do_msg_fill()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L150" target="_blank" rel="noopener noreffer">store_msg()</a>
+<h3 id="msgsrv数据接收" class="headerLink">
+    <a href="#msgsrv%e6%95%b0%e6%8d%ae%e6%8e%a5%e6%94%b6" class="header-mark"></a><code>msgsrv()</code> 数据接收</h3><p><strong>总体流程</strong>： <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1265" target="_blank" rel="noopener noreffer">msgrcv()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1256" target="_blank" rel="noopener noreffer">ksys_msgrcv()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1090" target="_blank" rel="noopener noreffer">do_msgrcv()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066" target="_blank" rel="noopener noreffer">find_msg()</a> &amp; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018" target="_blank" rel="noopener noreffer">do_msg_fill()</a> &amp; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L169" target="_blank" rel="noopener noreffer">free_msg()</a>。 调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1066" target="_blank" rel="noopener noreffer">find_msg()</a> 来定位正确的消息，将消息从队列中unlink，再调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1018" target="_blank" rel="noopener noreffer">do_msg_fill()</a> -&gt; <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L150" target="_blank" rel="noopener noreffer">store_msg()</a>
  来将内核数据拷贝到用户空间，最后调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L169" target="_blank" rel="noopener noreffer">free_msg()</a> 释放消息。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -654,9 +674,9 @@
 </div><p><strong><a href="https://elixir.bootlin.com/linux/v5.8/source/include/uapi/linux/msg.h#L15" target="_blank" rel="noopener noreffer">MSG_COPY</a></strong>：如果用flag <a href="https://elixir.bootlin.com/linux/v5.8/source/include/uapi/linux/msg.h#L15" target="_blank" rel="noopener noreffer">MSG_COPY</a>来调用 <code>msgrcv()</code> （内核编译时需配置<code>CONFIG_CHECKPOINT_RESTORE</code>选项，默认已配置），就会调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msg.c#L1037" target="_blank" rel="noopener noreffer">prepare_copy()</a> 分配临时消息，并调用 <a href="https://elixir.bootlin.com/linux/v5.8/source/ipc/msgutil.c#L118" target="_blank" rel="noopener noreffer">copy_msg()</a> 将请求的数据拷贝到该临时消息。在将消息拷贝到用户空间之后，原始消息会被保留，不会从队列中unlink，然后调用<code>free_msg()</code>删除该临时消息，这对于利用很重要。</p>
 <p>为什么？因为本漏洞在第一次UAF的时候，没有泄露正确地址，所以会破坏<code>msg_msg-&gt;m_list</code>
 双链表指针，unlink会触发崩溃</p>
-<h1 id="fire-of-salvation" class="headerLink">
-    <a href="#fire-of-salvation" class="header-mark"></a>Fire-of-Salvation</h1><h2 id="越界读泄露内核地址" class="headerLink">
-    <a href="#%e8%b6%8a%e7%95%8c%e8%af%bb%e6%b3%84%e9%9c%b2%e5%86%85%e6%a0%b8%e5%9c%b0%e5%9d%80" class="header-mark"></a>越界读泄露内核地址</h2><p>首先，对一个rule_t进行UAF，只要add，dup，free即可。此时，我们控制了一个空闲的kmalloc-4096结构。</p>
+<h2 id="fire-of-salvation" class="headerLink">
+    <a href="#fire-of-salvation" class="header-mark"></a>Fire-of-Salvation</h2><h3 id="越界读泄露内核地址" class="headerLink">
+    <a href="#%e8%b6%8a%e7%95%8c%e8%af%bb%e6%b3%84%e9%9c%b2%e5%86%85%e6%a0%b8%e5%9c%b0%e5%9d%80" class="header-mark"></a>越界读泄露内核地址</h3><p>首先，对一个rule_t进行UAF，只要add，dup，free即可。此时，我们控制了一个空闲的kmalloc-4096结构。</p>
 <p>接着，发送一个0xfd0+0x30大小的消息。msg_msg结构会占据我们控制的kmalloc-4096，其next指向了一个kmalloc-64内存块。然后，通过UAF改大msg_msg的m_ts结构就能越界读segment后面的内存。</p>
 <p>这里的问题是不能确定segment后面有什么样的地址信息。为此，我们可以在发送消息后，喷射大量的shm_file_data结构。</p>
 <div class="highlight"><div class="chroma">
@@ -816,11 +836,11 @@
 </span></span><span class="line"><span class="cl">  <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[+] task_struct:</span><span class="se">\t</span><span class="s">0x%lx</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">task_struct</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="任意地址写" class="headerLink">
-    <a href="#%e4%bb%bb%e6%84%8f%e5%9c%b0%e5%9d%80%e5%86%99" class="header-mark"></a>任意地址写</h2><p>在发送消息时，内核先将内存空间准备好，再进行数据拷贝。我们可以使用userfaultfd，在其拷贝msg_msg结构数据时，挂起。修改其next字段指向当前进程的cred-8，保持segment的next为NULL。</p>
+</div><h3 id="任意地址写" class="headerLink">
+    <a href="#%e4%bb%bb%e6%84%8f%e5%9c%b0%e5%9d%80%e5%86%99" class="header-mark"></a>任意地址写</h3><p>在发送消息时，内核先将内存空间准备好，再进行数据拷贝。我们可以使用userfaultfd，在其拷贝msg_msg结构数据时，挂起。修改其next字段指向当前进程的cred-8，保持segment的next为NULL。</p>
 <p>释放，修改cred和real_cred为init_cred实现提权。</p>
-<h2 id="exp" class="headerLink">
-    <a href="#exp" class="header-mark"></a>EXP</h2><div class="highlight"><div class="chroma">
+<h3 id="exp" class="headerLink">
+    <a href="#exp" class="header-mark"></a>EXP</h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2
@@ -1370,12 +1390,12 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h1 id="wall-of-perdition" class="headerLink">
-    <a href="#wall-of-perdition" class="header-mark"></a>Wall-of-Perdition</h1><p>UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行越界读。在我们得到内核的基址后，似乎并不能进行任意地址写了。</p>
+</div><h2 id="wall-of-perdition" class="headerLink">
+    <a href="#wall-of-perdition" class="header-mark"></a>Wall-of-Perdition</h2><p>UAF依然存在，但在kmalloc-64中。我们依然可以通过修改m_ts进行越界读。在我们得到内核的基址后，似乎并不能进行任意地址写了。</p>
 <p>实现任意地址写需要控制next指针，如果想要控制msg_msg结构的next，消息大小就大于64，不会申请到kmalloc-64。如果想控制kmalloc-64的segment的next，m_ts不能修改，不能进行越界。另一种思路是直接修改next，但是此时会遇到与第一种相同的情况，segment大小大于64无法UAF。</p>
 <p>实现任意写最重要的是使一个msg_msg结构出现在可控的空间。</p>
-<h2 id="泄露内核基址--msg-链表" class="headerLink">
-    <a href="#%e6%b3%84%e9%9c%b2%e5%86%85%e6%a0%b8%e5%9f%ba%e5%9d%80--msg-%e9%93%be%e8%a1%a8" class="header-mark"></a>泄露内核基址 &amp; msg 链表</h2><p>构造一个UAF的kmalloc-64，然后申请两个消息队列：</p>
+<h3 id="泄露内核基址--msg-链表" class="headerLink">
+    <a href="#%e6%b3%84%e9%9c%b2%e5%86%85%e6%a0%b8%e5%9f%ba%e5%9d%80--msg-%e9%93%be%e8%a1%a8" class="header-mark"></a>泄露内核基址 &amp; msg 链表</h3><p>构造一个UAF的kmalloc-64，然后申请两个消息队列：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -1521,8 +1541,8 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>这里得到next和prev的值有一定的概率。</p>
-<h2 id="任意地址读--task_struct-遍历-1" class="headerLink">
-    <a href="#%e4%bb%bb%e6%84%8f%e5%9c%b0%e5%9d%80%e8%af%bb--task_struct-%e9%81%8d%e5%8e%86-1" class="header-mark"></a>任意地址读 &amp; task_struct 遍历</h2><p>修改UAF的块的next为目标地址-8即可实现任意地址读，同第一题对tasks进行遍历找到当前进程的task_struct。</p>
+<h3 id="任意地址读--task_struct-遍历-1" class="headerLink">
+    <a href="#%e4%bb%bb%e6%84%8f%e5%9c%b0%e5%9d%80%e8%af%bb--task_struct-%e9%81%8d%e5%8e%86-1" class="header-mark"></a>任意地址读 &amp; task_struct 遍历</h3><p>修改UAF的块的next为目标地址-8即可实现任意地址读，同第一题对tasks进行遍历找到当前进程的task_struct。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -1589,8 +1609,8 @@
 </span></span><span class="line"><span class="cl">  <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[+] task_struct:</span><span class="se">\t</span><span class="s">0x%lx</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">task_struct</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="堆风水构造任意地址写" class="headerLink">
-    <a href="#%e5%a0%86%e9%a3%8e%e6%b0%b4%e6%9e%84%e9%80%a0%e4%bb%bb%e6%84%8f%e5%9c%b0%e5%9d%80%e5%86%99" class="header-mark"></a>堆风水构造任意地址写</h2><p>下面到了最关键的部分，我们将通过堆风水与userfaultfd实现任意地址写，从而提权！</p>
+</div><h3 id="堆风水构造任意地址写" class="headerLink">
+    <a href="#%e5%a0%86%e9%a3%8e%e6%b0%b4%e6%9e%84%e9%80%a0%e4%bb%bb%e6%84%8f%e5%9c%b0%e5%9d%80%e5%86%99" class="header-mark"></a>堆风水构造任意地址写</h3><p>下面到了最关键的部分，我们将通过堆风水与userfaultfd实现任意地址写，从而提权！</p>
 <p>首先，接收QID#1的所有消息，不带MSG_COPY标志。这样QID#1中的kmalloc-64和两个kmalloc-4096都被free了，且先被free的是msg_msg部分。</p>
 <p><img
         class="lazyload"
@@ -1734,8 +1754,8 @@
 </span></span><span class="line"><span class="cl">    <span class="n">uffd_copy</span><span class="p">(</span><span class="n">uffd</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">uf_msg</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="exp-1" class="headerLink">
-    <a href="#exp-1" class="header-mark"></a>EXP</h2><div class="highlight"><div class="chroma">
+</div><h3 id="exp-1" class="headerLink">
+    <a href="#exp-1" class="header-mark"></a>EXP</h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">  1
 </span><span class="lnt">  2

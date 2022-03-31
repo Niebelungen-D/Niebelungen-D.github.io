@@ -11,10 +11,10 @@
             <loc>http://example.org/tags/pwn/</loc><lastmod>2022-03-18T16:09:07&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url><url>
             <loc>http://example.org/categories/pwning/</loc><lastmod>2022-03-18T16:09:07&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url><url>
             <loc>http://example.org/tags/</loc><lastmod>2022-03-18T16:09:07&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url><url>
-            <loc>http://example.org/d-3ctf2022-d3bpf/</loc><lastmod>2022-03-07T13:08:08&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url><url>
-            <loc>http://example.org/tags/writeups/</loc><lastmod>2022-03-07T13:08:08&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url><url>
-            <loc>http://example.org/categories/writeups/</loc><lastmod>2022-03-07T13:08:08&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url><url>
-            <loc>http://example.org/dicectf2022-containment-breach/</loc><lastmod>2022-03-07T10:23:52&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url><url>
+            <loc>http://example.org/d-3ctf2022-d3bpf/</loc><lastmod>2022-03-07T13:08:08&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url><url>
+            <loc>http://example.org/tags/writeups/</loc><lastmod>2022-03-07T13:08:08&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url><url>
+            <loc>http://example.org/categories/writeups/</loc><lastmod>2022-03-07T13:08:08&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url><url>
+            <loc>http://example.org/dicectf2022-containment-breach/</loc><lastmod>2022-03-07T10:23:52&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url><url>
             <loc>http://example.org/dicectf2022/</loc><lastmod>2022-02-08T20:49:59&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>http://example.org/realworldctf2022-qlaas/</loc><lastmod>2022-01-27T17:46:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>http://example.org/realworldctf2022-svme/</loc><lastmod>2022-01-27T17:46:07&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>

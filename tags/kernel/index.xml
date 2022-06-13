@@ -3,7 +3,14 @@
         <title>Kernel - 标签 - Niebelungen</title>
         <link>http://example.org/tags/kernel/</link>
         <description>Kernel - 标签 - Niebelungen</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 18 Mar 2022 16:09:07 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+    <title>HITCON2020 Spark</title>
+    <link>http://example.org/hitcon2020-spark/</link>
+    <pubDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/hitcon2020-spark/</guid>
+    <description><![CDATA[Spark]]></description>
+</item><item>
     <title>CorCTF2021 Msg_msg</title>
     <link>http://example.org/corctf2021-msg_msg/</link>
     <pubDate>Fri, 18 Mar 2022 16:09:07 &#43;0800</pubDate><author>

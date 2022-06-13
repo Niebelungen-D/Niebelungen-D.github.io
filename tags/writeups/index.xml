@@ -3,7 +3,21 @@
         <title>Writeups - 标签 - Niebelungen</title>
         <link>http://example.org/tags/writeups/</link>
         <description>Writeups - 标签 - Niebelungen</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Mon, 07 Mar 2022 13:08:08 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/writeups/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/writeups/" rel="self" type="application/rss+xml" /><item>
+    <title>HITCON2020 Spark</title>
+    <link>http://example.org/hitcon2020-spark/</link>
+    <pubDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/hitcon2020-spark/</guid>
+    <description><![CDATA[Spark]]></description>
+</item><item>
+    <title>CorCTF2021 Msg_msg</title>
+    <link>http://example.org/corctf2021-msg_msg/</link>
+    <pubDate>Fri, 18 Mar 2022 16:09:07 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/corctf2021-msg_msg/</guid>
+    <description><![CDATA[corCTF2021-msg_msg在D^3CTF2022中的d3kheap，看上去是比较简单的一道题目，我（A Linux kernel newbie）一直苦于如]]></description>
+</item><item>
     <title>D^3CTF2022-d3bpf&amp;v2</title>
     <link>http://example.org/d-3ctf2022-d3bpf/</link>
     <pubDate>Mon, 07 Mar 2022 13:08:08 &#43;0800</pubDate><author>
@@ -59,19 +73,5 @@
         <name>Niebelungen</name>
     </author><guid>http://example.org/midnightsun2018-filpbit/</guid>
     <description><![CDATA[filpbit源码提供： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 #include &lt;linux/kernel.h&gt;#include &lt;linux/init.h&gt;#include &lt;linux/sched.h&gt;#include &lt;linux/syscalls.h&gt; #define MAXFLIT 1 #ifndef __NR_FLITBIP #define FLITBIP 333 #endif long flit_count = 0; EXPORT_SYMBOL(flit_count); SYSCALL_DEFINE2(flitbip, long *, addr, long, bit) { if (flit_count &gt;= MAXFLIT) {]]></description>
-</item><item>
-    <title>SECCON2020-kstack</title>
-    <link>http://example.org/seccon2020-kstack/</link>
-    <pubDate>Mon, 17 Jan 2022 17:50:55 &#43;0800</pubDate><author>
-        <name>Niebelungen</name>
-    </author><guid>http://example.org/seccon2020-kstack/</guid>
-    <description><![CDATA[Kstack这个题目同样提供了源码。 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 typedef struct _Element { int owner;]]></description>
-</item><item>
-    <title>TSGCTF2021-lkgit(userfaultfd)</title>
-    <link>http://example.org/tsgctf2021-lkgit-userfaultfd/</link>
-    <pubDate>Mon, 17 Jan 2022 17:49:07 &#43;0800</pubDate><author>
-        <name>Niebelungen</name>
-    </author><guid>http://example.org/tsgctf2021-lkgit-userfaultfd/</guid>
-    <description><![CDATA[userfaultfduserfaultfd，这是 kernel 中提供的一种特殊的处理 page fault 的机制，能够让用户态程序自行处理自己的 page fault. 它的调用方式是通过一]]></description>
 </item></channel>
 </rss>

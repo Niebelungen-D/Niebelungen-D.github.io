@@ -3,7 +3,7 @@
         <title>Niebelungen</title>
         <link>http://example.org/</link>
         <description>Niebelungen</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 18 Mar 2022 16:09:07 &#43;0800</lastBuildDate>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</lastBuildDate>
             <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
         <item>
     <title>Niebelungenのjournal</title>
@@ -14,6 +14,13 @@
     <description><![CDATA[<p>普普通通的周报</p>
 <p><strong>Keep going, never stop.</strong></p>
 <p><strong>続けて、止まらない。</strong></p>]]></description>
+</item><item>
+    <title>HITCON2020 Spark</title>
+    <link>http://example.org/hitcon2020-spark/</link>
+    <pubDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/hitcon2020-spark/</guid>
+    <description><![CDATA[Spark]]></description>
 </item><item>
     <title>CorCTF2021 Msg_msg</title>
     <link>http://example.org/corctf2021-msg_msg/</link>
@@ -70,12 +77,5 @@
         <name>Niebelungen</name>
     </author><guid>http://example.org/eebpf-tokyowesterns-ctf-2020/</guid>
     <description><![CDATA[eebpf一道来自Tokyowesterns CTF 2020的内核题目。在做题之前，需要学习ebpf的相关知识。这里有一篇我的笔记。 Bug题目pa]]></description>
-</item><item>
-    <title>MidnightSun2018-filpbit</title>
-    <link>http://example.org/midnightsun2018-filpbit/</link>
-    <pubDate>Mon, 17 Jan 2022 17:52:11 &#43;0800</pubDate><author>
-        <name>Niebelungen</name>
-    </author><guid>http://example.org/midnightsun2018-filpbit/</guid>
-    <description><![CDATA[filpbit源码提供： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 #include &lt;linux/kernel.h&gt;#include &lt;linux/init.h&gt;#include &lt;linux/sched.h&gt;#include &lt;linux/syscalls.h&gt; #define MAXFLIT 1 #ifndef __NR_FLITBIP #define FLITBIP 333 #endif long flit_count = 0; EXPORT_SYMBOL(flit_count); SYSCALL_DEFINE2(flitbip, long *, addr, long, bit) { if (flit_count &gt;= MAXFLIT) {]]></description>
 </item></channel>
 </rss>

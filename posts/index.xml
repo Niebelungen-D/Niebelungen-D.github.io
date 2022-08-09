@@ -18,7 +18,7 @@
     <pubDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</pubDate><author>
         <name>Niebelungen</name>
     </author><guid>http://example.org/hitcon2020-spark/</guid>
-    <description><![CDATA[Spark]]></description>
+    <description><![CDATA[HITCON 2020 - Spark这是一个比较老的题目，似乎当时做出来的人并不是很多。 分析题目给出了一个demo，用来告诉我们如何使用内核模块 spark.ko 。简单来看，它]]></description>
 </item><item>
     <title>CorCTF2021 Msg_msg</title>
     <link>http://example.org/corctf2021-msg_msg/</link>

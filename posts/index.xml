@@ -3,7 +3,7 @@
         <title>所有文章 - Niebelungen</title>
         <link>http://example.org/posts/</link>
         <description>所有文章 | Niebelungen</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Mon, 16 Jan 2023 08:58:12 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
     <title>Niebelungenのjournal</title>
     <link>http://example.org/jounal/</link>
     <pubDate>Mon, 01 Jan 0001 00:00:00 &#43;0000</pubDate><author>
@@ -12,6 +12,17 @@
     <description><![CDATA[<p>普普通通的周报</p>
 <p><strong>Keep going, never stop.</strong></p>
 <p><strong>続けて、止まらない。</strong></p>]]></description>
+</item><item>
+    <title>Idek2023 Sofire=good</title>
+    <link>http://example.org/idek2023-sofiregood/</link>
+    <pubDate>Mon, 16 Jan 2023 08:58:12 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/idek2023-sofiregood/</guid>
+    <description><![CDATA[Idek2023 Sofire=goodDescription:
+Author:sofire=bad#6525
+Solfire from PicoCTF2021 was too hard so I decided to create my own version in the kernel instead of the blockchain. Now sofire=good not bad Author&rsquo;s note: Kernel Pwn
+7 solves / 497 points
+AnalysisWith the help of the source code it is easy to figure out the program. This is just a kernel heap challenge and has no business of blockchain. chall.ko has four functions as follows.]]></description>
 </item><item>
     <title>HITCON2020 Spark</title>
     <link>http://example.org/hitcon2020-spark/</link>
@@ -68,12 +79,5 @@
         <name>Niebelungen</name>
     </author><guid>http://example.org/seccon2021-kone-gadget/</guid>
     <description><![CDATA[kone_gadgetAdded to arch/x86/entry/syscalls/syscall_64.tbl 1 1337 64 seccon sys_seccon Added to kernel/sys.c: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 SYSCALL_DEFINE1(seccon, unsigned long, rip) { asm volatile(&#34;xor %%edx, %%edx;&#34; &#34;xor %%ebx, %%ebx;&#34; &#34;xor %%ecx, %%ecx;&#34; &#34;xor %%edi, %%edi;&#34; &#34;xor %%esi, %%esi;&#34; &#34;xor %%r8d, %%r8d;&#34; &#34;xor %%r9d, %%r9d;&#34; &#34;xor %%r10d, %%r10d;&#34; &#34;xor %%r11d, %%r11d;&#34; &#34;xor %%r12d, %%r12d;&#34; &#34;xor]]></description>
-</item><item>
-    <title>eebpf-Tokyowesterns CTF 2020</title>
-    <link>http://example.org/eebpf-tokyowesterns-ctf-2020/</link>
-    <pubDate>Mon, 17 Jan 2022 17:53:03 &#43;0800</pubDate><author>
-        <name>Niebelungen</name>
-    </author><guid>http://example.org/eebpf-tokyowesterns-ctf-2020/</guid>
-    <description><![CDATA[eebpf一道来自Tokyowesterns CTF 2020的内核题目。在做题之前，需要学习ebpf的相关知识。这里有一篇我的笔记。 Bug题目pa]]></description>
 </item></channel>
 </rss>

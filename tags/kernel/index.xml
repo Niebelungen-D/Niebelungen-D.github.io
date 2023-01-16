@@ -3,7 +3,18 @@
         <title>Kernel - 标签 - Niebelungen</title>
         <link>http://example.org/tags/kernel/</link>
         <description>Kernel - 标签 - Niebelungen</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Mon, 16 Jan 2023 08:58:12 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+    <title>Idek2023 Sofire=good</title>
+    <link>http://example.org/idek2023-sofiregood/</link>
+    <pubDate>Mon, 16 Jan 2023 08:58:12 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/idek2023-sofiregood/</guid>
+    <description><![CDATA[Idek2023 Sofire=goodDescription:
+Author:sofire=bad#6525
+Solfire from PicoCTF2021 was too hard so I decided to create my own version in the kernel instead of the blockchain. Now sofire=good not bad Author&rsquo;s note: Kernel Pwn
+7 solves / 497 points
+AnalysisWith the help of the source code it is easy to figure out the program. This is just a kernel heap challenge and has no business of blockchain. chall.ko has four functions as follows.]]></description>
+</item><item>
     <title>HITCON2020 Spark</title>
     <link>http://example.org/hitcon2020-spark/</link>
     <pubDate>Fri, 08 Apr 2022 22:36:49 &#43;0800</pubDate><author>

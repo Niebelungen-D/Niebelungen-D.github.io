@@ -279,7 +279,7 @@ AnalysisWith the help of the source code it is easy to figure out the program. T
 <p>Since there are no restrictions on the <code>/proc/kallsyms</code> file in this challenge, we can easily get the kernel address by open it.</p>
 <p>Finally, I change one of messages&rsquo;s <code>msg_msg-&gt;m_list-&gt;next</code> to <code>modprobe </code> and change it to <code>/tmp/x</code>.</p>
 <h2 id="exploit" class="headerLink">
-    <a href="#exploit" class="header-mark"></a>Exploit</h2><p>I use <code>popen</code> to read the <code>/proc/kallsyms</code>, it will create a pipe which will influent heap feng-shui. So I open it early.</p>
+    <a href="#exploit" class="header-mark"></a>Exploit</h2><p>I use <code>popen</code> to read the <code>/proc/kallsyms</code>, it will create a pipe which will influence heap feng-shui. So I open it early.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">  1

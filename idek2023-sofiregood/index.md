@@ -89,7 +89,7 @@ Finally, I change one of messages's `msg_msg->m_list->next` to `modprobe ` and c
 
 ## Exploit
 
-I use `popen` to read the `/proc/kallsyms`, it will create a pipe which will influent heap feng-shui. So I open it early.
+I use `popen` to read the `/proc/kallsyms`, it will create a pipe which will influence heap feng-shui. So I open it early.
 
 ```c
 #include "./exploit.h" // some header files

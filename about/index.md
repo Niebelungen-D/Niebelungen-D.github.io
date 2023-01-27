@@ -19,3 +19,5 @@ Links：
 
 [Sakura](https://eternalsakura13.com/): Chrome Fucker (Genius) 
 
+[crazyman_army](https://crazymanarmy.github.io/): Crazy! Leader!
+

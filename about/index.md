@@ -7,7 +7,7 @@ Play CTF with r3kapig！
 
 2021.06-2021.09 : venustech-ADLab Windows Security Researcher
 
-A student in XXX
+Senior student in HIT && Prospective graduate student in FDU
 
 QQ：HA4TGNJQG4ZTCNA= 
 

@@ -3,7 +3,14 @@
         <title>Kernel - 标签 - Niebelungen</title>
         <link>http://example.org/tags/kernel/</link>
         <description>Kernel - 标签 - Niebelungen</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Mon, 16 Jan 2023 08:58:12 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Wed, 18 Oct 2023 20:15:28 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+    <title>2023 巅峰极客初赛 mmsg 出题记录</title>
+    <link>http://example.org/mmsg-author-note/</link>
+    <pubDate>Wed, 18 Oct 2023 20:15:28 &#43;0800</pubDate><author>
+        <name>Niebelungen</name>
+    </author><guid>http://example.org/mmsg-author-note/</guid>
+    <description><![CDATA[2023 巅峰极客 初赛 mmsg 出题记录迟到的writeup，先给各位大佬道个歉，笔者是个菜鸡而且第一次出内核题，结果出了非预期。（给大家磕头了 预期思路下面]]></description>
+</item><item>
     <title>Idek2023 Sofire=good</title>
     <link>http://example.org/idek2023-sofiregood/</link>
     <pubDate>Mon, 16 Jan 2023 08:58:12 &#43;0800</pubDate><author>

@@ -126,13 +126,9 @@
         <h2 class="toc-title">目录</h2>
         <div class="toc-content" id="toc-content-auto"><nav id="TableOfContents">
   <ul>
-    <li><a href="#2023-巅峰极客-初赛-mmsg-出题记录">2023 巅峰极客 初赛 mmsg 出题记录</a>
-      <ul>
-        <li><a href="#预期思路">预期思路</a></li>
-        <li><a href="#解题情况">解题情况</a></li>
-        <li><a href="#总结">总结</a></li>
-      </ul>
-    </li>
+    <li><a href="#预期思路">预期思路</a></li>
+    <li><a href="#解题情况">解题情况</a></li>
+    <li><a href="#总结">总结</a></li>
   </ul>
 </nav></div>
     </div><script>document.getElementsByTagName("main")[0].setAttribute("pageStyle", "normal")</script><script>document.getElementsByTagName("main")[0].setAttribute("autoTOC", "true")</script><article class="page single"><h1 class="single-title animate__animated animate__flipInX">2023 巅峰极客初赛 mmsg 出题记录</h1><div class="post-meta">
@@ -148,19 +144,15 @@
                 </div>
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
-    <li><a href="#2023-巅峰极客-初赛-mmsg-出题记录">2023 巅峰极客 初赛 mmsg 出题记录</a>
-      <ul>
-        <li><a href="#预期思路">预期思路</a></li>
-        <li><a href="#解题情况">解题情况</a></li>
-        <li><a href="#总结">总结</a></li>
-      </ul>
-    </li>
+    <li><a href="#预期思路">预期思路</a></li>
+    <li><a href="#解题情况">解题情况</a></li>
+    <li><a href="#总结">总结</a></li>
   </ul>
 </nav></div>
-            </div><div class="content" id="content"><h2 id="2023-巅峰极客-初赛-mmsg-出题记录" class="headerLink">
-    <a href="#2023-%e5%b7%85%e5%b3%b0%e6%9e%81%e5%ae%a2-%e5%88%9d%e8%b5%9b-mmsg-%e5%87%ba%e9%a2%98%e8%ae%b0%e5%bd%95" class="header-mark"></a>2023 巅峰极客 初赛 mmsg 出题记录</h2><p>迟到的writeup，先给各位大佬道个歉，笔者是个菜鸡而且第一次出内核题，结果出了非预期。（给大家磕头了</p>
-<h3 id="预期思路" class="headerLink">
-    <a href="#%e9%a2%84%e6%9c%9f%e6%80%9d%e8%b7%af" class="header-mark"></a>预期思路</h3><p>下面给大家介绍一下预期解的方法，题目的灵感主要来自这篇论文：<a href="https://download.vusec.net/papers/uncontained_sec23.pdf" target="_blank" rel="noopener noreffer">uncontained</a></p>
+            </div><div class="content" id="content"><h1 id="2023-巅峰极客-初赛-mmsg-出题记录" class="headerLink">
+    <a href="#2023-%e5%b7%85%e5%b3%b0%e6%9e%81%e5%ae%a2-%e5%88%9d%e8%b5%9b-mmsg-%e5%87%ba%e9%a2%98%e8%ae%b0%e5%bd%95" class="header-mark"></a>2023 巅峰极客 初赛 mmsg 出题记录</h1><p>迟到的writeup，先给各位大佬道个歉，笔者是个菜鸡而且第一次出内核题，结果出了非预期。（给大家磕头了</p>
+<h2 id="预期思路" class="headerLink">
+    <a href="#%e9%a2%84%e6%9c%9f%e6%80%9d%e8%b7%af" class="header-mark"></a>预期思路</h2><p>下面给大家介绍一下预期解的方法，题目的灵感主要来自这篇论文：<a href="https://download.vusec.net/papers/uncontained_sec23.pdf" target="_blank" rel="noopener noreffer">uncontained</a></p>
 <p>现有的类型混淆分析研究多是针对面向对象的语言，例如 C++。论文则分析了这种漏洞对复杂的 C 语言项目所能造成的影响。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -843,8 +835,8 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="解题情况" class="headerLink">
-    <a href="#%e8%a7%a3%e9%a2%98%e6%83%85%e5%86%b5" class="header-mark"></a>解题情况</h3><p>笔者并没有负责比赛时的赛题运维，比赛结束后才知道出现了非预期。真的非常抱歉。</p>
+</div><h2 id="解题情况" class="headerLink">
+    <a href="#%e8%a7%a3%e9%a2%98%e6%83%85%e5%86%b5" class="header-mark"></a>解题情况</h2><p>笔者并没有负责比赛时的赛题运维，比赛结束后才知道出现了非预期。真的非常抱歉。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -871,8 +863,8 @@
 </div>
 </div><p>关闭驱动时没有将<code>mmsg_head</code>清空，导致了UAF，可以对其进行读写操作。这样以来就有更多思路供师傅们去利用了。看了一眼wp，解出的队伍都是非预期，不知道大家注意到预期的bug没有。</p>
 <p>所幸非预期没有那么严重，而且题目本身也并不难，不过令人出乎意料的是，即使有了非预期，解出的队伍也只有三个，比预想的要少很多了。</p>
-<h3 id="总结" class="headerLink">
-    <a href="#%e6%80%bb%e7%bb%93" class="header-mark"></a>总结</h3><p>接到出题任务时，笔者还在实验室打工，只能晚上加班出题。很久没有做 glibc 了不知道现在是什么情况。内核又没有什么特别好的思路，于是一拍脑袋想到了最近看到的论文。类型混淆是比较严重的漏洞，在 Linux 内核环境中，笔者希望能写出一个难以被发现但可以利用的类型混淆漏洞，迫于时间（其实是太菜）没能写出特别满意的。</p>
+<h2 id="总结" class="headerLink">
+    <a href="#%e6%80%bb%e7%bb%93" class="header-mark"></a>总结</h2><p>接到出题任务时，笔者还在实验室打工，只能晚上加班出题。很久没有做 glibc 了不知道现在是什么情况。内核又没有什么特别好的思路，于是一拍脑袋想到了最近看到的论文。类型混淆是比较严重的漏洞，在 Linux 内核环境中，笔者希望能写出一个难以被发现但可以利用的类型混淆漏洞，迫于时间（其实是太菜）没能写出特别满意的。</p>
 <p>而且，在编写题目时发现， <code>container_of</code> 是有编译期的类型检查的，所以理论上这类漏洞在较新版本中的内核已经不会存在了。为了绕过检查，我在开头将 <code>BUILD_BUG_ON_MSG</code> 重定义为空，更显的本题的拙劣了:( 。题目从各种意义上还有很多改进空间，笔者第一次出内核题，虽然小心翼翼地还是忽略了非预期。但是无论如何还是希望各位师傅玩的开心，学到了点东西。</p>
 </div>
 

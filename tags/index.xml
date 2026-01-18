@@ -1,28 +1,19 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-        <title>Tags - 标签 - Niebelungen</title>
-        <link>http://example.org/tags/</link>
-        <description>Tags - 标签 - Niebelungen</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 28 Aug 2021 01:27:56 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/" rel="self" type="application/rss+xml" /><item>
-    <title>Pwn</title>
-    <link>http://example.org/tags/pwn/</link>
-    <pubDate>Sat, 28 Aug 2021 01:27:56 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/tags/pwn/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>Writeups</title>
-    <link>http://example.org/tags/writeups/</link>
-    <pubDate>Fri, 04 Jun 2021 00:27:06 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/tags/writeups/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>Journal</title>
-    <link>http://example.org/tags/journal/</link>
-    <pubDate>Mon, 01 Jan 0001 00:00:00 &#43;0000</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/tags/journal/</guid>
-    <description><![CDATA[]]></description>
-</item></channel>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Tags on Niebelungen&#39;s</title>
+    <link>https://example.org/tags/</link>
+    <description>Recent content in Tags on Niebelungen&#39;s</description>
+    <generator>Hugo -- 0.148.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 10 Jul 2025 22:23:25 +0800</lastBuildDate>
+    <atom:link href="https://example.org/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>“Blog”</title>
+      <link>https://example.org/tags/blog/</link>
+      <pubDate>Thu, 10 Jul 2025 22:23:25 +0800</pubDate>
+      <guid>https://example.org/tags/blog/</guid>
+      <description></description>
+    </item>
+  </channel>
 </rss>

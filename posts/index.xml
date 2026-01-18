@@ -1,86 +1,60 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-        <title>所有文章 - Niebelungen</title>
-        <link>http://example.org/posts/</link>
-        <description>所有文章 | Niebelungen</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 28 Aug 2021 01:27:56 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
-    <title>Niebelungenのjournal</title>
-    <link>http://example.org/posts/jounal/</link>
-    <pubDate>Mon, 01 Jan 0001 00:00:00 &#43;0000</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/jounal/</guid>
-    <description><![CDATA[普普通通的周报 Keep going, never stop. 続けて、止まらない。 Niebelungenのjournal 2021-3.1~3.7 Glibc-2.20-malloc review IDApython learning 学习了基础的MIPS指令与函数调用，使用IDApy]]></description>
-</item><item>
-    <title>C&#43;&#43; Exploitation Basic</title>
-    <link>http://example.org/posts/cpp-exploitation-basic/</link>
-    <pubDate>Sat, 28 Aug 2021 01:27:56 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/cpp-exploitation-basic/</guid>
-    <description><![CDATA[C++ Exploitation Basic Learn from angelboy&rsquo;s slide &amp; reference link &amp; reference link [TOC] Name mangling C++支持函数重载，在C中如果两个函数重名，这将会是非常严重的编译器级错误。问题的关键在于出现了两个相同的s]]></description>
-</item><item>
-    <title>Linux Kernel-Pwn Learning</title>
-    <link>http://example.org/posts/linuxkernel-pwn-learning/</link>
-    <pubDate>Sun, 22 Aug 2021 01:04:36 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/linuxkernel-pwn-learning/</guid>
-    <description><![CDATA[Kernel ROP 学习Linux kernel Pwn的第一次尝试，hxp2020: kernel-rop Thanks @Midas for so great tutorials ! 环境设置 将附件解压得到以下文件： initramfs.cpio.gz：]]></description>
-</item><item>
-    <title>Musl Libc Pwn Learning</title>
-    <link>http://example.org/posts/musl-libc-pwn-learning/</link>
-    <pubDate>Sun, 22 Aug 2021 01:04:16 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/musl-libc-pwn-learning/</guid>
-    <description><![CDATA[musl libc pwn浅析 在defcon结束后，国内外的很多比赛都出现了musl libc的heap exploit，前几天的BSides Noida CTF中的bab]]></description>
-</item><item>
-    <title>UCore Lab 2</title>
-    <link>http://example.org/posts/ucore-lab-2/</link>
-    <pubDate>Sat, 10 Jul 2021 01:53:05 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/ucore-lab-2/</guid>
-    <description><![CDATA[<p>在正式开始写代码之前，我们先看看，整个内存管理的框架</p>
-<p>参考：<a href="https://jishuin.proginn.com/p/763bfbd248c0" target="_blank" rel="noopener noreffer">内存管理迷雾</a></p>]]></description>
-</item><item>
-    <title>UCore Lab 1</title>
-    <link>http://example.org/posts/ucore-lab-1/</link>
-    <pubDate>Sat, 10 Jul 2021 01:21:18 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/ucore-lab-1/</guid>
-    <description><![CDATA[<h1 id="启动">启动</h1>]]></description>
-</item><item>
-    <title>UCore Lab 0</title>
-    <link>http://example.org/posts/ucore-lab-0/</link>
-    <pubDate>Sat, 10 Jul 2021 01:01:20 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/ucore-lab-0/</guid>
-    <description><![CDATA[<h1 id="概述">概述</h1>
-<blockquote>
-<p>在学习一个东西之前，我都喜欢思考，这个东西解决了什么问题？</p>
-<p>所有的技术都不是无故产生的，面向问题的学习能更好的理解它的设计思路。</p>
-</blockquote>
-<p>操作系统是系统软件，在硬件层与应用软件之间。</p>
-<p><strong>为什么需要操作系统？</strong></p>
-<p>为用户提供更加方便的使用计算机的方式。对资源进行有效的管理。</p>]]></description>
-</item><item>
-    <title>2021NEWSCTF</title>
-    <link>http://example.org/posts/2021newsctf/</link>
-    <pubDate>Fri, 04 Jun 2021 00:27:06 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/2021newsctf/</guid>
-    <description><![CDATA[<p>题思路基本都是最近见过的，正好学习了一下高版本的堆利用。第一个ak了pwn，还是被挤了下去，体验极差。</p>]]></description>
-</item><item>
-    <title>2021DASxBUUCTF May</title>
-    <link>http://example.org/posts/2021dasxbuuctf-may/</link>
-    <pubDate>Thu, 03 Jun 2021 00:26:19 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/2021dasxbuuctf-may/</guid>
-    <description><![CDATA[<h1 id="安恒五月赛">安恒五月赛</h1>
-<p>常规pwn</p>]]></description>
-</item><item>
-    <title>Ciscn2021 Pwn</title>
-    <link>http://example.org/posts/ciscn2021-pwn/</link>
-    <pubDate>Wed, 26 May 2021 00:27:39 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/posts/ciscn2021-pwn/</guid>
-    <description><![CDATA[Ciscn2021-pwn 国赛部分pwn题的解答 lonelywolf double_free leak heap address ，打tcache_struct,leak libc，控制 next指针覆写__malloc_hook为og 1 2]]></description>
-</item></channel>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on Niebelungen&#39;s</title>
+    <link>https://example.org/posts/</link>
+    <description>Recent content in Posts on Niebelungen&#39;s</description>
+    <generator>Hugo -- 0.148.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 10 Jul 2025 22:23:25 +0800</lastBuildDate>
+    <atom:link href="https://example.org/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>test</title>
+      <link>https://example.org/posts/my-first-post/</link>
+      <pubDate>Thu, 10 Jul 2025 22:23:25 +0800</pubDate>
+      <guid>https://example.org/posts/my-first-post/</guid>
+      <description>&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;This is &lt;strong&gt;bold&lt;/strong&gt; text, and this is &lt;em&gt;emphasized&lt;/em&gt; text.&lt;/p&gt;
+&lt;p&gt;Visit the &lt;a href=&#34;https://gohugo.io&#34;&gt;Hugo&lt;/a&gt; website!&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-C&#34; data-lang=&#34;C&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nf&#34;&gt;printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;hello, world!&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;this is python&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;def&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;pass&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; 1&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; 2&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; 3&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;$$
+a = 1
+$$&lt;/p&gt;
+&lt;h2 id=&#34;test&#34;&gt;test&lt;/h2&gt;
+&lt;p&gt;asd&lt;/p&gt;
+&lt;p&gt;asdsaf&lt;/p&gt;
+&lt;p&gt;asdasf&lt;/p&gt;
+&lt;h2 id=&#34;测试&#34;&gt;测试&lt;/h2&gt;
+&lt;p&gt;adfdsf&lt;/p&gt;</description>
+    </item>
+  </channel>
 </rss>

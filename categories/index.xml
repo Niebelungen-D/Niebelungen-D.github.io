@@ -1,28 +1,11 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-        <title>Categories - 分类 - Niebelungen</title>
-        <link>http://example.org/categories/</link>
-        <description>Categories - 分类 - Niebelungen</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sat, 28 Aug 2021 01:27:56 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/" rel="self" type="application/rss+xml" /><item>
-    <title>Pwning</title>
-    <link>http://example.org/categories/pwning/</link>
-    <pubDate>Sat, 28 Aug 2021 01:27:56 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/categories/pwning/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>Writeups</title>
-    <link>http://example.org/categories/writeups/</link>
-    <pubDate>Fri, 04 Jun 2021 00:27:06 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/categories/writeups/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>Life</title>
-    <link>http://example.org/categories/life/</link>
-    <pubDate>Mon, 01 Jan 0001 00:00:00 &#43;0000</pubDate>
-    <author>作者</author>
-    <guid>http://example.org/categories/life/</guid>
-    <description><![CDATA[]]></description>
-</item></channel>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Categories on Niebelungen&#39;s</title>
+    <link>https://example.org/categories/</link>
+    <description>Recent content in Categories on Niebelungen&#39;s</description>
+    <generator>Hugo -- 0.148.0</generator>
+    <language>en-us</language>
+    <atom:link href="https://example.org/categories/index.xml" rel="self" type="application/rss+xml" />
+  </channel>
 </rss>

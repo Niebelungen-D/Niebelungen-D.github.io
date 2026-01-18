@@ -2,27 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/tags/blog/</loc>
+    <loc>https://niebelungen-d.github.io/tags/blog/</loc>
     <lastmod>2025-07-10T22:23:25+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/</loc>
+    <loc>https://niebelungen-d.github.io/</loc>
     <lastmod>2025-07-10T22:23:25+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/</loc>
+    <loc>https://niebelungen-d.github.io/posts/</loc>
     <lastmod>2025-07-10T22:23:25+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
+    <loc>https://niebelungen-d.github.io/tags/</loc>
     <lastmod>2025-07-10T22:23:25+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/my-first-post/</loc>
+    <loc>https://niebelungen-d.github.io/posts/my-first-post/</loc>
     <lastmod>2025-07-10T22:23:25+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/about/</loc>
+    <loc>https://niebelungen-d.github.io/about/</loc>
   </url><url>
-    <loc>http://localhost:1313/archives/</loc>
+    <loc>https://niebelungen-d.github.io/archives/</loc>
   </url><url>
-    <loc>http://localhost:1313/categories/</loc>
+    <loc>https://niebelungen-d.github.io/categories/</loc>
   </url><url>
-    <loc>http://localhost:1313/search/</loc>
+    <loc>https://niebelungen-d.github.io/search/</loc>
   </url>
 </urlset>

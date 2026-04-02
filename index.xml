@@ -62,14 +62,16 @@ $$&lt;/p&gt;
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://niebelungen-d.github.io/about/</guid>
       <description>&lt;h2 id=&#34;who-am-i&#34;&gt;Who am I&lt;/h2&gt;
-&lt;p&gt;I am a normal person who got lost in life.&lt;/p&gt;
-&lt;p&gt;I play CTFs with r3kapig.&lt;/p&gt;
+&lt;p&gt;I’m Niebelungen (Keenan Dong), with a focus on kernel security, exploit development, and operating system security. I participate in CTF competitions as a member of r3kapig.&lt;/p&gt;
+&lt;p&gt;Outside of security research, I’m still exploring my path in life.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;2021.06-2021.09 : Intern, Windows Security Researcher, XXXXXXXX&lt;/li&gt;
-&lt;li&gt;2024.09-2025.05 : Intern, Security Researcher, XXXXXXXX&lt;/li&gt;
+&lt;li&gt;2021.06 - 2021.09 : Windows Security Research Intern, XXXXXXXX&lt;/li&gt;
+&lt;li&gt;2024.09 - 2025.05 : Security Research Intern, XXXXXXXX&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;“如果你站在四岁的O的位置瞻望未来，你会说她前途未卜，你会说她前途无限，要是你站在她的终点看这个生命的轨迹你看到的只是一条路，你就只能看见一条命定之途。所有的生命都一样，所有的人都是这样。”&lt;/p&gt;
-&lt;p&gt;“我站在今天设想过去又幻想未来，过去和未来在今天随意交叉，因而过去和未来都刮着现在的风。”&lt;/p&gt;</description>
+&lt;blockquote&gt;
+&lt;p&gt;“我站在今天设想过去又幻想未来，过去和未来在今天随意交叉，因而过去和未来都刮着现在的风。”&lt;/p&gt;
+&lt;p&gt;—— 《务虚笔记》&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;At the moment, obtaining CVEs or finding bugs has become relatively easy. I aim to focus on more meaningful and interesting research.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

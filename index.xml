@@ -62,17 +62,35 @@ $$&lt;/p&gt;
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://niebelungen-d.github.io/about/</guid>
       <description>&lt;h2 id=&#34;who-am-i&#34;&gt;Who am I&lt;/h2&gt;
-&lt;p&gt;I’m Niebelungen (Keenan Dong), with a focus on kernel security, exploit development, and operating system security. I participate in CTF competitions as a member of r3kapig.&lt;/p&gt;
+&lt;p&gt;我是 Niebelungen（Keenan Dong），主要研究方向为内核安全、漏洞利用开发以及操作系统安全，目前以 r3kapig 战队成员身份参与各类 CTF 竞赛。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;2021.06 - 2021.09 : Windows Security Research Intern, XXXXXXXX&lt;/li&gt;
 &lt;li&gt;2024.09 - 2025.05 : Security Research Intern, XXXXXXXX&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;Outside of security research, I’m still exploring my path in life.&lt;/p&gt;
+&lt;p&gt;在安全研究之外，我也在持续探索个人的发展方向与人生路径。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;“我站在今天设想过去又幻想未来，过去和未来在今天随意交叉，因而过去和未来都刮着现在的风。”&lt;/p&gt;
 &lt;p&gt;—— 《务虚笔记》&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;cves&#34;&gt;CVEs&lt;/h2&gt;
-&lt;p&gt;At the moment, obtaining CVEs or finding bugs has become relatively easy. I aim to focus on more meaningful and interesting research.&lt;/p&gt;</description>
+&lt;p&gt;目前，无论是获取 CVE 编号还是挖掘漏洞，都已经变得相对容易。我更希望将精力投入到更有价值、更具研究意义且更有趣的方向上。&lt;/p&gt;
+&lt;p&gt;libvips:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.cve.org/CVERecord?id=CVE-2026-2913&#34;&gt;CVE-2026-2913&lt;/a&gt;
+&lt;a href=&#34;https://www.cve.org/CVERecord?id=CVE-2026-3145&#34;&gt;CVE-2026-3145&lt;/a&gt;
+&lt;a href=&#34;https://www.cve.org/CVERecord?id=CVE-2026-3146&#34;&gt;CVE-2026-3146&lt;/a&gt;
+&lt;a href=&#34;https://www.cve.org/CVERecord?id=CVE-2026-3147&#34;&gt;CVE-2026-3147&lt;/a&gt;
+&lt;a href=&#34;https://www.cve.org/CVERecord?id=CVE-2026-3281&#34;&gt;CVE-2026-3281&lt;/a&gt;
+&lt;a href=&#34;https://www.cve.org/CVERecord?id=CVE-2026-3282&#34;&gt;CVE-2026-3282&lt;/a&gt;
+&lt;a href=&#34;https://www.cve.org/CVERecord?id=CVE-2026-3283&#34;&gt;CVE-2026-3283&lt;/a&gt;
+&lt;a href=&#34;https://www.cve.org/CVERecord?id=CVE-2026-3284&#34;&gt;CVE-2026-3284&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;libheif:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.cve.org/CVERecord?id=CVE-2026-3950&#34;&gt;CVE-2026-3950&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Linux Kernel:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://lore.kernel.org/linux-cve-announce/2026040203-CVE-2026-23413-fa13@gregkh/T/#u&#34;&gt;CVE-2026-23413&lt;/a&gt;
+&lt;a href=&#34;https://lore.kernel.org/linux-cve-announce/2026040316-CVE-2026-23449-1717@gregkh/T/#u&#34;&gt;CVE-2026-23449&lt;/a&gt;
+&lt;a href=&#34;https://lore.kernel.org/linux-cve-announce/2026042455-CVE-2026-31635-73bd@gregkh/T/#u&#34;&gt;CVE-2026-31635&lt;/a&gt;
+&lt;a href=&#34;https://lore.kernel.org/linux-cve-announce/2026042455-CVE-2026-31636-2951@gregkh/T/#u&#34;&gt;CVE-2026-31636&lt;/a&gt;
+&lt;a href=&#34;https://lore.kernel.org/linux-cve-announce/2026050157-CVE-2026-43017-fefa@gregkh/T/#u&#34;&gt;CVE-2026-43017&lt;/a&gt;
+&lt;a href=&#34;https://lore.kernel.org/linux-cve-announce/2026050157-CVE-2026-43020-3561@gregkh/T/#u&#34;&gt;CVE-2026-43020&lt;/a&gt;&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

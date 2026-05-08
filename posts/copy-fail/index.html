@@ -1,54 +1,35 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto">
 
-<head><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
-<title>About me | Niebelungen&#39;s</title>
-<meta name="keywords" content="">
-<meta name="description" content="Who am I
-我是 Niebelungen（Keenan Dong），主要研究方向为内核安全、漏洞利用开发以及操作系统安全，目前以 r3kapig 战队成员身份参与各类 CTF 竞赛。
+<meta name="robots" content="noindex, nofollow">
+<title>CVE-2026-31431 Copy Fail 漏洞分析 | Niebelungen&#39;s</title>
+<meta name="keywords" content="kernel">
+<meta name="description" content="2026年4月29号，theori公开披露了漏洞Copy Fail (CVE-2026-31431)。该漏洞可以在自2017年以来几乎所有的Linux发行版上的本地稳定提权。
+该漏洞发生在内核authencesn加密模块模板中的逻辑漏洞，通过AF_ALG套接字和splice()链式调用，赋予非特权用户对任何可读取文件的页面缓存进行确定性4字节写入的权限。xint公开了一个732字节的利用脚本，通过修改/usr/bin/su实现权限提升，并且不依赖任何条件竞争和符号地址。
+本文将对漏洞发现过程，漏洞根因以及未来检测此类漏洞的思路进行简要分析。
+漏洞发现过程
+在Copy Fail披露之前，Linux内核稳定提权工具还只有DirtyCow和DirtyPipe。时隔4年又一稳定提权漏洞被发现，theori声称该漏洞由他们自己开发的漏洞检测智能体Xint发现。
+漏洞的发现者Taeyang Lee在早前针对kernelCTF的工作中对AF_ALG攻击面有了一定的研究。于是，Theori将该子系统作为Xint对Linux内核的尝试起点。根据公开博客所说，他们提供给智能体的提示词很简单：
+This is the linux crypto/ subsystem. Please examine all codepaths reachable from userspace syscalls. Note one key observation: splice() can deliver page-cache references of read-only files (including setuid binaries) to crypto TX scatterlists.
+在大概一个小时后，就得到了漏洞报告。如下：
 
-2021.06 - 2021.09 : Windows Security Research Intern, XXXXXXXX
-2024.09 - 2025.05 : Security Research Intern, XXXXXXXX
-
-在安全研究之外，我也在持续探索个人的发展方向与人生路径。
-
-“我站在今天设想过去又幻想未来，过去和未来在今天随意交叉，因而过去和未来都刮着现在的风。”
-—— 《务虚笔记》
-CVEs
-目前，无论是获取 CVE 编号还是挖掘漏洞，都已经变得相对容易。我更希望将精力投入到更有价值、更具研究意义且更有趣的方向上。
-libvips:
-CVE-2026-2913
-CVE-2026-3145
-CVE-2026-3146
-CVE-2026-3147
-CVE-2026-3281
-CVE-2026-3282
-CVE-2026-3283
-CVE-2026-3284
-libheif:
-CVE-2026-3950
-Linux Kernel:
-CVE-2026-23413
-CVE-2026-23449
-CVE-2026-31635
-CVE-2026-31636
-CVE-2026-43017
-CVE-2026-43020
-CVE-2026-43107">
+从整个漏洞发现过程中，我们并没有得到多少有关智能体细节的信息。从提示词中，可以看到其中给出了较为明确的注意点。仅从展示的漏洞报告中，可以看到这似乎是一个静态代码审计的智能体，我们无法看到是否存在动态验证的部分。
+最近，我也尝试使用AI去挖掘漏洞，其中一个尝试使其重点关注crypto模块，但仅关注内存安全问题。在Copy Fail公布后，我再次检查了AI的发现结果，发现其多次在AF_ALG部分尝试，甚至多次提到“TX/RX SGL”、“aead_recvmsg()”等，但是由于PoC无法通过KASAN进行动态确认，AI逐渐放弃该部分。Xint的报告仅有静态分析，并没有提到在一轮审计后存在多少误报率，以及多少漏洞需要人工验证，人工需要对目标模块了解到多少程度。这代表尽管Xint发现了如此具有影响力的漏洞，模型自身能力或许占了较大功劳，而后续漏洞的确认、分析则依然需要对目标有一定了解的专业人员介入。
+漏洞根因与原理">
 <meta name="author" content="">
-<link rel="canonical" href="https://niebelungen-d.github.io/about/">
+<link rel="canonical" href="http://localhost:1313/posts/copy-fail/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.css" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://niebelungen-d.github.io/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://niebelungen-d.github.io/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://niebelungen-d.github.io/favicon-32x32.png">
-<link rel="apple-touch-icon" href="https://niebelungen-d.github.io/apple-touch-icon.png">
-<link rel="mask-icon" href="https://niebelungen-d.github.io/safari-pinned-tab.svg">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="https://niebelungen-d.github.io/about/">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/copy-fail/">
 <noscript>
     <style>
         #theme-toggle,
@@ -95,100 +76,7 @@ CVE-2026-43107">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet"><meta property="og:url" content="https://niebelungen-d.github.io/about/">
-  <meta property="og:site_name" content="Niebelungen&#39;s">
-  <meta property="og:title" content="About me">
-  <meta property="og:description" content="Who am I 我是 Niebelungen（Keenan Dong），主要研究方向为内核安全、漏洞利用开发以及操作系统安全，目前以 r3kapig 战队成员身份参与各类 CTF 竞赛。
-2021.06 - 2021.09 : Windows Security Research Intern, XXXXXXXX 2024.09 - 2025.05 : Security Research Intern, XXXXXXXX 在安全研究之外，我也在持续探索个人的发展方向与人生路径。
-“我站在今天设想过去又幻想未来，过去和未来在今天随意交叉，因而过去和未来都刮着现在的风。”
-—— 《务虚笔记》
-CVEs 目前，无论是获取 CVE 编号还是挖掘漏洞，都已经变得相对容易。我更希望将精力投入到更有价值、更具研究意义且更有趣的方向上。
-libvips:
-CVE-2026-2913 CVE-2026-3145 CVE-2026-3146 CVE-2026-3147 CVE-2026-3281 CVE-2026-3282 CVE-2026-3283 CVE-2026-3284
-libheif:
-CVE-2026-3950
-Linux Kernel:
-CVE-2026-23413 CVE-2026-23449 CVE-2026-31635 CVE-2026-31636 CVE-2026-43017 CVE-2026-43020 CVE-2026-43107">
-  <meta property="og:locale" content="en-us">
-  <meta property="og:type" content="article">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="About me">
-<meta name="twitter:description" content="Who am I
-我是 Niebelungen（Keenan Dong），主要研究方向为内核安全、漏洞利用开发以及操作系统安全，目前以 r3kapig 战队成员身份参与各类 CTF 竞赛。
-
-2021.06 - 2021.09 : Windows Security Research Intern, XXXXXXXX
-2024.09 - 2025.05 : Security Research Intern, XXXXXXXX
-
-在安全研究之外，我也在持续探索个人的发展方向与人生路径。
-
-“我站在今天设想过去又幻想未来，过去和未来在今天随意交叉，因而过去和未来都刮着现在的风。”
-—— 《务虚笔记》
-CVEs
-目前，无论是获取 CVE 编号还是挖掘漏洞，都已经变得相对容易。我更希望将精力投入到更有价值、更具研究意义且更有趣的方向上。
-libvips:
-CVE-2026-2913
-CVE-2026-3145
-CVE-2026-3146
-CVE-2026-3147
-CVE-2026-3281
-CVE-2026-3282
-CVE-2026-3283
-CVE-2026-3284
-libheif:
-CVE-2026-3950
-Linux Kernel:
-CVE-2026-23413
-CVE-2026-23449
-CVE-2026-31635
-CVE-2026-31636
-CVE-2026-43017
-CVE-2026-43020
-CVE-2026-43107">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "About me",
-      "item": "https://niebelungen-d.github.io/about/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "About me",
-  "name": "About me",
-  "description": "Who am I 我是 Niebelungen（Keenan Dong），主要研究方向为内核安全、漏洞利用开发以及操作系统安全，目前以 r3kapig 战队成员身份参与各类 CTF 竞赛。\n2021.06 - 2021.09 : Windows Security Research Intern, XXXXXXXX 2024.09 - 2025.05 : Security Research Intern, XXXXXXXX 在安全研究之外，我也在持续探索个人的发展方向与人生路径。\n“我站在今天设想过去又幻想未来，过去和未来在今天随意交叉，因而过去和未来都刮着现在的风。”\n—— 《务虚笔记》\nCVEs 目前，无论是获取 CVE 编号还是挖掘漏洞，都已经变得相对容易。我更希望将精力投入到更有价值、更具研究意义且更有趣的方向上。\nlibvips:\nCVE-2026-2913 CVE-2026-3145 CVE-2026-3146 CVE-2026-3147 CVE-2026-3281 CVE-2026-3282 CVE-2026-3283 CVE-2026-3284\nlibheif:\nCVE-2026-3950\nLinux Kernel:\nCVE-2026-23413 CVE-2026-23449 CVE-2026-31635 CVE-2026-31636 CVE-2026-43017 CVE-2026-43020 CVE-2026-43107\n",
-  "keywords": [
-    
-  ],
-  "articleBody": "Who am I 我是 Niebelungen（Keenan Dong），主要研究方向为内核安全、漏洞利用开发以及操作系统安全，目前以 r3kapig 战队成员身份参与各类 CTF 竞赛。\n2021.06 - 2021.09 : Windows Security Research Intern, XXXXXXXX 2024.09 - 2025.05 : Security Research Intern, XXXXXXXX 在安全研究之外，我也在持续探索个人的发展方向与人生路径。\n“我站在今天设想过去又幻想未来，过去和未来在今天随意交叉，因而过去和未来都刮着现在的风。”\n—— 《务虚笔记》\nCVEs 目前，无论是获取 CVE 编号还是挖掘漏洞，都已经变得相对容易。我更希望将精力投入到更有价值、更具研究意义且更有趣的方向上。\nlibvips:\nCVE-2026-2913 CVE-2026-3145 CVE-2026-3146 CVE-2026-3147 CVE-2026-3281 CVE-2026-3282 CVE-2026-3283 CVE-2026-3284\nlibheif:\nCVE-2026-3950\nLinux Kernel:\nCVE-2026-23413 CVE-2026-23449 CVE-2026-31635 CVE-2026-31636 CVE-2026-43017 CVE-2026-43020 CVE-2026-43107\n",
-  "wordCount" : "55",
-  "inLanguage": "en",
-  "datePublished": "0001-01-01T00:00:00Z",
-  "dateModified": "0001-01-01T00:00:00Z",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://niebelungen-d.github.io/about/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Niebelungen's",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://niebelungen-d.github.io/favicon.ico"
-    }
-  }
-}
-</script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
 </head>
 
 <body class="" id="top">
@@ -206,7 +94,7 @@ CVE-2026-43107">
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="https://niebelungen-d.github.io/" accesskey="h" title="Niebelungen&#39;s (Alt + H)">Niebelungen&#39;s</a>
+            <a href="http://localhost:1313/" accesskey="h" title="Niebelungen&#39;s (Alt + H)">Niebelungen&#39;s</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -232,18 +120,18 @@ CVE-2026-43107">
         </div>
         <ul id="menu">
             <li>
-                <a href="https://niebelungen-d.github.io/archives/" title="Archives">
+                <a href="http://localhost:1313/archives/" title="Archives">
                     <span>Archives</span>
                 </a>
             </li>
             <li>
-                <a href="https://niebelungen-d.github.io/tags/" title="Tags">
+                <a href="http://localhost:1313/tags/" title="Tags">
                     <span>Tags</span>
                 </a>
             </li>
             <li>
-                <a href="https://niebelungen-d.github.io/about/" title="About">
-                    <span class="active">About</span>
+                <a href="http://localhost:1313/about/" title="About">
+                    <span>About</span>
                 </a>
             </li>
         </ul>
@@ -255,9 +143,15 @@ CVE-2026-43107">
   <header class="post-header">
     
     <h1 class="post-title entry-hint-parent">
-      About me
+      CVE-2026-31431 Copy Fail 漏洞分析
+      <span class="entry-hint" title="Draft">
+        <svg xmlns="http://www.w3.org/2000/svg" height="35" viewBox="0 -960 960 960" fill="currentColor">
+          <path
+            d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
+        </svg>
+      </span>
     </h1>
-    <div class="post-meta">1 min
+    <div class="post-meta"><span title='2026-05-05 15:25:03 +0800 CST'>May 5, 2026</span>&nbsp;·&nbsp;1 min
 
 </div>
   </header> <aside id="toc-container" class="toc-container wide">
@@ -269,9 +163,9 @@ CVE-2026-43107">
 
             <div class="inner"><ul>
                     <li>
-                        <a href="#who-am-i" aria-label="Who am I">Who am I</a></li>
+                        <a href="#%e6%bc%8f%e6%b4%9e%e5%8f%91%e7%8e%b0%e8%bf%87%e7%a8%8b" aria-label="漏洞发现过程">漏洞发现过程</a></li>
                     <li>
-                        <a href="#cves" aria-label="CVEs">CVEs</a>
+                        <a href="#%e6%bc%8f%e6%b4%9e%e6%a0%b9%e5%9b%a0%e4%b8%8e%e5%8e%9f%e7%90%86" aria-label="漏洞根因与原理">漏洞根因与原理</a>
                     </li>
                 </ul>
             </div>
@@ -376,50 +270,32 @@ CVE-2026-43107">
     
 </script>
 
-  <div class="post-content"><h2 id="who-am-i">Who am I<a hidden class="anchor" aria-hidden="true" href="#who-am-i">#</a></h2>
-<p>我是 Niebelungen（Keenan Dong），主要研究方向为内核安全、漏洞利用开发以及操作系统安全，目前以 r3kapig 战队成员身份参与各类 CTF 竞赛。</p>
-<ul>
-<li>2021.06 - 2021.09 : Windows Security Research Intern, XXXXXXXX</li>
-<li>2024.09 - 2025.05 : Security Research Intern, XXXXXXXX</li>
-</ul>
-<p>在安全研究之外，我也在持续探索个人的发展方向与人生路径。</p>
-<blockquote>
-<p>“我站在今天设想过去又幻想未来，过去和未来在今天随意交叉，因而过去和未来都刮着现在的风。”</p>
-<p>—— 《务虚笔记》</p></blockquote>
-<h2 id="cves">CVEs<a hidden class="anchor" aria-hidden="true" href="#cves">#</a></h2>
-<p>目前，无论是获取 CVE 编号还是挖掘漏洞，都已经变得相对容易。我更希望将精力投入到更有价值、更具研究意义且更有趣的方向上。</p>
-<p>libvips:</p>
-<p><a href="https://www.cve.org/CVERecord?id=CVE-2026-2913">CVE-2026-2913</a>
-<a href="https://www.cve.org/CVERecord?id=CVE-2026-3145">CVE-2026-3145</a>
-<a href="https://www.cve.org/CVERecord?id=CVE-2026-3146">CVE-2026-3146</a>
-<a href="https://www.cve.org/CVERecord?id=CVE-2026-3147">CVE-2026-3147</a>
-<a href="https://www.cve.org/CVERecord?id=CVE-2026-3281">CVE-2026-3281</a>
-<a href="https://www.cve.org/CVERecord?id=CVE-2026-3282">CVE-2026-3282</a>
-<a href="https://www.cve.org/CVERecord?id=CVE-2026-3283">CVE-2026-3283</a>
-<a href="https://www.cve.org/CVERecord?id=CVE-2026-3284">CVE-2026-3284</a></p>
-<p>libheif:</p>
-<p><a href="https://www.cve.org/CVERecord?id=CVE-2026-3950">CVE-2026-3950</a></p>
-<p>Linux Kernel:</p>
-<p><a href="https://lore.kernel.org/linux-cve-announce/2026040203-CVE-2026-23413-fa13@gregkh/T/#u">CVE-2026-23413</a>
-<a href="https://lore.kernel.org/linux-cve-announce/2026040316-CVE-2026-23449-1717@gregkh/T/#u">CVE-2026-23449</a>
-<a href="https://lore.kernel.org/linux-cve-announce/2026042455-CVE-2026-31635-73bd@gregkh/T/#u">CVE-2026-31635</a>
-<a href="https://lore.kernel.org/linux-cve-announce/2026042455-CVE-2026-31636-2951@gregkh/T/#u">CVE-2026-31636</a>
-<a href="https://lore.kernel.org/linux-cve-announce/2026050157-CVE-2026-43017-fefa@gregkh/T/#u">CVE-2026-43017</a>
-<a href="https://lore.kernel.org/linux-cve-announce/2026050157-CVE-2026-43020-3561@gregkh/T/#u">CVE-2026-43020</a>
-<a href="https://lore.kernel.org/linux-cve-announce/2026050623-CVE-2026-43107-dc43@gregkh/T/#u">CVE-2026-43107</a></p>
+  <div class="post-content"><p>2026年4月29号，theori公开披露了漏洞<a href="http://copy.fail/">Copy Fail</a> (CVE-2026-31431)。该漏洞可以在自2017年以来几乎所有的Linux发行版上的本地稳定提权。</p>
+<p>该漏洞发生在内核<code>authencesn</code>加密模块模板中的逻辑漏洞，通过<code>AF_ALG</code>套接字和<code>splice()</code>链式调用，赋予非特权用户对任何可读取文件的页面缓存进行确定性4字节写入的权限。xint公开了一个732字节的利用脚本，通过修改<code>/usr/bin/su</code>实现权限提升，并且不依赖任何条件竞争和符号地址。</p>
+<p>本文将对漏洞发现过程，漏洞根因以及未来检测此类漏洞的思路进行简要分析。</p>
+<h2 id="漏洞发现过程">漏洞发现过程<a hidden class="anchor" aria-hidden="true" href="#漏洞发现过程">#</a></h2>
+<p>在Copy Fail披露之前，Linux内核稳定提权工具还只有DirtyCow和DirtyPipe。时隔4年又一稳定提权漏洞被发现，theori声称该漏洞由他们自己开发的漏洞检测智能体Xint发现。</p>
+<p>漏洞的发现者Taeyang Lee在早前针对kernelCTF的工作中对AF_ALG攻击面有了一定的研究。于是，Theori将该子系统作为Xint对Linux内核的尝试起点。根据公开博客所说，他们提供给智能体的提示词很简单：</p>
+<p>This is the linux crypto/ subsystem. Please examine all codepaths reachable from userspace syscalls. Note one key observation: splice() can deliver page-cache references of read-only files (including setuid binaries) to crypto TX scatterlists.</p>
+<p>在大概一个小时后，就得到了漏洞报告。如下：</p>
+<p><img loading="lazy" src="https://image.inblog.dev/?url=https%3A%2F%2Fsource.inblog.dev%2Fpost_image%2F2026-04-23T04%3A16%3A13.337Z-7de0db29-60e6-4dd6-b77c-3b27de2656d6&w=1920&q=85"></p>
+<p>从整个漏洞发现过程中，我们并没有得到多少有关智能体细节的信息。从提示词中，可以看到其中给出了较为明确的注意点。仅从展示的漏洞报告中，可以看到这似乎是一个静态代码审计的智能体，我们无法看到是否存在动态验证的部分。</p>
+<p>最近，我也尝试使用AI去挖掘漏洞，其中一个尝试使其重点关注crypto模块，但仅关注内存安全问题。在Copy Fail公布后，我再次检查了AI的发现结果，发现其多次在AF_ALG部分尝试，甚至多次提到“TX/RX SGL”、“aead_recvmsg()”等，但是由于PoC无法通过KASAN进行动态确认，AI逐渐放弃该部分。Xint的报告仅有静态分析，并没有提到在一轮审计后存在多少误报率，以及多少漏洞需要人工验证，人工需要对目标模块了解到多少程度。这代表尽管Xint发现了如此具有影响力的漏洞，模型自身能力或许占了较大功劳，而后续漏洞的确认、分析则依然需要对目标有一定了解的专业人员介入。</p>
+<h2 id="漏洞根因与原理">漏洞根因与原理<a hidden class="anchor" aria-hidden="true" href="#漏洞根因与原理">#</a></h2>
 
 
   </div>
 
   <footer class="post-footer">
     <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/kernel/">Kernel</a></li>
     </ul>
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="https://niebelungen-d.github.io/">Niebelungen&#39;s</a></span> · 
+        <span>&copy; 2026 <a href="http://localhost:1313/">Niebelungen&#39;s</a></span> · 
 
     <span>
         Powered by

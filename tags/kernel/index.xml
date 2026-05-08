@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Kernel on Niebelungen&#39;s</title>
+    <link>http://localhost:1313/tags/kernel/</link>
+    <description>Recent content in Kernel on Niebelungen&#39;s</description>
+    <generator>Hugo -- 0.148.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 05 May 2026 15:25:03 +0800</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/kernel/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CVE-2026-31431 Copy Fail 漏洞分析</title>
+      <link>http://localhost:1313/posts/copy-fail/</link>
+      <pubDate>Tue, 05 May 2026 15:25:03 +0800</pubDate>
+      <guid>http://localhost:1313/posts/copy-fail/</guid>
+      <description>&lt;p&gt;2026年4月29号，theori公开披露了漏洞&lt;a href=&#34;http://copy.fail/&#34;&gt;Copy Fail&lt;/a&gt; (CVE-2026-31431)。该漏洞可以在自2017年以来几乎所有的Linux发行版上的本地稳定提权。&lt;/p&gt;
+&lt;p&gt;该漏洞发生在内核&lt;code&gt;authencesn&lt;/code&gt;加密模块模板中的逻辑漏洞，通过&lt;code&gt;AF_ALG&lt;/code&gt;套接字和&lt;code&gt;splice()&lt;/code&gt;链式调用，赋予非特权用户对任何可读取文件的页面缓存进行确定性4字节写入的权限。xint公开了一个732字节的利用脚本，通过修改&lt;code&gt;/usr/bin/su&lt;/code&gt;实现权限提升，并且不依赖任何条件竞争和符号地址。&lt;/p&gt;
+&lt;p&gt;本文将对漏洞发现过程，漏洞根因以及未来检测此类漏洞的思路进行简要分析。&lt;/p&gt;
+&lt;h2 id=&#34;漏洞发现过程&#34;&gt;漏洞发现过程&lt;/h2&gt;
+&lt;p&gt;在Copy Fail披露之前，Linux内核稳定提权工具还只有DirtyCow和DirtyPipe。时隔4年又一稳定提权漏洞被发现，theori声称该漏洞由他们自己开发的漏洞检测智能体Xint发现。&lt;/p&gt;
+&lt;p&gt;漏洞的发现者Taeyang Lee在早前针对kernelCTF的工作中对AF_ALG攻击面有了一定的研究。于是，Theori将该子系统作为Xint对Linux内核的尝试起点。根据公开博客所说，他们提供给智能体的提示词很简单：&lt;/p&gt;
+&lt;p&gt;This is the linux crypto/ subsystem. Please examine all codepaths reachable from userspace syscalls. Note one key observation: splice() can deliver page-cache references of read-only files (including setuid binaries) to crypto TX scatterlists.&lt;/p&gt;
+&lt;p&gt;在大概一个小时后，就得到了漏洞报告。如下：&lt;/p&gt;
+&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;https://image.inblog.dev/?url=https%3A%2F%2Fsource.inblog.dev%2Fpost_image%2F2026-04-23T04%3A16%3A13.337Z-7de0db29-60e6-4dd6-b77c-3b27de2656d6&amp;w=1920&amp;q=85&#34;&gt;&lt;/p&gt;
+&lt;p&gt;从整个漏洞发现过程中，我们并没有得到多少有关智能体细节的信息。从提示词中，可以看到其中给出了较为明确的注意点。仅从展示的漏洞报告中，可以看到这似乎是一个静态代码审计的智能体，我们无法看到是否存在动态验证的部分。&lt;/p&gt;
+&lt;p&gt;最近，我也尝试使用AI去挖掘漏洞，其中一个尝试使其重点关注crypto模块，但仅关注内存安全问题。在Copy Fail公布后，我再次检查了AI的发现结果，发现其多次在AF_ALG部分尝试，甚至多次提到“TX/RX SGL”、“aead_recvmsg()”等，但是由于PoC无法通过KASAN进行动态确认，AI逐渐放弃该部分。Xint的报告仅有静态分析，并没有提到在一轮审计后存在多少误报率，以及多少漏洞需要人工验证，人工需要对目标模块了解到多少程度。这代表尽管Xint发现了如此具有影响力的漏洞，模型自身能力或许占了较大功劳，而后续漏洞的确认、分析则依然需要对目标有一定了解的专业人员介入。&lt;/p&gt;
+&lt;h2 id=&#34;漏洞根因与原理&#34;&gt;漏洞根因与原理&lt;/h2&gt;</description>
+    </item>
+  </channel>
+</rss>

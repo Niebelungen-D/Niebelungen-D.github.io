@@ -6,8 +6,33 @@
     <description>Recent content on Niebelungen&#39;s</description>
     <generator>Hugo -- 0.148.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 01 Jan 0001 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 06 Jun 2026 21:13:43 +0800</lastBuildDate>
     <atom:link href="https://niebelungen-d.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[翻译] How LLMs Actually Work</title>
+      <link>https://niebelungen-d.github.io/posts/translation-how-llms-actually-work/</link>
+      <pubDate>Sat, 06 Jun 2026 21:13:43 +0800</pubDate>
+      <guid>https://niebelungen-d.github.io/posts/translation-how-llms-actually-work/</guid>
+      <description>&lt;p&gt;原文：&lt;a href=&#34;https://www.0xkato.xyz/how-llms-actually-work/&#34;&gt;How LLMs Actually Work&lt;/a&gt;，作者 0xkato，发布于 2026 年 6 月 1 日。本文为翻译。&lt;/p&gt;
+&lt;p&gt;这篇文章会带你走一遍 LLM 是如何工作的。现代 LLM 基本上都是通过一层又一层堆叠 transformer block 构建出来的，所以只要理解 transformer 这套机制，就已经走完了大半段路。&lt;/p&gt;
+&lt;p&gt;我会介绍现代基于 transformer 的 LLM 内部的核心机制，但不会塞进过多繁复的数学细节。别误会，你当然应该学习数学，但这篇文章可以作为一个入门。&lt;/p&gt;
+&lt;p&gt;大多数现代 LLM 都共享同一套 transformer 家族的骨架。它们之间的差异来自训练数据、规模和配置选择，以及在基础模型之上做的后训练。读完之后，你应该能够阅读很多现代 LLM 论文或 model card，并知道每一节讨论的是架构里的哪一块。&lt;/p&gt;
+&lt;p&gt;路径如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Tokens：一串文本如何变成一串整数。&lt;/li&gt;
+&lt;li&gt;Embeddings：这些整数如何获得意义。&lt;/li&gt;
+&lt;li&gt;Positional encoding：模型如何知道 token 出现的顺序。&lt;/li&gt;
+&lt;li&gt;Attention：token 之间如何共享信息。&lt;/li&gt;
+&lt;li&gt;Multi-head attention：模型如何同时追踪多种关系。&lt;/li&gt;
+&lt;li&gt;Feed-forward network：模型中很大一部分存储结构位于哪里。&lt;/li&gt;
+&lt;li&gt;Residual stream 和 layer normalization：是什么让深层堆叠可以训练。&lt;/li&gt;
+&lt;li&gt;Predicting the next token：模型实际输出什么，以及生成循环如何工作。&lt;/li&gt;
+&lt;li&gt;Architecture vs trained weights：现代 LLM 中哪些东西大体共享，哪些东西彼此不同。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;figure class=&#34;align-center numbered-figure&#34;&gt;
+  &lt;img alt=&#34;Transformer pipeline&#34; loading=&#34;lazy&#34; src=&#34;https://niebelungen-d.github.io/images/how-llms-actually-work/transformer-pipeline.png&#34; title=&#34;从 tokenization 到 next-token prediction 的 transformer 流水线&#34;&gt;
+  &lt;figcaption&gt;&lt;p&gt;从 tokenization 到 next-token prediction 的 transformer 流水线&lt;/p&gt;</description>
+    </item>
     <item>
       <title>About me</title>
       <link>https://niebelungen-d.github.io/about/</link>

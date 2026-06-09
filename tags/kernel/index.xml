@@ -24,7 +24,66 @@
 &lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;https://image.inblog.dev/?url=https%3A%2F%2Fsource.inblog.dev%2Fpost_image%2F2026-04-23T04%3A16%3A13.337Z-7de0db29-60e6-4dd6-b77c-3b27de2656d6&amp;w=1920&amp;q=85&#34;&gt;&lt;/p&gt;
 &lt;p&gt;从整个漏洞发现过程中，我们并没有得到多少有关智能体细节的信息。从提示词中，可以看到其中给出了较为明确的注意点。仅从展示的漏洞报告中，可以看到这似乎是一个静态代码审计的智能体，我们无法看到是否存在动态验证的部分。&lt;/p&gt;
 &lt;p&gt;最近，我也尝试使用AI去挖掘漏洞，其中一个尝试使其重点关注crypto模块，但仅关注内存安全问题。在Copy Fail公布后，我再次检查了AI的发现结果，发现其多次在AF_ALG部分尝试，甚至多次提到“TX/RX SGL”、“aead_recvmsg()”等，但是由于PoC无法通过KASAN进行动态确认，AI逐渐放弃该部分。Xint的报告仅有静态分析，并没有提到在一轮审计后存在多少误报率，以及多少漏洞需要人工验证，人工需要对目标模块了解到多少程度。这代表尽管Xint发现了如此具有影响力的漏洞，模型自身能力或许占了较大功劳，而后续漏洞的确认、分析则依然需要对目标有一定了解的专业人员介入。&lt;/p&gt;
-&lt;h2 id=&#34;漏洞根因与原理&#34;&gt;漏洞根因与原理&lt;/h2&gt;</description>
+&lt;h2 id=&#34;漏洞根因与原理&#34;&gt;漏洞根因与原理&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://retr0.zip/blog/cve-2026-31431-copy-fail.html&#34;&gt;retr0&lt;/a&gt;针对该漏洞的背景知识给出了非常细致的介绍，下面主要是对其文章的中文翻译，并带有一些个人片面的理解。&lt;/p&gt;
+&lt;h3 id=&#34;the-page-cache&#34;&gt;The Page Cache&lt;/h3&gt;
+&lt;p&gt;每次我们对文件调用 &lt;code&gt;read()&lt;/code&gt; 并且不带&lt;code&gt;O_DIRECT&lt;/code&gt;标志时，内核通常并不会直接访问磁盘。它访问的是 page cache（页缓存）——这是一个系统范围的、驻留在内存中的文件数据缓存，按 &lt;code&gt;(inode, offset)&lt;/code&gt; 键值对组织。&lt;/p&gt;
+&lt;p&gt;如果某个页面之前已经被任何进程读取并缓存过，内核就会直接从缓存返回数据。否则，内核会先从磁盘读取数据，将其放入缓存，然后再返回给调用者。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-txt&#34; data-lang=&#34;txt&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   container 1          container 2        host
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  +-----------+       +-----------+       +-----------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  | Process A |       | Process B |       | Process C |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  |  read()   |       |  execve() |       |  mmap()   |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  +-----+-----+       +-----+-----+       +-----+-----+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        |                   |                   |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        +-------------------+-------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                            |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                            v
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   +---------------------------------------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   |                    Page Cache  (RAM)                    |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   |                                                         |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   |    /usr/bin/su   +--------+--------+--------+           |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   |                  | page 0 | page 1 | page 2 |           |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   |                  |  ELF   | .text  | .data  |           |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   |                  +--------+--------+--------+           |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   +---------------------------+-----------------------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                               ^
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                         miss  |  populate
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                               v
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                        +-------------+
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                        |    disk     |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                        | /usr/bin/su |
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;                        +-------------+
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这里有两个关键的数据结构：&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
